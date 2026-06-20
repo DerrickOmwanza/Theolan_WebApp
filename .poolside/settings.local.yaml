@@ -57,3 +57,5 @@ tools:
             - select-string *
             - npm view cloudinary versions *
             - npm view cloudinary *
+            - mkdir *
+            - robocopy images *
