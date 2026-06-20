@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { productApi } from "../services/api.js";
 import LoadingSpinner from "../components/LoadingSpinner.jsx";
+import FeaturedProjects from "../components/FeaturedProjects.jsx";
 
 const CATEGORIES = [
   { value: "", label: "All Categories" },
@@ -152,6 +153,9 @@ export default function GalleryPage() {
           </p>
         </div>
       </section>
+
+      {/* Featured Projects */}
+      <FeaturedProjects />
 
       {/* Filters */}
       <section className="border-b border-charcoal-600 bg-charcoal-800 sticky top-16 z-20">
