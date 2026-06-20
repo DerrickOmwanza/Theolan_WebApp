@@ -55,3 +55,5 @@ tools:
             - npx eslint *
             - npx knex *
             - select-string *
+            - npm view cloudinary versions *
+            - npm view cloudinary *
