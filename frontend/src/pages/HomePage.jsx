@@ -8,7 +8,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="max-w-2xl">
             <p className="text-gold-400 text-sm font-medium uppercase tracking-widest mb-4">
-              Nairobi's Premier Aluminium Fabricator
+              Nairobi&apos;s Premier Aluminium Fabricator
             </p>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-warmwhite leading-tight mb-6">
               Precision Crafted <br />

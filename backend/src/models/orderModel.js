@@ -5,7 +5,6 @@ import { db } from '../config/database.js';
  * Data access layer for orders and order events (timeline).
  */
 const OrderModel = {
-
   // ============================================================
   // Order Queries
   // ============================================================
@@ -15,7 +14,7 @@ const OrderModel = {
     return order;
   },
 
-  findById: async (id) => {
+  findById: (id) => {
     return db('orders').where({ id }).first();
   },
 
@@ -23,13 +22,9 @@ const OrderModel = {
    * Get orders for a client with optional filters.
    */
   findByClient: async (clientId, { status, limit = 20, offset = 0 } = {}) => {
-    let query = db('orders')
-      .where('client_id', clientId)
-      .orderBy('created_at', 'desc');
+    let query = db('orders').where('client_id', clientId).orderBy('created_at', 'desc');
 
-    let countQuery = db('orders')
-      .where('client_id', clientId)
-      .count('id as total');
+    let countQuery = db('orders').where('client_id', clientId).count('id as total');
 
     if (status) {
       query = query.where({ status });
@@ -40,6 +35,33 @@ const OrderModel = {
       query.limit(limit).offset(offset),
       countQuery.first()
     ]);
+
+    return { data, total: parseInt(countResult.total, 10) };
+  },
+
+  /**
+   * Get all orders for admin (with optional filters).
+   * Includes client name and phone for admin view.
+   */
+  adminFindAll: async ({ status, limit = 20, offset = 0 } = {}) => {
+    let query = db('orders')
+      .select('orders.*', 'users.name as client_name', 'users.phone as client_phone')
+      .leftJoin('users', 'orders.client_id', 'users.id')
+      .orderBy('orders.created_at', 'desc');
+
+    if (status) {
+      query = query.where({ status });
+    }
+
+    const queryWithLimit = query.limit(limit).offset(offset);
+
+    const countQuery = db('orders').count('id as total');
+
+    if (status) {
+      countQuery.where({ status });
+    }
+
+    const [data, countResult] = await Promise.all([queryWithLimit, countQuery.first()]);
 
     return { data, total: parseInt(countResult.total, 10) };
   },
@@ -56,9 +78,7 @@ const OrderModel = {
    * Generate the next order reference number (ORD001, ORD002, ...).
    */
   getLatestReferenceNumber: async () => {
-    const result = await db('orders')
-      .max('reference_number as latest')
-      .first();
+    const result = await db('orders').max('reference_number as latest').first();
     return result?.latest || null;
   },
 
@@ -68,9 +88,7 @@ const OrderModel = {
 
   addEvent: async (eventData) => {
     // Set all other events for this order to is_current = false
-    await db('order_events')
-      .where({ order_id: eventData.order_id })
-      .update({ is_current: false });
+    await db('order_events').where({ order_id: eventData.order_id }).update({ is_current: false });
 
     const [event] = await db('order_events')
       .insert({ ...eventData, is_current: true })
@@ -78,10 +96,8 @@ const OrderModel = {
     return event;
   },
 
-  getEvents: async (orderId) => {
-    return db('order_events')
-      .where({ order_id: orderId })
-      .orderBy('occurred_at', 'asc');
+  getEvents: (orderId) => {
+    return db('order_events').where({ order_id: orderId }).orderBy('occurred_at', 'asc');
   },
 
   // ============================================================

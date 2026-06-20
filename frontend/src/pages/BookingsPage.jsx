@@ -44,7 +44,7 @@ export default function BookingsPage() {
 
       {bookings.length === 0 ? (
         <div className="card text-center py-12">
-          <p className="text-silver-400 mb-4">You haven't booked any site visits yet.</p>
+          <p className="text-silver-400 mb-4">You haven&apos;t booked any site visits yet.</p>
           <a href="/booking" className="btn-primary inline-block">Book a Visit</a>
         </div>
       ) : (

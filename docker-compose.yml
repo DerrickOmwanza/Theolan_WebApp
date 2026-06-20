@@ -1,0 +1,65 @@
+# Docker Compose for local development
+
+version: "3.8"
+
+services:
+    # PostgreSQL Database
+    postgres:
+        image: postgres:16-alpine
+        container_name: theolan-postgres
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: theolan_dev
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD", "pg_isready", "-U", "postgres"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    # Backend API
+    backend:
+        build:
+            context: ./backend
+            target: development
+        container_name: theolan-backend
+        environment:
+            DB_HOST: postgres
+            DB_PORT: 5432
+            DB_USER: postgres
+            DB_PASSWORD: postgres
+            DB_NAME: theolan_dev
+            JWT_SECRET: your-jwt-secret-at-least-32-characters
+            JWT_REFRESH_SECRET: your-refresh-secret-at-least-32-characters
+            NODE_ENV: development
+        ports:
+            - "3000:3000"
+        depends_on:
+            postgres:
+                condition: service_healthy
+        volumes:
+            - ./backend:/app
+            - /app/node_modules
+
+    # Frontend (development)
+    frontend:
+        build:
+            context: ./frontend
+            target: development
+        container_name: theolan-frontend
+        environment:
+            VITE_API_BASE_URL: http://localhost:3000/api/v1
+        ports:
+            - "5173:5173"
+        depends_on:
+            - backend
+        volumes:
+            - ./frontend:/app
+            - /app/node_modules
+
+volumes:
+    postgres_data:

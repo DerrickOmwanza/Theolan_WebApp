@@ -11,15 +11,15 @@ const UserModel = {
   // User Queries
   // ============================================================
 
-  findById: async (id) => {
+  findById: (id) => {
     return db('users').where({ id, deleted_at: null }).first();
   },
 
-  findByPhone: async (phone) => {
+  findByPhone: (phone) => {
     return db('users').where({ phone, deleted_at: null }).first();
   },
 
-  findByEmail: async (email) => {
+  findByEmail: (email) => {
     return db('users').where({ email, deleted_at: null }).first();
   },
 
@@ -40,7 +40,7 @@ const UserModel = {
   // OTP Queries
   // ============================================================
 
-  saveOTP: async (otpData) => {
+  saveOTP: (otpData) => {
     return db('otp_codes').insert(otpData);
   },
 
@@ -85,7 +85,7 @@ const UserModel = {
     return otp;
   },
 
-  markOTPUsed: async (id) => {
+  markOTPUsed: (id) => {
     return db('otp_codes')
       .where({ id })
       .update({
@@ -98,7 +98,7 @@ const UserModel = {
    * Invalidate all existing OTPs for a phone/type combination.
    * Used when generating a new OTP to prevent reuse of old ones.
    */
-  invalidatePreviousOTPs: async (phone, type) => {
+  invalidatePreviousOTPs: (phone, type) => {
     return db('otp_codes')
       .where({ phone, type, is_used: false })
       .update({ is_used: true, used_at: db.fn.now() });
@@ -108,24 +108,24 @@ const UserModel = {
   // Refresh Token Queries
   // ============================================================
 
-  saveRefreshToken: async (tokenData) => {
+  saveRefreshToken: (tokenData) => {
     return db('refresh_tokens').insert(tokenData);
   },
 
-  findRefreshToken: async (token) => {
+  findRefreshToken: (token) => {
     return db('refresh_tokens')
       .where({ token, is_revoked: false })
       .where('expires_at', '>', new Date())
       .first();
   },
 
-  revokeRefreshToken: async (token) => {
+  revokeRefreshToken: (token) => {
     return db('refresh_tokens')
       .where({ token })
       .update({ is_revoked: true });
   },
 
-  revokeAllUserTokens: async (userId) => {
+  revokeAllUserTokens: (userId) => {
     return db('refresh_tokens')
       .where({ user_id: userId, is_revoked: false })
       .update({ is_revoked: true });

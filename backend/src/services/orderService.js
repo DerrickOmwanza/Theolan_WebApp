@@ -1,10 +1,5 @@
 import OrderModel from '../models/orderModel.js';
-import {
-  ValidationError,
-  NotFoundError,
-  AuthorizationError,
-  ConflictError
-} from '../middlewares/errorHandler.js';
+import { ValidationError, NotFoundError, AuthorizationError } from '../middlewares/errorHandler.js';
 import logger from '../middlewares/logger.js';
 
 // ============================================================
@@ -13,12 +8,12 @@ import logger from '../middlewares/logger.js';
 // ============================================================
 
 const VALID_TRANSITIONS = {
-  quoted:       ['confirmed', 'cancelled'],
-  confirmed:    ['fabrication', 'cancelled'],
-  fabrication:  ['ready', 'cancelled'],
-  ready:        ['installed', 'cancelled'],
-  installed:    [],
-  cancelled:    []
+  quoted: ['confirmed', 'cancelled'],
+  confirmed: ['fabrication', 'cancelled'],
+  fabrication: ['ready', 'cancelled'],
+  ready: ['installed', 'cancelled'],
+  installed: [],
+  cancelled: []
 };
 
 /**
@@ -33,7 +28,6 @@ const generateReferenceNumber = async () => {
 };
 
 const OrderService = {
-
   /**
    * Create a new order (typically after a confirmed booking + quotation).
    *
@@ -115,6 +109,41 @@ const OrderService = {
         scheduled_installation_at: o.scheduled_installation_at
       }))
     );
+
+    return {
+      success: true,
+      data: orders,
+      pagination: { total, limit, offset }
+    };
+  },
+
+  /**
+   * Admin: List all orders with optional filters.
+   *
+   * @param {Object} options - { status, limit, offset }
+   * @returns {Promise<Object>} Paginated order list with client info
+   */
+  adminListOrders: async ({ status, limit = 20, offset = 0 } = {}) => {
+    const { data, total } = await OrderModel.adminFindAll({ status, limit, offset });
+
+    const orders = data.map((o) => ({
+      id: o.id,
+      reference_number: o.reference_number,
+      product_summary: o.product_summary,
+      status: o.status,
+      total_price_kes: parseFloat(o.total_price_kes),
+      paid_amount_kes: parseFloat(o.paid_amount_kes),
+      payment_status: o.payment_status,
+      created_at: o.created_at,
+      updated_at: o.updated_at,
+      scheduled_installation_at: o.scheduled_installation_at,
+      client: o.client_name
+        ? {
+            name: o.client_name,
+            phone: o.client_phone
+          }
+        : null
+    }));
 
     return {
       success: true,

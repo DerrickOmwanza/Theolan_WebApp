@@ -8,7 +8,7 @@ const phoneRegex = /^\+254[0-9]{9}$/;
 
 export const normalizePhone = (phone) => {
   if (!phone) return '';
-  let cleaned = phone.replace(/[\s\-()]/g, '');
+  const cleaned = phone.replace(/[\s\-()]/g, '');
   if (cleaned.startsWith('+254')) return cleaned;
   if (cleaned.startsWith('254') && cleaned.length === 12) return '+' + cleaned;
   if (cleaned.startsWith('0') && cleaned.length === 10) return '+254' + cleaned.substring(1);

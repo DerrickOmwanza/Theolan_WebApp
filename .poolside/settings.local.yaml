@@ -1,0 +1,44 @@
+tools:
+    shell:
+        allow:
+            - wc *
+            - Get-Content *
+            - Measure-Object *
+            - Get-ChildItem *
+            - Sort-Object Name
+            - Select-Object Name
+            - Format-Table Name, *
+            - Format-List
+            - Select-String *
+            - Test-Path *
+            - Select-Object FullName
+            - Format-Table Name
+            - cd *
+            - npm run *
+            - Get-NetTCPConnection *
+            - Select-Object LocalAddress, LocalPort, State, *
+            - curl *
+            - head *
+            - ConvertFrom-Json
+            - Select-Object *
+            - node *
+            - sleep 3
+            - sleep 5
+            - tasklist *
+            - taskkill *
+            - echo *
+            - python *
+            - ConvertFrom-Json *
+            - Out-String
+            - npm install *
+            - sleep 10
+            - Format-Table *
+            - sleep 2
+            - Add-Content *
+            - tail *
+            - sleep 30
+            - sleep 20
+            - docker compose *
+            - docker-compose version
+            - git status *
+            - git add *

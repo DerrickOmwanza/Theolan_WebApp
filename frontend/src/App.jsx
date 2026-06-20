@@ -1,40 +1,47 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './contexts/AuthContext.jsx';
-import ProtectedRoute from './components/ProtectedRoute.jsx';
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./contexts/AuthContext.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 // Layouts
-import PublicLayout from './layouts/PublicLayout.jsx';
-import AuthLayout from './layouts/AuthLayout.jsx';
-import ClientLayout from './layouts/ClientLayout.jsx';
+import PublicLayout from "./layouts/PublicLayout.jsx";
+import AuthLayout from "./layouts/AuthLayout.jsx";
+import ClientLayout from "./layouts/ClientLayout.jsx";
+import AdminLayout from "./layouts/AdminLayout.jsx";
 
 // Auth Pages
-import LoginPage from './pages/auth/LoginPage.jsx';
-import SignupPage from './pages/auth/SignupPage.jsx';
-import OtpPage from './pages/auth/OtpPage.jsx';
-import ForgotPasswordPage from './pages/auth/ForgotPasswordPage.jsx';
-import ResetPasswordPage from './pages/auth/ResetPasswordPage.jsx';
+import LoginPage from "./pages/auth/LoginPage.jsx";
+import SignupPage from "./pages/auth/SignupPage.jsx";
+import OtpPage from "./pages/auth/OtpPage.jsx";
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage.jsx";
+import ResetPasswordPage from "./pages/auth/ResetPasswordPage.jsx";
 
 // Account Pages
-import ProfilePage from './pages/account/ProfilePage.jsx';
-import SecurityPage from './pages/account/SecurityPage.jsx';
+import ProfilePage from "./pages/account/ProfilePage.jsx";
+import SecurityPage from "./pages/account/SecurityPage.jsx";
 
 // Public Pages
-import HomePage from './pages/HomePage.jsx';
-import ProductsPage from './pages/ProductsPage.jsx';
-import GalleryPage from './pages/GalleryPage.jsx';
-import QuotePage from './pages/QuotePage.jsx';
-import BookingPage from './pages/BookingPage.jsx';
-import AboutPage from './pages/AboutPage.jsx';
-import ContactPage from './pages/ContactPage.jsx';
+import HomePage from "./pages/HomePage.jsx";
+import ProductsPage from "./pages/ProductsPage.jsx";
+import GalleryPage from "./pages/GalleryPage.jsx";
+import QuotePage from "./pages/QuotePage.jsx";
+import BookingPage from "./pages/BookingPage.jsx";
+import AboutPage from "./pages/AboutPage.jsx";
+import ContactPage from "./pages/ContactPage.jsx";
 
 // Client Pages
-import OrdersPage from './pages/OrdersPage.jsx';
-import OrderDetailPage from './pages/OrderDetailPage.jsx';
-import BookingsPage from './pages/BookingsPage.jsx';
+import OrdersPage from "./pages/OrdersPage.jsx";
+import OrderDetailPage from "./pages/OrderDetailPage.jsx";
+import BookingsPage from "./pages/BookingsPage.jsx";
+
+// Admin Pages
+import AdminOrdersPage from "./pages/admin/AdminOrdersPage.jsx";
+import AdminCalendarPage from "./pages/admin/AdminCalendarPage.jsx";
+import AnalyticsPage from "./pages/admin/AnalyticsPage.jsx";
+import SettingsPage from "./pages/admin/SettingsPage.jsx";
 
 // Error Pages
-import NotFoundPage from './pages/NotFoundPage.jsx';
-import ForbiddenPage from './pages/ForbiddenPage.jsx';
+import NotFoundPage from "./pages/NotFoundPage.jsx";
+import ForbiddenPage from "./pages/ForbiddenPage.jsx";
 
 export default function App() {
   const { isLoading } = useAuth();
@@ -76,12 +83,34 @@ export default function App() {
       {/* ============================== */}
       {/* PROTECTED CLIENT ROUTES        */}
       {/* ============================== */}
-      <Route element={<ProtectedRoute allowedRoles={['client']}><ClientLayout /></ProtectedRoute>}>
+      <Route
+        element={
+          <ProtectedRoute allowedRoles={["client"]}>
+            <ClientLayout />
+          </ProtectedRoute>
+        }
+      >
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/orders/:id" element={<OrderDetailPage />} />
         <Route path="/bookings" element={<BookingsPage />} />
         <Route path="/account/profile" element={<ProfilePage />} />
         <Route path="/account/security" element={<SecurityPage />} />
+      </Route>
+
+      {/* ============================== */}
+      {/* PROTECTED ADMIN ROUTES         */}
+      {/* ============================== */}
+      <Route
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/admin/orders" element={<AdminOrdersPage />} />
+        <Route path="/admin/calendar" element={<AdminCalendarPage />} />
+        <Route path="/admin/analytics" element={<AnalyticsPage />} />
+        <Route path="/admin/settings" element={<SettingsPage />} />
       </Route>
 
       {/* ============================== */}

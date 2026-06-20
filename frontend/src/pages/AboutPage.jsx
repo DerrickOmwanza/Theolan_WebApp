@@ -14,7 +14,7 @@ const VALUES = [
   },
   {
     title: 'Quality Materials',
-    description: 'We source premium-grade aluminium from certified suppliers, ensuring durability and corrosion resistance in Kenya\'s diverse climates.',
+    description: 'We source premium-grade aluminium from certified suppliers, ensuring durability and corrosion resistance in Kenya&apos;s diverse climates.',
   },
   {
     title: 'On-Time Delivery',
@@ -44,7 +44,7 @@ export default function AboutPage() {
             Theolan Aluminium International
           </h1>
           <p className="text-silver-300 max-w-2xl">
-            Nairobi's premier aluminium fabrication company, delivering precision-crafted windows, doors, curtain walls, and architectural glazing systems since 2009.
+            Nairobi&apos;s premier aluminium fabrication company, delivering precision-crafted windows, doors, curtain walls, and architectural glazing systems since 2009.
           </p>
         </div>
       </section>
@@ -70,10 +70,10 @@ export default function AboutPage() {
             <h2 className="text-3xl font-heading font-bold text-warmwhite mb-6">Our Story</h2>
             <div className="space-y-4 text-silver-300 leading-relaxed">
               <p>
-                Founded in 2009, Theolan Aluminium International Ltd began as a small workshop in Nairobi's Industrial Area with a vision: to bring world-class aluminium fabrication to East Africa.
+                Founded in 2009, Theolan Aluminium International Ltd began as a small workshop in Nairobi&apos;s Industrial Area with a vision: to bring world-class aluminium fabrication to East Africa.
               </p>
               <p>
-                Over the past 15 years, we've grown into one of Kenya's most trusted names in architectural aluminium — serving residential, commercial, and industrial clients across the country.
+                Over the past 15 years, we&apos;ve grown into one of Kenya&apos;s most trusted names in architectural aluminium — serving residential, commercial, and industrial clients across the country.
               </p>
               <p>
                 From bespoke residential window installations to large-scale commercial curtain wall projects, our commitment to quality, precision, and customer satisfaction remains unwavering.
@@ -86,11 +86,11 @@ export default function AboutPage() {
           <div className="bg-charcoal-700 rounded-lg border border-charcoal-600 p-8">
             <h3 className="text-xl font-heading font-semibold text-warmwhite mb-4">Our Mission</h3>
             <p className="text-silver-300 mb-6">
-              To transform East Africa's built environment through precision aluminium fabrication, innovative design solutions, and exceptional service delivery.
+              To transform East Africa&apos;s built environment through precision aluminium fabrication, innovative design solutions, and exceptional service delivery.
             </p>
             <h3 className="text-xl font-heading font-semibold text-warmwhite mb-4">Our Vision</h3>
             <p className="text-silver-300">
-              To be the region's leading aluminium fabrication company — known for quality, reliability, and innovation in every project we undertake.
+              To be the region&apos;s leading aluminium fabrication company — known for quality, reliability, and innovation in every project we undertake.
             </p>
           </div>
         </div>
@@ -131,7 +131,7 @@ export default function AboutPage() {
         <div className="max-w-3xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-heading font-bold text-warmwhite mb-4">Ready to Work With Us?</h2>
           <p className="text-silver-300 mb-8">
-            Whether it's a single window or an entire building facade, we bring the same level of dedication to every project.
+            Whether it&apos;s a single window or an entire building facade, we bring the same level of dedication to every project.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link to="/booking" className="btn-primary">Book a Site Visit</Link>

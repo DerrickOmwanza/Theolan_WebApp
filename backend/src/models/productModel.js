@@ -66,7 +66,7 @@ const ProductModel = {
    * @param {string} id - Product UUID
    * @returns {Promise<Object|null>}
    */
-  findById: async (id) => {
+  findById: (id) => {
     return db('products').where({ id, published: true }).first();
   },
 
@@ -81,7 +81,7 @@ const ProductModel = {
    * @param {string} productId - Product UUID
    * @returns {Promise<Object|null>} Rate record
    */
-  getCurrentRate: async (productId) => {
+  getCurrentRate: (productId) => {
     return db('product_rates')
       .where({ product_id: productId })
       .where('effective_from', '<=', db.fn.now())
@@ -94,7 +94,7 @@ const ProductModel = {
    *
    * @returns {Promise<Array>}
    */
-  getAllCurrentRates: async () => {
+  getAllCurrentRates: () => {
     return db.raw(`
       SELECT DISTINCT ON (product_id) *
       FROM product_rates

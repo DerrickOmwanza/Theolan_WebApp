@@ -1,6 +1,7 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api/v1";
 
 /**
  * Axios instance configured for the Theolan Aluminium API.
@@ -10,15 +11,15 @@ const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 15000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // Token storage keys
 const TOKEN_KEYS = {
-  access: 'theolan_access_token',
-  refresh: 'theolan_refresh_token',
-  user: 'theolan_user',
+  access: "theolan_access_token",
+  refresh: "theolan_refresh_token",
+  user: "theolan_user",
 };
 
 // ============================================================
@@ -64,7 +65,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // ============================================================
@@ -96,7 +97,7 @@ api.interceptors.response.use(
 
       if (!refreshToken) {
         clearAuth();
-        window.location.href = '/auth/login';
+        window.location.href = "/auth/login";
         return Promise.reject(error);
       }
 
@@ -116,9 +117,12 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const { data } = await axios.post(`${API_BASE_URL}/auth/refresh-token`, {
-          refresh_token: refreshToken,
-        });
+        const { data } = await axios.post(
+          `${API_BASE_URL}/auth/refresh-token`,
+          {
+            refresh_token: refreshToken,
+          },
+        );
 
         const newAccessToken = data.data.access_token;
         const newRefreshToken = data.data.refresh_token;
@@ -131,7 +135,7 @@ api.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         clearAuth();
-        window.location.href = '/auth/login';
+        window.location.href = "/auth/login";
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
@@ -139,7 +143,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 // ============================================================
@@ -147,13 +151,15 @@ api.interceptors.response.use(
 // ============================================================
 
 export const authApi = {
-  signup: (data) => api.post('/auth/signup', data),
-  verifyOtp: (data) => api.post('/auth/verify-otp', data),
-  login: (data) => api.post('/auth/login', data),
-  refreshToken: (refreshToken) => api.post('/auth/refresh-token', { refresh_token: refreshToken }),
-  logout: (refreshToken) => api.post('/auth/logout', { refresh_token: refreshToken }),
-  forgotPassword: (data) => api.post('/auth/forgot-password', data),
-  resetPassword: (data) => api.post('/auth/reset-password', data),
+  signup: (data) => api.post("/auth/signup", data),
+  verifyOtp: (data) => api.post("/auth/verify-otp", data),
+  login: (data) => api.post("/auth/login", data),
+  refreshToken: (refreshToken) =>
+    api.post("/auth/refresh-token", { refresh_token: refreshToken }),
+  logout: (refreshToken) =>
+    api.post("/auth/logout", { refresh_token: refreshToken }),
+  forgotPassword: (data) => api.post("/auth/forgot-password", data),
+  resetPassword: (data) => api.post("/auth/reset-password", data),
 };
 
 // ============================================================
@@ -161,11 +167,13 @@ export const authApi = {
 // ============================================================
 
 export const bookingApi = {
-  getAvailableSlots: (params) => api.get('/bookings/available-slots', { params }),
-  create: (data) => api.post('/bookings', data),
-  list: (params) => api.get('/bookings', { params }),
+  getAvailableSlots: (params) =>
+    api.get("/bookings/available-slots", { params }),
+  create: (data) => api.post("/bookings", data),
+  list: (params) => api.get("/bookings", { params }),
   getById: (id) => api.get(`/bookings/${id}`),
   update: (id, data) => api.patch(`/bookings/${id}`, data),
+  adminList: (params) => api.get("/bookings/admin", { params }), // Admin list all
 };
 
 // ============================================================
@@ -173,8 +181,8 @@ export const bookingApi = {
 // ============================================================
 
 export const productApi = {
-  list: (params) => api.get('/products', { params }),
-  getGallery: (params) => api.get('/products/gallery', { params }),
+  list: (params) => api.get("/products", { params }),
+  getGallery: (params) => api.get("/products/gallery", { params }),
 };
 
 // ============================================================
@@ -182,7 +190,7 @@ export const productApi = {
 // ============================================================
 
 export const quoteApi = {
-  calculate: (data) => api.post('/quote', data),
+  calculate: (data) => api.post("/quote", data),
 };
 
 // ============================================================
@@ -190,9 +198,11 @@ export const quoteApi = {
 // ============================================================
 
 export const orderApi = {
-  create: (data) => api.post('/orders', data),
-  list: (params) => api.get('/orders', { params }),
+  create: (data) => api.post("/orders", data),
+  list: (params) => api.get("/orders", { params }),
   getById: (id) => api.get(`/orders/${id}`),
+  adminUpdate: (id, data) => api.patch(`/orders/${id}`, data),
+  adminList: (params) => api.get("/admin/orders", { params }), // Admin list all orders
 };
 
 // ============================================================
@@ -200,8 +210,20 @@ export const orderApi = {
 // ============================================================
 
 export const paymentApi = {
-  initiateSTK: (data) => api.post('/payments/initiate-stk', data),
-  getPaymentStatus: (checkoutRequestId) => api.get(`/payments/status/${checkoutRequestId}`),
+  initiateSTK: (data) => api.post("/payments/initiate-stk", data),
+  getPaymentStatus: (checkoutRequestId) =>
+    api.get(`/payments/status/${checkoutRequestId}`),
+};
+
+// ============================================================
+// API Methods — Analytics (Admin)
+// ============================================================
+
+export const analyticsApi = {
+  getRevenue: () => api.get("/admin/analytics/revenue"),
+  getBookings: () => api.get("/admin/analytics/bookings"),
+  getOrders: () => api.get("/admin/analytics/orders"),
+  getDashboard: () => api.get("/admin/analytics/dashboard"),
 };
 
 export default api;

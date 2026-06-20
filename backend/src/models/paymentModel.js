@@ -11,23 +11,23 @@ const PaymentModel = {
     return payment;
   },
 
-  findById: async (id) => {
+  findById: (id) => {
     return db('payments').where({ id }).first();
   },
 
-  findByOrderId: async (orderId) => {
+  findByOrderId: (orderId) => {
     return db('payments')
       .where({ order_id: orderId })
       .orderBy('created_at', 'desc');
   },
 
-  findByCheckoutRequestId: async (checkoutRequestId) => {
+  findByCheckoutRequestId: (checkoutRequestId) => {
     return db('payments')
       .where({ mpesa_checkout_request_id: checkoutRequestId })
       .first();
   },
 
-  findByTransactionId: async (transactionId) => {
+  findByTransactionId: (transactionId) => {
     return db('payments')
       .where({ transaction_id: transactionId })
       .first();

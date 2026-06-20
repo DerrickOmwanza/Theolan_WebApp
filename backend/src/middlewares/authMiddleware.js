@@ -80,3 +80,18 @@ export const authorize = (...roles) => {
     next();
   };
 };
+
+/**
+ * Combined auth middleware for role-based access control
+ * Usage: authMiddleware(['admin']) - single array parameter
+ */
+export const authMiddleware = (allowedRoles) => {
+  return (req, res, next) => {
+    protect(req, res, (err) => {
+      if (err) return next(err);
+      authorize(...allowedRoles)(req, res, next);
+    });
+  };
+};
+
+export default { protect, authorize, authMiddleware };

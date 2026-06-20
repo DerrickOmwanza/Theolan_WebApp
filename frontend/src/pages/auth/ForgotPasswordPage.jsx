@@ -38,7 +38,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="card">
       <h2 className="text-2xl font-heading font-bold text-warmwhite mb-2">Reset Password</h2>
-      <p className="text-sm text-silver-400 mb-8">Enter your phone number and we'll send you a reset code</p>
+      <p className="text-sm text-silver-400 mb-8">Enter your phone number and we&apos;ll send you a reset code</p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div>

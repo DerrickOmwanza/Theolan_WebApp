@@ -142,7 +142,7 @@ export default function ContactPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <h3 className="text-xl font-heading font-semibold text-warmwhite mb-2">Message Sent!</h3>
-                <p className="text-silver-400 mb-4">Thank you for reaching out. We'll get back to you within 24 hours.</p>
+                <p className="text-silver-400 mb-4">Thank you for reaching out. We&apos;ll get back to you within 24 hours.</p>
                 <button onClick={() => { setSubmitted(false); setForm({ name: '', email: '', phone: '', subject: '', message: '' }); }} className="btn-secondary">
                   Send Another Message
                 </button>

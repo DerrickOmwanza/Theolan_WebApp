@@ -1,0 +1,141 @@
+name: CI/CD Pipeline
+
+on:
+    push:
+        branches: [main, develop]
+    pull_request:
+        branches: [main, develop]
+
+jobs:
+    # ============================================================
+    # LINT
+    # ============================================================
+
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "npm"
+
+            - name: Install Frontend Dependencies
+              working-directory: ./frontend
+              run: npm ci
+
+            - name: Install Backend Dependencies
+              working-directory: ./backend
+              run: npm ci
+
+            - name: Lint Frontend
+              working-directory: ./frontend
+              run: npm run lint
+
+            - name: Lint Backend
+              working-directory: ./backend
+              run: npm run lint
+
+    # ============================================================
+    # TEST
+    # ============================================================
+
+    test:
+        runs-on: ubuntu-latest
+        services:
+            postgres:
+                image: postgres:16
+                env:
+                    POSTGRES_USER: test_user
+                    POSTGRES_PASSWORD: test_password
+                    POSTGRES_DB: theolan_test
+                ports: ["5432:5432"]
+                options: >-
+                    --health-cmd pg_isready
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "npm"
+
+            - name: Install Backend Dependencies
+              working-directory: ./backend
+              run: npm ci
+
+            - name: Run Backend Tests
+              working-directory: ./backend
+              env:
+                  DB_HOST: localhost
+                  DB_PORT: 5432
+                  DB_USER: test_user
+                  DB_PASSWORD: test_password
+                  DB_NAME: theolan_test
+                  JWT_SECRET: test-jwt-secret-key-for-ci-pipeline-at-least-32-chars
+                  JWT_REFRESH_SECRET: test-refresh-secret-key-for-ci-pipeline-at-least-32-chars
+              run: npm run test:coverage
+
+    # ============================================================
+    # BUILD
+    # ============================================================
+
+    build:
+        needs: [lint, test]
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "npm"
+
+            - name: Install Frontend Dependencies
+              working-directory: ./frontend
+              run: npm ci
+
+            - name: Build Frontend
+              working-directory: ./frontend
+              run: npm run build
+
+    # ============================================================
+    # DEPLOY
+    # ============================================================
+
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+
+        steps:
+            - uses: actions/checkout@v4
+
+            # Frontend Deployment
+            - name: Deploy Frontend to Vercel
+              uses: amondnet/vercel-action@v25
+              with:
+                  vercel-token: ${{ secrets.VERCEL_TOKEN }}
+                  vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+                  vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+                  working-directory: ./frontend
+                  vercel-args: "--prod"
+              env:
+                  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+                  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+                  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+            # Backend Deployment
+            - name: Deploy Backend to Railway
+              run: echo "Configure Railway deployment via railway.app dashboard or CLI"
+              env:
+                  RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}

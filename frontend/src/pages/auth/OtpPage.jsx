@@ -109,7 +109,7 @@ export default function OtpPage() {
       </form>
 
       <p className="mt-6 text-center text-sm text-silver-400">
-        Didn't receive the code?{' '}
+        Didn&apos;t receive the code?{' '}
         <button className="text-cobalt-400 hover:text-cobalt-300 font-medium">
           Resend
         </button>

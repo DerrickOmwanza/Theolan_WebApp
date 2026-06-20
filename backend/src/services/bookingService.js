@@ -41,7 +41,6 @@ const generateReferenceNumber = async () => {
 // ============================================================
 
 const BookingService = {
-
   /**
    * Get available time slots for a date range.
    * Used by the booking form to show selectable dates/times.
@@ -53,7 +52,8 @@ const BookingService = {
   getAvailableSlots: async (startDate, endDate) => {
     // Default: next 7 days from today
     const start = startDate || new Date().toISOString().split('T')[0];
-    const end = endDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const end =
+      endDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
     // Validate date range
     if (new Date(start) > new Date(end)) {
@@ -72,9 +72,10 @@ const BookingService = {
     // Group slots by date for easier frontend consumption
     const grouped = {};
     for (const slot of slots) {
-      const dateKey = slot.date instanceof Date
-        ? slot.date.toISOString().split('T')[0]
-        : String(slot.date).split('T')[0];
+      const dateKey =
+        slot.date instanceof Date
+          ? slot.date.toISOString().split('T')[0]
+          : String(slot.date).split('T')[0];
 
       if (!grouped[dateKey]) {
         grouped[dateKey] = {
@@ -107,7 +108,8 @@ const BookingService = {
    * @returns {Promise<Object>} Created booking with reference number
    */
   createBooking: async (clientId, bookingInput) => {
-    const { service_type, property_type, location, scheduled_at, contact_method, notes } = bookingInput;
+    const { service_type, property_type, location, scheduled_at, contact_method, notes } =
+      bookingInput;
 
     // Parse the scheduled_at timestamp into date + time components
     const scheduledDate = new Date(scheduled_at);
@@ -117,7 +119,9 @@ const BookingService = {
     // Step 1: Verify the time slot exists and is available
     const slot = await BookingModel.findSlotAt(dateStr, timeStr);
     if (!slot) {
-      throw new ValidationError('The selected date/time is not available. Please choose a different slot.');
+      throw new ValidationError(
+        'The selected date/time is not available. Please choose a different slot.'
+      );
     }
 
     // Step 2: Check for conflicting bookings at the same datetime
@@ -286,7 +290,11 @@ const BookingService = {
         });
       }
 
-      logger.info('Booking cancelled', { bookingId, referenceNumber: booking.reference_number, reason });
+      logger.info('Booking cancelled', {
+        bookingId,
+        referenceNumber: booking.reference_number,
+        reason
+      });
     }
 
     // If rescheduling, validate new slot
@@ -346,6 +354,55 @@ const BookingService = {
         status: updated.status,
         scheduled_at: updated.scheduled_at
       }
+    };
+  },
+
+  /**
+   * Admin: List all bookings with optional filters.
+   * Used by admin calendar and booking management.
+   *
+   * @param {Object} options - { start_date, end_date, status, limit, offset }
+   * @returns {Promise<Object>} Paginated booking list with client/technician info
+   */
+  adminListBookings: async ({ start_date, end_date, status, limit = 50, offset = 0 } = {}) => {
+    const { data, total } = await BookingModel.adminFindAll({
+      start_date,
+      end_date,
+      status,
+      limit,
+      offset
+    });
+
+    const bookings = data.map((b) => ({
+      id: b.id,
+      reference_number: b.reference_number,
+      service_type: b.service_type,
+      property_type: b.property_type,
+      location: b.location,
+      scheduled_at: b.scheduled_at,
+      status: b.status,
+      contact_method: b.contact_method,
+      notes: b.notes,
+      client: b.client_name
+        ? {
+            id: b.client_id,
+            name: b.client_name,
+            phone: b.client_phone
+          }
+        : null,
+      technician: b.technician_name
+        ? {
+            id: b.assigned_technician_id,
+            name: b.technician_name,
+            phone: b.technician_phone
+          }
+        : null
+    }));
+
+    return {
+      success: true,
+      data: bookings,
+      pagination: { total, limit, offset }
     };
   }
 };

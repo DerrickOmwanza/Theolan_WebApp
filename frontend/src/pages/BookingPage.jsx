@@ -41,8 +41,6 @@ export default function BookingPage() {
     notes: '',
   });
   const [errors, setErrors] = useState({});
-  const [selectedSlot, setSelectedSlot] = useState(null);
-
   // Available slots query
   const today = new Date();
   const endDate = new Date(today);
@@ -70,10 +68,6 @@ export default function BookingPage() {
     });
   }
   const availableDates = Object.keys(slotsByDate).sort();
-
-  // Get slots for selected date
-  const selectedDate = form.scheduled_at ? form.scheduled_at.split('T')[0] : '';
-  const slotsForDate = selectedDate ? (slotsByDate[selectedDate] || []) : [];
 
   const handleChange = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -211,7 +205,7 @@ export default function BookingPage() {
           </div>
         )}
 
-        {/* Step 1: Date & Time */}
+        {/* Step 1: Date &amp; Time */}
         {step === 1 && (
           <div>
             <h2 className="text-2xl font-heading font-bold text-warmwhite mb-6">Choose a date and time</h2>
@@ -233,8 +227,6 @@ export default function BookingPage() {
                         type="button"
                         onClick={() => {
                           handleChange('scheduled_at', '');
-                          setSelectedSlot(null);
-                          // Store date temporarily
                           setForm(prev => ({ ...prev, _selectedDate: date }));
                         }}
                         className={`text-left p-3 rounded-md border transition-colors ${
@@ -262,7 +254,6 @@ export default function BookingPage() {
                             type="button"
                             onClick={() => {
                               handleChange('scheduled_at', slotDatetime);
-                              setSelectedSlot(slot);
                             }}
                             className={`p-3 rounded-md border text-center transition-colors ${
                               isSelected
@@ -371,7 +362,7 @@ export default function BookingPage() {
                   <p className="text-warmwhite font-medium capitalize">{form.property_type}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-silver-500 uppercase tracking-wider">Date & Time</p>
+                  <p className="text-xs text-silver-500 uppercase tracking-wider">Date &amp; Time</p>
                   <p className="text-warmwhite font-medium">
                     {form.scheduled_at
                       ? new Date(form.scheduled_at).toLocaleDateString('en-KE', {
@@ -402,7 +393,7 @@ export default function BookingPage() {
             {!user && (
               <div className="card mt-4 border-gold/30 bg-gold/5">
                 <p className="text-gold-400 text-sm">
-                  You'll need to log in or create an account to confirm this booking.
+                  You&apos;ll need to log in or create an account to confirm this booking.
                 </p>
               </div>
             )}

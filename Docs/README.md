@@ -50,6 +50,61 @@ All documentation is version-controlled in `/Docs` directory:
    - Dependency graph, risk mitigation, success criteria
    - **For:** Project managers, developers, sprint planning
 
+7. **[07_SYSTEM_ANALYSIS_REPORT.md](./07_SYSTEM_ANALYSIS_REPORT.md)** (12 KB)
+   - Full system analysis using Node.js-React, Security Audit, and Testing Strategy skills
+   - Architecture maturity assessment, security audit findings
+   - Frontend/backend code quality review
+   - Testing strategy assessment and recommendations
+   - **For:** Technical team reference, project health overview
+
+8. **[08_WEEK_1_PROGRESS.md](./08_WEEK_1_PROGRESS.md)** (2 KB)
+   - Week 1 completion status
+   - Manual setup steps required
+   - API endpoints ready for testing
+   - Next steps for Week 2
+
+9. **[09_WEEK_2_PROGRESS.md](./09_WEEK_2_PROGRESS.md)** (NEW)
+   - Week 2 status: Booking System
+   - Booking API endpoints ready
+   - SMS service integration
+   - Frontend booking form complete
+
+10. **[10_WEEK_3_PROGRESS.md](./10_WEEK_3_PROGRESS.md)** (NEW)
+    - Week 3 status: Quote Estimator & Product Gallery
+    - Quote API with pricing formula verified
+    - Products endpoint with filters
+    - Frontend pages ready
+
+11. **[11_WEEK_4_PROGRESS.md](./11_WEEK_4_PROGRESS.md)** (NEW)
+    - Week 4 status: Order Management
+    - Order state machine implemented
+    - Admin-only status transitions
+    - Timeline events for order progress
+
+12. **[12_WEEK_5_PROGRESS.md](./12_WEEK_5_PROGRESS.md)** (NEW)
+    - Week 5 status: M-Pesa Payment Integration
+    - STK Push service implemented
+    - Webhook callback processing
+    - Payment status tracking
+
+13. **[13_WEEK_6_PROGRESS.md](./13_WEEK_6_PROGRESS.md)** (NEW)
+    - Week 6 status: Admin Dashboard
+    - AdminLayout with sidebar navigation
+    - AdminOrdersPage with status management
+    - Admin-only API endpoints
+
+14. **[14_WEEK_7_PROGRESS.md](./14_WEEK_7_PROGRESS.md)** (NEW)
+    - Week 7 status: Admin Calendar & CRM
+    - Calendar view for booking management
+    - Admin bookings API endpoint
+    - Date picker and status filters
+
+15. **[15_WEEK_8_PROGRESS.md](./15_WEEK_8_PROGRESS.md)** (NEW)
+    - Week 8 status: MVP Complete
+    - All features implemented and verified
+    - Production readiness checklist
+    - Ready for deployment
+
 ---
 
 ## 🚀 Quick Start
@@ -110,13 +165,13 @@ cd frontend
 npm run dev
 
 # Terminal 3 (optional): Database GUI
-pgAdmin or DBeaver connection to localhost:5432
+pgAdmin or DBeaver connection to localhost:5433
 ```
 
 **4. Verify setup:**
-- Backend health: `curl http://localhost:3000/health`
+- Backend health: `curl http://localhost:3001/health`
 - Frontend: Open `http://localhost:5173` in browser
-- Test auth: Use sandbox credentials (phone: +254712345678, password: TestPass123!)
+- Test auth: Use dev credentials (phone: +254712345678, password: TestPass123!)
 
 ---
 
@@ -131,6 +186,8 @@ OlanAlumint.web/
 │   ├── 04_API_CONTRACT.md
 │   ├── 05_SITEMAP_ROUTING.md
 │   ├── 06_IMPLEMENTATION_ROADMAP.md
+│   ├── 07_SYSTEM_ANALYSIS_REPORT.md
+│   ├── 08_WEEK_1_PROGRESS.md
 │   └── README.md (this file)
 ├── backend/
 │   ├── src/
@@ -495,6 +552,7 @@ This documentation is your north star. Keep it updated as requirements evolve. W
 
 ---
 
-**Documentation Version:** 1.0  
-**Last Updated:** 2024  
+**Documentation Version:** 1.1  
+**Last Updated:** June 20, 2026  
 **Next Review:** After Week 4 (MVP features locked in)
+**Note:** 07_SYSTEM_ANALYSIS_REPORT.md added for comprehensive system health overview

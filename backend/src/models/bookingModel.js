@@ -5,10 +5,73 @@ import { db } from '../config/database.js';
  * Data access layer for bookings and time slot availability.
  */
 const BookingModel = {
-
   // ============================================================
   // Time Slot Queries
   // ============================================================
+
+  /**
+   * Admin: Get all bookings with optional filters.
+   * Includes client and technician details for admin view.
+   */
+  adminFindAll: async ({ start_date, end_date, status, limit = 50, offset = 0 } = {}) => {
+    let query = db('bookings')
+      .select(
+        'bookings.*',
+        'users.name as client_name',
+        'users.phone as client_phone',
+        'technicians.name as technician_name',
+        'technicians.phone as technician_phone'
+      )
+      .leftJoin('users', 'bookings.client_id', 'users.id')
+      .leftJoin('technicians', 'bookings.assigned_technician_id', 'technicians.id')
+      .orderBy('bookings.scheduled_at', 'desc');
+
+    if (start_date) {
+      query = query.where('bookings.scheduled_at', '>=', start_date);
+    }
+    if (end_date) {
+      query = query.where('bookings.scheduled_at', '<=', end_date);
+    }
+    if (status) {
+      query = query.where('bookings.status', status);
+    }
+
+    const countQuery = db('bookings');
+
+    if (start_date) {
+      countQuery.where('scheduled_at', '>=', start_date);
+    }
+    if (end_date) {
+      countQuery.where('scheduled_at', '<=', end_date);
+    }
+    if (status) {
+      countQuery.where('status', status);
+    }
+
+    const [data, countResult] = await Promise.all([
+      query.limit(limit).offset(offset),
+      countQuery.count('id as total').first()
+    ]);
+
+    return { data, total: parseInt(countResult.total, 10) };
+  },
+
+  /**
+   * Admin: Count bookings by date for calendar view.
+   */
+  countByDate: async (startDate, endDate) => {
+    const result = await db('bookings')
+      .select(db.raw('DATE(scheduled_at) as date'), db.raw('COUNT(*) as count'))
+      .where('scheduled_at', '>=', startDate)
+      .where('scheduled_at', '<=', endDate)
+      .whereNot('status', 'cancelled')
+      .groupByRaw('DATE(scheduled_at)')
+      .orderByRaw('DATE(scheduled_at) ASC');
+
+    return result;
+  },
+
+  // ... rest of existing methods
 
   /**
    * Get available time slots for a date range.
@@ -18,8 +81,9 @@ const BookingModel = {
    * @param {string} endDate - ISO date string (YYYY-MM-DD)
    * @returns {Promise<Array>} Available slots with date, start_time, end_time
    */
-  getAvailableSlots: async (startDate, endDate) => {
-    return db.raw(`
+  getAvailableSlots: (startDate, endDate) => {
+    return db.raw(
+      `
       SELECT
         ts.id,
         ts.date,
@@ -34,7 +98,9 @@ const BookingModel = {
             AND b.status NOT IN ('cancelled')
         )
       ORDER BY ts.date ASC, ts.start_time ASC
-    `, [startDate, endDate]);
+    `,
+      [startDate, endDate]
+    );
   },
 
   /**
@@ -44,7 +110,7 @@ const BookingModel = {
    * @param {string} startTime - Time string (HH:MM:SS)
    * @returns {Promise<Object|null>} Slot record or null
    */
-  findSlotAt: async (date, startTime) => {
+  findSlotAt: (date, startTime) => {
     return db('time_slots')
       .where({
         date,
@@ -59,10 +125,8 @@ const BookingModel = {
    *
    * @param {string} slotId - Time slot UUID
    */
-  markSlotUnavailable: async (slotId) => {
-    return db('time_slots')
-      .where({ id: slotId })
-      .update({ available: false });
+  markSlotUnavailable: (slotId) => {
+    return db('time_slots').where({ id: slotId }).update({ available: false });
   },
 
   /**
@@ -71,10 +135,8 @@ const BookingModel = {
    *
    * @param {string} slotId - Time slot UUID
    */
-  markSlotAvailable: async (slotId) => {
-    return db('time_slots')
-      .where({ id: slotId })
-      .update({ available: true });
+  markSlotAvailable: (slotId) => {
+    return db('time_slots').where({ id: slotId }).update({ available: true });
   },
 
   /**
@@ -84,10 +146,8 @@ const BookingModel = {
    * @param {string} date - ISO date (YYYY-MM-DD)
    * @param {string} startTime - Time string (HH:MM:SS)
    */
-  restoreSlotByDateTime: async (date, startTime) => {
-    return db('time_slots')
-      .where({ date, start_time: startTime })
-      .update({ available: true });
+  restoreSlotByDateTime: (date, startTime) => {
+    return db('time_slots').where({ date, start_time: startTime }).update({ available: true });
   },
 
   // ============================================================
@@ -101,10 +161,8 @@ const BookingModel = {
    * @param {string} [excludeBookingId] - Booking ID to exclude (for reschedules)
    * @returns {Promise<Object|null>} Conflicting booking or null
    */
-  findConflict: async (scheduledAt, excludeBookingId = null) => {
-    let query = db('bookings')
-      .where('scheduled_at', scheduledAt)
-      .whereNot('status', 'cancelled');
+  findConflict: (scheduledAt, excludeBookingId = null) => {
+    let query = db('bookings').where('scheduled_at', scheduledAt).whereNot('status', 'cancelled');
 
     if (excludeBookingId) {
       query = query.whereNot('id', excludeBookingId);
@@ -120,9 +178,7 @@ const BookingModel = {
    * @returns {Promise<Object>} Created booking
    */
   create: async (bookingData) => {
-    const [booking] = await db('bookings')
-      .insert(bookingData)
-      .returning('*');
+    const [booking] = await db('bookings').insert(bookingData).returning('*');
     return booking;
   },
 
@@ -132,7 +188,7 @@ const BookingModel = {
    * @param {string} id - Booking UUID
    * @returns {Promise<Object|null>}
    */
-  findById: async (id) => {
+  findById: (id) => {
     return db('bookings').where({ id }).first();
   },
 
@@ -160,9 +216,7 @@ const BookingModel = {
     }
 
     // Get total count for pagination
-    const countQuery = db('bookings')
-      .where('client_id', clientId)
-      .count('id as total');
+    const countQuery = db('bookings').where('client_id', clientId).count('id as total');
 
     if (status) {
       countQuery.where('status', status);
@@ -200,9 +254,7 @@ const BookingModel = {
    * @returns {Promise<string|null>} Highest reference number or null
    */
   getLatestReferenceNumber: async () => {
-    const result = await db('bookings')
-      .max('reference_number as latest')
-      .first();
+    const result = await db('bookings').max('reference_number as latest').first();
     return result?.latest || null;
   },
 
@@ -212,7 +264,7 @@ const BookingModel = {
    * @param {string} referenceNumber - e.g. "BKG001"
    * @returns {Promise<Object|null>}
    */
-  findByReference: async (referenceNumber) => {
+  findByReference: (referenceNumber) => {
     return db('bookings').where({ reference_number: referenceNumber }).first();
   }
 };

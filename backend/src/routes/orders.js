@@ -33,5 +33,12 @@ router.get('/:id', protect, OrderController.getOrder);
  */
 router.patch('/:id', protect, authorize('admin'), OrderController.updateOrderStatus);
 
+/**
+ * @route   GET /api/v1/orders/admin
+ * @desc    Admin lists all orders
+ * @access  Private (admin only)
+ */
+router.get('/admin', protect, authorize('admin'), OrderController.adminListOrders);
+
 export { router as orderRoutes };
 export default router;

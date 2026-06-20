@@ -6,7 +6,7 @@ export default function ForbiddenPage() {
       <h1 className="text-8xl font-heading font-bold text-charcoal-600 mb-4">403</h1>
       <h2 className="text-2xl font-heading font-semibold text-warmwhite mb-2">Access Denied</h2>
       <p className="text-silver-400 mb-8 text-center max-w-md">
-        You don't have permission to access this page.
+        You don&apos;t have permission to access this page.
       </p>
       <Link to="/" className="btn-primary">
         Back to Home

@@ -1,6 +1,6 @@
 import express from 'express';
 import BookingController from '../controllers/bookingController.js';
-import { protect } from '../middlewares/authMiddleware.js';
+import { protect, authorize } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
@@ -48,6 +48,13 @@ router.get('/:id', protect, BookingController.getBooking);
  * @access  Private (client — own bookings only)
  */
 router.patch('/:id', protect, BookingController.updateBooking);
+
+/**
+ * @route   GET /api/v1/bookings/admin
+ * @desc    Admin lists all bookings with optional filters
+ * @access  Private (admin only)
+ */
+router.get('/admin', protect, authorize('admin'), BookingController.adminListBookings);
 
 export { router as bookingRoutes };
 export default router;

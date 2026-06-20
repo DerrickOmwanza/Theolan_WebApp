@@ -12,13 +12,17 @@ const createOrderSchema = Joi.object({
 });
 
 const updateOrderSchema = Joi.object({
-  status: Joi.string().valid(...ORDER_STATUSES).required(),
+  status: Joi.string()
+    .valid(...ORDER_STATUSES)
+    .required(),
   milestone_title: Joi.string().trim().max(255).allow('', null).optional(),
   milestone_description: Joi.string().trim().max(2000).allow('', null).optional()
 });
 
 const listOrdersQuerySchema = Joi.object({
-  status: Joi.string().valid(...ORDER_STATUSES).optional(),
+  status: Joi.string()
+    .valid(...ORDER_STATUSES)
+    .optional(),
   limit: Joi.number().integer().min(1).max(100).default(20),
   offset: Joi.number().integer().min(0).default(0)
 });
@@ -33,7 +37,6 @@ const validate = (schema, data) => {
 };
 
 const OrderController = {
-
   /**
    * POST /api/v1/orders
    * Create a new order.
@@ -72,11 +75,25 @@ const OrderController = {
    * @access Private (admin only — enforced by route middleware)
    */
   updateOrderStatus: asyncHandler(async (req, res) => {
-    const { status, milestone_title, milestone_description } = validate(updateOrderSchema, req.body);
+    const { status, milestone_title, milestone_description } = validate(
+      updateOrderSchema,
+      req.body
+    );
     const result = await OrderService.transitionStatus(req.params.id, status, {
       milestone_title,
       milestone_description
     });
+    res.status(200).json(result);
+  }),
+
+  /**
+   * GET /api/v1/orders/admin
+   * Admin lists all orders with optional filters.
+   * @access Private (admin only)
+   */
+  adminListOrders: asyncHandler(async (req, res) => {
+    const options = validate(listOrdersQuerySchema, req.query);
+    const result = await OrderService.adminListOrders(options);
     res.status(200).json(result);
   })
 };

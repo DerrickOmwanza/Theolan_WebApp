@@ -12,25 +12,40 @@ const CONTACT_METHODS = ['sms', 'whatsapp', 'email'];
 const BOOKING_STATUSES = ['scheduled', 'completed', 'cancelled', 'no_show'];
 
 const createBookingSchema = Joi.object({
-  service_type: Joi.string().valid(...SERVICE_TYPES).required()
+  service_type: Joi.string()
+    .valid(...SERVICE_TYPES)
+    .required()
     .messages({ 'any.only': 'Service type must be one of: ' + SERVICE_TYPES.join(', ') }),
-  property_type: Joi.string().valid(...PROPERTY_TYPES).optional(),
-  location: Joi.string().trim().min(3).max(255).required()
+  property_type: Joi.string()
+    .valid(...PROPERTY_TYPES)
+    .optional(),
+  location: Joi.string()
+    .trim()
+    .min(3)
+    .max(255)
+    .required()
     .messages({ 'string.empty': 'Location is required' }),
-  scheduled_at: Joi.date().iso().greater('now').required()
-    .messages({
-      'date.greater': 'Booking must be scheduled for a future date/time',
-      'date.format': 'scheduled_at must be a valid ISO 8601 date'
-    }),
-  contact_method: Joi.string().valid(...CONTACT_METHODS).optional().default('sms'),
+  scheduled_at: Joi.date().iso().greater('now').required().messages({
+    'date.greater': 'Booking must be scheduled for a future date/time',
+    'date.format': 'scheduled_at must be a valid ISO 8601 date'
+  }),
+  contact_method: Joi.string()
+    .valid(...CONTACT_METHODS)
+    .optional()
+    .default('sms'),
   notes: Joi.string().trim().max(1000).allow('', null).optional()
 });
 
 const updateBookingSchema = Joi.object({
-  status: Joi.string().valid('scheduled', 'cancelled').required()
+  status: Joi.string()
+    .valid('scheduled', 'cancelled')
+    .required()
     .messages({ 'any.only': 'Clients can only set status to scheduled or cancelled' }),
   reason: Joi.string().trim().max(500).allow('', null).optional(),
-  scheduled_at: Joi.date().iso().greater('now').optional()
+  scheduled_at: Joi.date()
+    .iso()
+    .greater('now')
+    .optional()
     .messages({ 'date.greater': 'New date/time must be in the future' })
 }).or('status', 'scheduled_at');
 
@@ -40,7 +55,9 @@ const availableSlotsQuerySchema = Joi.object({
 });
 
 const listBookingsQuerySchema = Joi.object({
-  status: Joi.string().valid(...BOOKING_STATUSES).optional(),
+  status: Joi.string()
+    .valid(...BOOKING_STATUSES)
+    .optional(),
   limit: Joi.number().integer().min(1).max(100).default(20),
   offset: Joi.number().integer().min(0).default(0)
 });
@@ -65,7 +82,6 @@ const validate = (schema, data, source = 'body') => {
 // ============================================================
 
 const BookingController = {
-
   /**
    * GET /api/v1/bookings/available-slots
    * Get available time slots for a date range.
@@ -117,6 +133,17 @@ const BookingController = {
   updateBooking: asyncHandler(async (req, res) => {
     const updates = validate(updateBookingSchema, req.body);
     const result = await BookingService.updateBooking(req.params.id, req.user.id, updates);
+    res.status(200).json(result);
+  }),
+
+  /**
+   * GET /api/v1/bookings/admin
+   * Admin lists all bookings with optional filters.
+   * @access Private (admin only)
+   */
+  adminListBookings: asyncHandler(async (req, res) => {
+    const options = validate(availableSlotsQuerySchema, req.query, 'query');
+    const result = await BookingService.adminListBookings(options);
     res.status(200).json(result);
   })
 };

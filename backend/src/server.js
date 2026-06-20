@@ -6,14 +6,14 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import { db, healthCheck, closeDb } from './config/database.js';
 import { errorHandler } from './middlewares/errorHandler.js';
-import { requestLogger } from './middlewares/logger.js';
-import logger from './middlewares/logger.js';
+import logger, { requestLogger } from './middlewares/logger.js';
 import { authRoutes } from './routes/auth.js';
 import { bookingRoutes } from './routes/bookings.js';
 import { quoteRoutes } from './routes/quote.js';
 import { productRoutes } from './routes/products.js';
 import { orderRoutes } from './routes/orders.js';
 import { paymentRoutes } from './routes/payments.js';
+import analyticsRoutes from './routes/analytics.js';
 
 dotenv.config();
 
@@ -26,28 +26,32 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 // ============================================================
 
 // Helmet — sets secure HTTP headers
-app.use(helmet({
-  contentSecurityPolicy: NODE_ENV === 'production' ? undefined : false,
-  crossOriginEmbedderPolicy: false
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: NODE_ENV === 'production' ? undefined : false,
+    crossOriginEmbedderPolicy: false
+  })
+);
 
 // CORS — restricted to configured origins
 const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',');
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, Postman)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    callback(new Error(`Origin ${origin} not allowed by CORS`));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
-  maxAge: 86400 // 24 hours preflight cache
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, Postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
+    maxAge: 86400 // 24 hours preflight cache
+  })
+);
 
 // Body parsing — limited payload size
 app.use(express.json({ limit: '10mb' }));
@@ -145,6 +149,9 @@ app.use('/api/v1/orders', orderRoutes);
 
 // Payment routes (M-Pesa STK Push + callback webhook)
 app.use('/api/v1/payments', paymentRoutes);
+
+// Analytics routes (admin only)
+app.use('/api/v1/admin/analytics', analyticsRoutes);
 
 // ============================================================
 // 404 & ERROR HANDLING
