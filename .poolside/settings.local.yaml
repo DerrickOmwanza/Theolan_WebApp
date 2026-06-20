@@ -42,3 +42,13 @@ tools:
             - docker-compose version
             - git status *
             - git add *
+            - git commit *
+            - git push origin *
+            - npm audit
+            - npx audit-ci *
+            - npm audit *
+            - findstr *
+            - git push
+            - dir *
+            - npx eslint src *
+            - find *

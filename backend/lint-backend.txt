@@ -1,64 +1,21 @@
 
-> olanallumint-backend@1.0.0 lint
-> node node_modules/eslint/bin/eslint.js src --ext .js,.jsx
-
-
 C:\Users\ADMIN\Web&Standalone Applications\OlanAlumint.web\backend\src\controllers\bookingController.js
-  51:33  warning  'source' is assigned a value but never used  no-unused-vars
+  68:33  warning  'source' is assigned a value but never used  no-unused-vars
 
 C:\Users\ADMIN\Web&Standalone Applications\OlanAlumint.web\backend\src\middlewares\authMiddleware.js
   3:31  warning  'AuthorizationError' is defined but never used  no-unused-vars
 
-C:\Users\ADMIN\Web&Standalone Applications\OlanAlumint.web\backend\src\models\bookingModel.js
-   21:3  warning  Async method 'getAvailableSlots' has no 'await' expression      require-await
-   47:3  warning  Async method 'findSlotAt' has no 'await' expression             require-await
-   62:3  warning  Async method 'markSlotUnavailable' has no 'await' expression    require-await
-   74:3  warning  Async method 'markSlotAvailable' has no 'await' expression      require-await
-   87:3  warning  Async method 'restoreSlotByDateTime' has no 'await' expression  require-await
-  104:3  warning  Async method 'findConflict' has no 'await' expression           require-await
-  135:3  warning  Async method 'findById' has no 'await' expression               require-await
-  215:3  warning  Async method 'findByReference' has no 'await' expression        require-await
-
-C:\Users\ADMIN\Web&Standalone Applications\OlanAlumint.web\backend\src\models\orderModel.js
-  18:3  warning  Async method 'findById' has no 'await' expression   require-await
-  81:3  warning  Async method 'getEvents' has no 'await' expression  require-await
-
-C:\Users\ADMIN\Web&Standalone Applications\OlanAlumint.web\backend\src\models\paymentModel.js
-  14:3  warning  Async method 'findById' has no 'await' expression                 require-await
-  18:3  warning  Async method 'findByOrderId' has no 'await' expression            require-await
-  24:3  warning  Async method 'findByCheckoutRequestId' has no 'await' expression  require-await
-  30:3  warning  Async method 'findByTransactionId' has no 'await' expression      require-await
-
-C:\Users\ADMIN\Web&Standalone Applications\OlanAlumint.web\backend\src\models\productModel.js
-  69:3  warning  Async method 'findById' has no 'await' expression            require-await
-  84:3  warning  Async method 'getCurrentRate' has no 'await' expression      require-await
-  97:3  warning  Async method 'getAllCurrentRates' has no 'await' expression  require-await
-
-C:\Users\ADMIN\Web&Standalone Applications\OlanAlumint.web\backend\src\models\userModel.js
-   14:3  warning  Async method 'findById' has no 'await' expression                require-await
-   18:3  warning  Async method 'findByPhone' has no 'await' expression             require-await
-   22:3  warning  Async method 'findByEmail' has no 'await' expression             require-await
-   43:3  warning  Async method 'saveOTP' has no 'await' expression                 require-await
-   88:3  warning  Async method 'markOTPUsed' has no 'await' expression             require-await
-  101:3  warning  Async method 'invalidatePreviousOTPs' has no 'await' expression  require-await
-  111:3  warning  Async method 'saveRefreshToken' has no 'await' expression        require-await
-  115:3  warning  Async method 'findRefreshToken' has no 'await' expression        require-await
-  122:3  warning  Async method 'revokeRefreshToken' has no 'await' expression      require-await
-  128:3  warning  Async method 'revokeAllUserTokens' has no 'await' expression     require-await
-
 C:\Users\ADMIN\Web&Standalone Applications\OlanAlumint.web\backend\src\server.js
-   10:1   error    './middlewares/logger.js' import is duplicated                             no-duplicate-imports
-  188:41  warning  Async arrow function has no 'await' expression                             require-await
-  220:43  warning  'promise' is defined but never used. Allowed unused args must match /^_/u  no-unused-vars
+  195:41  warning  Async arrow function has no 'await' expression                             require-await
+  227:43  warning  'promise' is defined but never used. Allowed unused args must match /^_/u  no-unused-vars
 
 C:\Users\ADMIN\Web&Standalone Applications\OlanAlumint.web\backend\src\services\orderService.js
-    6:3   warning  'ConflictError' is defined but never used       no-unused-vars
-  105:26  warning  Async arrow function has no 'await' expression  require-await
+  99:26  warning  Async arrow function has no 'await' expression  require-await
 
 C:\Users\ADMIN\Web&Standalone Applications\OlanAlumint.web\backend\src\services\smsService.js
    89:85  warning  Async arrow function has no 'await' expression  require-await
   120:85  warning  Async arrow function has no 'await' expression  require-await
   137:88  warning  Async arrow function has no 'await' expression  require-await
 
-✖ 37 problems (1 error, 36 warnings)
+Γ£û 8 problems (0 errors, 8 warnings)
 

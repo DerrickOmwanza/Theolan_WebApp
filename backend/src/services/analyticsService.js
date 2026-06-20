@@ -1,8 +1,6 @@
 import OrderModel from '../models/orderModel.js';
 import UserModel from '../models/userModel.js';
 import BookingModel from '../models/bookingModel.js';
-import PaymentModel from '../models/paymentModel.js';
-import logger from '../middlewares/logger.js';
 
 const AnalyticsService = {
   // ============================================================
