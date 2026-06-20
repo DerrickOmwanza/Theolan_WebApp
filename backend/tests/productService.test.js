@@ -136,6 +136,7 @@ describe('Payment Service Logic', () => {
       const paidAmount = 0;
       const paymentAmount = 50000;
 
+      // eslint-disable-next-line prefer-const
       let paymentType = 'full';
 
       expect(paymentType).toBe('full');

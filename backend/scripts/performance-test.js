@@ -33,6 +33,7 @@ export const options = {
 };
 
 // Base URL - adjust for your environment
+// eslint-disable-next-line no-undef
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:3000';
 
 export default function () {

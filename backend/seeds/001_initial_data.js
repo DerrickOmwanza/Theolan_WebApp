@@ -27,7 +27,8 @@ export async function seed(knex) {
       name: 'Fixed Window — Single Pane',
       category: 'windows',
       finish: 'silver',
-      description: 'Non-opening fixed window, ideal for natural lighting and architectural facades. Single pane glass with aluminium frame.',
+      description:
+        'Non-opening fixed window, ideal for natural lighting and architectural facades. Single pane glass with aluminium frame.',
       base_price_per_sqm_kes: 6500,
       published: true
     },
@@ -35,7 +36,8 @@ export async function seed(knex) {
       name: 'Sliding Window — 2 Panel',
       category: 'windows',
       finish: 'black',
-      description: 'Two-panel horizontal sliding window. Smooth roller mechanism, insect mesh included. Popular for bedrooms and living areas.',
+      description:
+        'Two-panel horizontal sliding window. Smooth roller mechanism, insect mesh included. Popular for bedrooms and living areas.',
       base_price_per_sqm_kes: 8500,
       published: true
     },
@@ -43,7 +45,8 @@ export async function seed(knex) {
       name: 'Casement Window — Side Hung',
       category: 'windows',
       finish: 'champagne',
-      description: 'Outward-opening casement window with friction stay. Excellent ventilation, full opening aperture.',
+      description:
+        'Outward-opening casement window with friction stay. Excellent ventilation, full opening aperture.',
       base_price_per_sqm_kes: 9200,
       published: true
     },
@@ -51,7 +54,8 @@ export async function seed(knex) {
       name: 'Top Hung Window',
       category: 'windows',
       finish: 'mill',
-      description: 'Opens outward from the bottom. Ideal for bathrooms and high-level ventilation. Rain-resistant when open.',
+      description:
+        'Opens outward from the bottom. Ideal for bathrooms and high-level ventilation. Rain-resistant when open.',
       base_price_per_sqm_kes: 7800,
       published: true
     },
@@ -61,7 +65,8 @@ export async function seed(knex) {
       name: 'Sliding Door — 2 Panel',
       category: 'doors',
       finish: 'black',
-      description: 'Two-panel sliding patio door with heavy-duty rollers. Toughened safety glass, multi-point locking system.',
+      description:
+        'Two-panel sliding patio door with heavy-duty rollers. Toughened safety glass, multi-point locking system.',
       base_price_per_sqm_kes: 12000,
       published: true
     },
@@ -69,7 +74,8 @@ export async function seed(knex) {
       name: 'Sliding Door — 3 Panel',
       category: 'doors',
       finish: 'silver',
-      description: 'Three-panel sliding door for wider openings. Maximum clear opening with two moving panels.',
+      description:
+        'Three-panel sliding door for wider openings. Maximum clear opening with two moving panels.',
       base_price_per_sqm_kes: 13500,
       published: true
     },
@@ -77,7 +83,8 @@ export async function seed(knex) {
       name: 'French Door — Double',
       category: 'doors',
       finish: 'black',
-      description: 'Traditional double-opening French doors. Full-height glass panels, espagnolette locking, adjustable hinges.',
+      description:
+        'Traditional double-opening French doors. Full-height glass panels, espagnolette locking, adjustable hinges.',
       base_price_per_sqm_kes: 14500,
       published: true
     },
@@ -85,7 +92,8 @@ export async function seed(knex) {
       name: 'Hinged Single Door',
       category: 'doors',
       finish: 'bronze',
-      description: 'Single-leaf aluminium hinged door. Suitable for back doors, utility rooms, and side entrances.',
+      description:
+        'Single-leaf aluminium hinged door. Suitable for back doors, utility rooms, and side entrances.',
       base_price_per_sqm_kes: 11000,
       published: true
     },
@@ -95,7 +103,8 @@ export async function seed(knex) {
       name: 'Structural Glazing Curtain Wall',
       category: 'curtain_walls',
       finish: 'silver',
-      description: 'Frameless structural glazing system for commercial buildings. Silicone-bonded glass for seamless exterior appearance.',
+      description:
+        'Frameless structural glazing system for commercial buildings. Silicone-bonded glass for seamless exterior appearance.',
       base_price_per_sqm_kes: 18000,
       published: true
     },
@@ -103,7 +112,8 @@ export async function seed(knex) {
       name: 'Stick Curtain Wall',
       category: 'curtain_walls',
       finish: 'black',
-      description: 'Traditional stick-built curtain wall system. Vertical mullions and horizontal transoms. Ideal for mid-rise buildings.',
+      description:
+        'Traditional stick-built curtain wall system. Vertical mullions and horizontal transoms. Ideal for mid-rise buildings.',
       base_price_per_sqm_kes: 15500,
       published: true
     },
@@ -111,7 +121,8 @@ export async function seed(knex) {
       name: 'Spider Glazing System',
       category: 'curtain_walls',
       finish: 'silver',
-      description: 'Point-fixed spider glazing with stainless steel fittings. Maximum transparency for shopfronts and atriums.',
+      description:
+        'Point-fixed spider glazing with stainless steel fittings. Maximum transparency for shopfronts and atriums.',
       base_price_per_sqm_kes: 22000,
       published: true
     },
@@ -121,7 +132,8 @@ export async function seed(knex) {
       name: 'Office Partition — Single Glazed',
       category: 'partitions',
       finish: 'silver',
-      description: 'Single-glazed aluminium office partition. 10mm toughened glass, full-height panels. Clean modern look.',
+      description:
+        'Single-glazed aluminium office partition. 10mm toughened glass, full-height panels. Clean modern look.',
       base_price_per_sqm_kes: 8500,
       published: true
     },
@@ -129,7 +141,8 @@ export async function seed(knex) {
       name: 'Office Partition — Double Glazed',
       category: 'partitions',
       finish: 'black',
-      description: 'Double-glazed partition for sound insulation. Ideal for meeting rooms and executive offices. 38dB sound reduction.',
+      description:
+        'Double-glazed partition for sound insulation. Ideal for meeting rooms and executive offices. 38dB sound reduction.',
       base_price_per_sqm_kes: 12500,
       published: true
     },
@@ -137,7 +150,8 @@ export async function seed(knex) {
       name: 'Glass Partition — Frameless',
       category: 'partitions',
       finish: 'mill',
-      description: 'Minimal frame glass partition with patch fittings. 12mm toughened glass panels for maximum visibility.',
+      description:
+        'Minimal frame glass partition with patch fittings. 12mm toughened glass panels for maximum visibility.',
       base_price_per_sqm_kes: 10500,
       published: true
     },
@@ -147,7 +161,8 @@ export async function seed(knex) {
       name: 'Glass Balustrade — Frameless',
       category: 'balustrades',
       finish: 'silver',
-      description: 'Frameless glass balustrade with base channel fixing. 15mm toughened laminated glass. Ideal for balconies and staircases.',
+      description:
+        'Frameless glass balustrade with base channel fixing. 15mm toughened laminated glass. Ideal for balconies and staircases.',
       base_price_per_sqm_kes: 16000,
       published: true
     },
@@ -155,7 +170,8 @@ export async function seed(knex) {
       name: 'Glass Balustrade — Post System',
       category: 'balustrades',
       finish: 'black',
-      description: 'Glass balustrade with aluminium posts and handrail. 12mm toughened glass infill panels.',
+      description:
+        'Glass balustrade with aluminium posts and handrail. 12mm toughened glass infill panels.',
       base_price_per_sqm_kes: 13500,
       published: true
     },
@@ -163,7 +179,8 @@ export async function seed(knex) {
       name: 'Aluminium Railing — Horizontal Bars',
       category: 'balustrades',
       finish: 'champagne',
-      description: 'Contemporary horizontal bar railing. Powder-coated aluminium, suitable for decks, terraces, and staircases.',
+      description:
+        'Contemporary horizontal bar railing. Powder-coated aluminium, suitable for decks, terraces, and staircases.',
       base_price_per_sqm_kes: 9500,
       published: true
     },
@@ -171,7 +188,8 @@ export async function seed(knex) {
       name: 'Juliet Balcony Balustrade',
       category: 'balustrades',
       finish: 'bronze',
-      description: 'Juliet balcony glass balustrade for French door openings. Side-fixed or face-fixed brackets. Building regs compliant.',
+      description:
+        'Juliet balcony glass balustrade for French door openings. Side-fixed or face-fixed brackets. Building regs compliant.',
       base_price_per_sqm_kes: 14000,
       published: true
     }
@@ -244,7 +262,7 @@ export async function seed(knex) {
       start: `${hour.toString().padStart(2, '0')}:00:00`,
       end: `${hour.toString().padStart(2, '0')}:30:00`
     });
-    if (hour < 16 || true) {
+    if (hour < 16) {
       slotTimes.push({
         start: `${hour.toString().padStart(2, '0')}:30:00`,
         end: `${(hour + 1).toString().padStart(2, '0')}:00:00`
