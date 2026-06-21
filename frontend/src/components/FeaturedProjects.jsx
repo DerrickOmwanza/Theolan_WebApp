@@ -14,6 +14,23 @@ export default function FeaturedProjects() {
 
   const featuredPhotos = data?.data?.data || [];
 
+  // Fallback to local images if no database data
+  const displayPhotos =
+    featuredPhotos.length > 0
+      ? featuredPhotos.slice(0, 6)
+      : Array.from({ length: 6 }, (_, i) => ({
+          id: `local-${i + 1}`,
+          image_url: `/images/image_${i + 1}.jpg`,
+          category: [
+            "windows",
+            "doors",
+            "curtain_walls",
+            "partitions",
+            "balustrades",
+          ][i % 5],
+          finish: ["bronze", "black", "silver", "white", "mill"][i % 5],
+        }));
+
   if (isLoading) {
     return (
       <section className="py-16 bg-gradient-to-b from-charcoal-900 to-charcoal-800">
@@ -26,8 +43,6 @@ export default function FeaturedProjects() {
     );
   }
 
-  if (!featuredPhotos.length) return null;
-
   return (
     <section className="py-16 bg-gradient-to-b from-charcoal-900 to-charcoal-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -36,14 +51,13 @@ export default function FeaturedProjects() {
             Featured Projects
           </h2>
           <p className="text-silver-400 max-w-2xl mx-auto">
-            Showcasing our finest aluminium installations across Nairobi and
-            Kenya
+            Showcasing our finest aluminium installations
           </p>
         </div>
 
         {/* Masonry Grid */}
         <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
-          {featuredPhotos.slice(0, 6).map((photo, idx) => (
+          {displayPhotos.map((photo, idx) => (
             <div
               key={photo.id}
               className="group cursor-pointer break-inside-avoid rounded-xl overflow-hidden bg-charcoal-800 border border-charcoal-700 hover:border-cobalt/50 transition-all duration-300"
@@ -88,8 +102,7 @@ export default function FeaturedProjects() {
         </div>
 
         <p className="text-silver-500 text-sm mt-8 text-center">
-          Admin manages image details, categories, and locations via the admin
-          panel
+          Admin manages image details via the gallery admin panel
         </p>
       </div>
     </section>

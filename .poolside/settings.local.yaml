@@ -61,3 +61,5 @@ tools:
             - robocopy images *
             - ls *
             - Where-Object { *
+            - ForEach-Object { Write-Host *
+            - robocopy "images" "frontend\public\images" *

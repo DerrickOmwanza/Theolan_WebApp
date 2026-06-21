@@ -38,36 +38,49 @@ const LOCATIONS = [
 
 /**
  * Generate local gallery data for development/fallback
- * Uses images from public/images folder (up to 24 manageable images)
+ * Uses images from public/images folder (24 images with proper categorization)
  */
 const generateLocalGalleryData = () => {
-  const images = [];
-  const TOTAL_IMAGES = 24; // Manageable number for admin
-  for (let i = 1; i <= TOTAL_IMAGES; i++) {
-    const categoryValues = [
-      "windows",
-      "doors",
-      "curtain_walls",
-      "partitions",
-      "balustrades",
-    ];
-    const category = categoryValues[i % categoryValues.length];
-    const finish = FINISHES[(i % (FINISHES.length - 1)) + 1].value;
-    const location = LOCATIONS[i % LOCATIONS.length];
+  // Categorization based on the analysis provided
+  const imageData = [
+    // Group 1: Windows (image_2, image_11, image_15)
+    { id: 2, category: "windows", finish: "bronze" },
+    { id: 11, category: "windows", finish: "silver" },
+    { id: 15, category: "windows", finish: "bronze" },
+    // Group 2: Doors (image_1, image_8, image_13)
+    { id: 1, category: "doors", finish: "black" },
+    { id: 8, category: "doors", finish: "silver" },
+    { id: 13, category: "doors", finish: "silver" },
+    // Group 3: Curtain Walls (image_3, image_12)
+    { id: 3, category: "curtain_walls", finish: "black" },
+    { id: 12, category: "curtain_walls", finish: "silver" },
+    // Group 4: Partitions (image_4, image_6, image_14)
+    { id: 4, category: "partitions", finish: "white" },
+    { id: 6, category: "partitions", finish: "white" },
+    { id: 14, category: "partitions", finish: "white" },
+    // Group 5: Balustrades (image_7, image_9, image_10)
+    { id: 7, category: "balustrades", finish: "black" },
+    { id: 9, category: "balustrades", finish: "black" },
+    { id: 10, category: "balustrades", finish: "black" },
+    // Group 6: Shower Enclosures/Glazing (image_5)
+    { id: 5, category: "shower_enclosures", finish: "silver" },
+    // Group 7: Fabrication & Workshop (image_16-20)
+    { id: 16, category: "partitions", finish: "mill" },
+    { id: 17, category: "windows", finish: "mill" },
+    { id: 18, category: "doors", finish: "mill" },
+    { id: 19, category: "curtain_walls", finish: "mill" },
+    { id: 20, category: "balustrades", finish: "mill" },
+  ];
 
-    const imageFilename = `image ${i}.jpg`;
-
-    images.push({
-      id: `local-${i}`,
-      image_url: `/images/${imageFilename}`,
-      project_name: `${category.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())} - ${location.split(" ")[0]} ${i}`,
-      description: `${category.replace("_", " ")} installation in ${location}`,
-      category,
-      finish,
-      location,
-    });
-  }
-  return images;
+  return imageData.map((img) => ({
+    id: `local-${img.id}`,
+    image_url: `/images/image_${img.id}.jpg`,
+    project_name: "", // Admin will fill in
+    description: "", // Admin will fill in
+    category: img.category,
+    finish: img.finish,
+    location: "", // Admin will fill in
+  }));
 };
 
 export default function GalleryPage() {
