@@ -55,23 +55,27 @@ export default function FeaturedProjects() {
           </p>
         </div>
 
-        {/* Masonry Grid */}
+        {/* Masonry Grid - Images displayed at native resolution */}
         <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
           {displayPhotos.map((photo, idx) => (
             <div
               key={photo.id}
-              className="group cursor-pointer break-inside-avoid rounded-xl overflow-hidden bg-charcoal-800 border border-charcoal-700 hover:border-cobalt/50 transition-all duration-300"
+              className="break-inside-avoid rounded-xl overflow-hidden bg-charcoal-800 border border-charcoal-700"
             >
-              <div className="relative overflow-hidden">
+              <div className="w-full">
                 {photo.image_url ? (
                   <img
                     src={photo.image_url}
                     alt={photo.project_name || "Project photo"}
-                    className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-auto block"
                     loading="lazy"
+                    style={{
+                      maxWidth: "100%",
+                      width: "100%",
+                      objectFit: "contain",
+                    }}
                   />
                 ) : null}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
               <div className="p-5">
                 {photo.project_name && (

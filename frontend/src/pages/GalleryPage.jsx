@@ -16,6 +16,7 @@ const CATEGORIES = [
   { value: "office_fitout", label: "Office Fit-outs" },
 ];
 
+// Need to add back FINISHES that was removed
 const FINISHES = [
   { value: "", label: "All Finishes" },
   { value: "mill", label: "Mill Finish" },
@@ -233,55 +234,11 @@ export default function GalleryPage() {
           <>
             <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
               {photos.map((photo, idx) => (
-                <div
+                <ImageGalleryItem
                   key={photo.id}
-                  className="group cursor-pointer break-inside-avoid rounded-xl overflow-hidden bg-charcoal-800 border border-charcoal-700 hover:border-cobalt/50 transition-all duration-300"
+                  photo={photo}
                   onClick={() => openLightbox(idx)}
-                >
-                  <div className="relative overflow-hidden">
-                    {photo.image_url ? (
-                      <img
-                        src={photo.image_url}
-                        alt={
-                          photo.project_name ||
-                          photo.description ||
-                          "Project photo"
-                        }
-                        className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-48 text-silver-600 bg-charcoal-700">
-                        No image
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <div className="p-5">
-                    {photo.project_name && (
-                      <h3 className="text-warmwhite font-heading font-semibold text-lg mb-2 line-clamp-1">
-                        {photo.project_name}
-                      </h3>
-                    )}
-                    {photo.location && (
-                      <p className="text-silver-400 text-sm mb-3">
-                        {photo.location}
-                      </p>
-                    )}
-                    <div className="flex gap-2">
-                      {photo.category && (
-                        <span className="badge-cobalt text-xs">
-                          {photo.category.replace("_", " ")}
-                        </span>
-                      )}
-                      {photo.finish && (
-                        <span className="badge-charcoal text-xs capitalize">
-                          {photo.finish}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                />
               ))}
             </div>
 

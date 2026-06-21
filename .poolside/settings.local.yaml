@@ -65,3 +65,4 @@ tools:
             - robocopy "images" "frontend\public\images" *
             - Remove-Item *
             - Format-Wide *
+            - rm *
