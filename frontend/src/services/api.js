@@ -4,7 +4,7 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api/v1";
 
 /**
- * Axios instance configured for the Theolan Aluminium API.
+ * Axios instance configured for the The Olan Glass and Aluminium API.
  * Handles JWT token injection and automatic refresh on 401.
  */
 const api = axios.create({
@@ -17,9 +17,9 @@ const api = axios.create({
 
 // Token storage keys
 const TOKEN_KEYS = {
-  access: "theolan_access_token",
-  refresh: "theolan_refresh_token",
-  user: "theolan_user",
+  access: "olan_access_token",
+  refresh: "olan_refresh_token",
+  user: "olan_user",
 };
 
 // ============================================================
