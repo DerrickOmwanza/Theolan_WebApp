@@ -152,6 +152,14 @@
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
 
+  .badge-cobalt {
+    @apply bg-cobalt/20 text-cobalt-300;
+  }
+
+  .badge-charcoal {
+    @apply bg-charcoal-600 text-silver-300;
+  }
+
   .badge-scheduled {
     @apply bg-cobalt/20 text-cobalt-300;
   }

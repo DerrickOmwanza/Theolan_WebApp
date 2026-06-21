@@ -38,25 +38,23 @@ const LOCATIONS = [
 
 /**
  * Generate local gallery data for development/fallback
- * Uses images from public/images folder
+ * Uses images from public/images folder (up to 24 manageable images)
  */
 const generateLocalGalleryData = () => {
   const images = [];
-  for (let i = 1; i <= 75; i++) {
+  const TOTAL_IMAGES = 24; // Manageable number for admin
+  for (let i = 1; i <= TOTAL_IMAGES; i++) {
     const categoryValues = [
       "windows",
       "doors",
       "curtain_walls",
       "partitions",
       "balustrades",
-      "shower_enclosures",
-      "office_fitout",
     ];
     const category = categoryValues[i % categoryValues.length];
     const finish = FINISHES[(i % (FINISHES.length - 1)) + 1].value;
     const location = LOCATIONS[i % LOCATIONS.length];
 
-    // Handle both "image 1.jpg" and "image 01.jpg" formats
     const imageFilename = `image ${i}.jpg`;
 
     images.push({
@@ -208,8 +206,8 @@ export default function GalleryPage() {
         </div>
       </section>
 
-      {/* Gallery Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Gallery Grid - Modern Masonry Design */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {isLoading ? (
           <div className="flex justify-center py-20">
             <LoadingSpinner size="lg" />
@@ -220,14 +218,14 @@ export default function GalleryPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
               {photos.map((photo, idx) => (
                 <div
                   key={photo.id}
-                  className="group cursor-pointer rounded-lg overflow-hidden border border-charcoal-600 hover:border-cobalt/50 transition-colors"
+                  className="group cursor-pointer break-inside-avoid rounded-xl overflow-hidden bg-charcoal-800 border border-charcoal-700 hover:border-cobalt/50 transition-all duration-300"
                   onClick={() => openLightbox(idx)}
                 >
-                  <div className="relative aspect-[4/3] bg-charcoal-700">
+                  <div className="relative overflow-hidden">
                     {photo.image_url ? (
                       <img
                         src={photo.image_url}
@@ -236,34 +234,35 @@ export default function GalleryPage() {
                           photo.description ||
                           "Project photo"
                         }
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"
                       />
                     ) : (
-                      <div className="flex items-center justify-center h-full text-silver-600">
+                      <div className="flex items-center justify-center h-48 text-silver-600 bg-charcoal-700">
                         No image
                       </div>
                     )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <div className="p-4 bg-charcoal-700">
+                  <div className="p-5">
                     {photo.project_name && (
-                      <h3 className="text-warmwhite font-heading font-semibold mb-1">
+                      <h3 className="text-warmwhite font-heading font-semibold text-lg mb-2 line-clamp-1">
                         {photo.project_name}
                       </h3>
                     )}
                     {photo.location && (
-                      <p className="text-sm text-silver-400">
+                      <p className="text-silver-400 text-sm mb-3">
                         {photo.location}
                       </p>
                     )}
-                    <div className="flex gap-2 mt-2">
+                    <div className="flex gap-2">
                       {photo.category && (
-                        <span className="badge bg-charcoal-600 text-silver-300 capitalize text-xs">
+                        <span className="badge-cobalt text-xs">
                           {photo.category.replace("_", " ")}
                         </span>
                       )}
                       {photo.finish && (
-                        <span className="badge bg-charcoal-600 text-silver-300 capitalize text-xs">
+                        <span className="badge-charcoal text-xs capitalize">
                           {photo.finish}
                         </span>
                       )}
@@ -275,7 +274,7 @@ export default function GalleryPage() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-4 mt-10">
+              <div className="flex justify-center items-center gap-4 mt-12">
                 <button
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
                   disabled={page === 0}
@@ -304,17 +303,17 @@ export default function GalleryPage() {
       {/* Lightbox Modal */}
       {lightboxIndex !== null && photos[lightboxIndex] && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
+          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
           onClick={closeLightbox}
         >
           <button
-            className="absolute top-4 right-4 text-white/70 hover:text-white text-3xl z-10"
+            className="absolute top-4 right-4 text-white/70 hover:text-white text-3xl z-20 touch-target"
             onClick={closeLightbox}
           >
             &times;
           </button>
           <button
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white text-4xl z-10"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white text-4xl z-20 touch-target"
             onClick={(e) => {
               e.stopPropagation();
               prevPhoto();
@@ -323,7 +322,7 @@ export default function GalleryPage() {
             &#8249;
           </button>
           <button
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white text-4xl z-10"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white text-4xl z-20 touch-target"
             onClick={(e) => {
               e.stopPropagation();
               nextPhoto();
@@ -332,21 +331,24 @@ export default function GalleryPage() {
             &#8250;
           </button>
           <div
-            className="max-w-5xl max-h-[85vh] mx-4"
+            className="max-w-6xl max-h-[90vh] w-full"
             onClick={(e) => e.stopPropagation()}
           >
             {photos[lightboxIndex].image_url ? (
               <img
                 src={photos[lightboxIndex].image_url}
                 alt={photos[lightboxIndex].project_name || "Project photo"}
-                className="max-w-full max-h-[75vh] object-contain rounded-lg"
+                className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+                loading="eager"
               />
             ) : (
-              <div className="text-silver-500">No image available</div>
+              <div className="text-silver-500 text-center py-20">
+                No image available
+              </div>
             )}
-            <div className="mt-4 text-center">
+            <div className="mt-4 px-4">
               {photos[lightboxIndex].project_name && (
-                <h3 className="text-warmwhite font-heading text-xl">
+                <h3 className="text-warmwhite font-heading text-xl mb-2">
                   {photos[lightboxIndex].project_name}
                 </h3>
               )}
