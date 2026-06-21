@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { productApi } from "../services/api.js";
 import LoadingSpinner from "../components/LoadingSpinner.jsx";
 import FeaturedProjects from "../components/FeaturedProjects.jsx";
+import ImageGalleryItem from "../components/ImageGalleryItem.jsx";
 
 const CATEGORIES = [
   { value: "", label: "All Categories" },
