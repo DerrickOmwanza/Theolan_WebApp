@@ -1,15 +1,15 @@
-import { Link, NavLink } from 'react-router-dom';
-import { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext.jsx';
+import { Link, NavLink } from "react-router-dom";
+import { useState } from "react";
+import { useAuth } from "../contexts/AuthContext.jsx";
 
 const navLinks = [
-  { to: '/', label: 'Home', end: true },
-  { to: '/products', label: 'Products' },
-  { to: '/gallery', label: 'Gallery' },
-  { to: '/about', label: 'About' },
-  { to: '/contact', label: 'Contact' },
-  { to: '/booking', label: 'Book a Visit' },
-  { to: '/quote', label: 'Get Quote' },
+  { to: "/", label: "Home", end: true },
+  { to: "/products", label: "Products" },
+  { to: "/gallery", label: "Gallery" },
+  { to: "/about", label: "About" },
+  { to: "/contact", label: "Contact" },
+  { to: "/booking", label: "Book a Visit" },
+  { to: "/quote", label: "Get Quote" },
 ];
 
 export default function Header() {
@@ -18,7 +18,7 @@ export default function Header() {
 
   const linkClass = ({ isActive }) =>
     `text-sm font-medium transition-colors ${
-      isActive ? 'text-cobalt-300' : 'text-silver-300 hover:text-warmwhite'
+      isActive ? "text-cobalt-300" : "text-silver-300 hover:text-warmwhite"
     }`;
 
   return (
@@ -28,17 +28,22 @@ export default function Header() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <span className="text-xl font-heading font-bold text-warmwhite tracking-tight">
-              Theolan
+              The Olan
             </span>
             <span className="text-xs text-gold-400 font-medium uppercase tracking-widest hidden sm:block">
-              Aluminium
+              Glass & Aluminium
             </span>
           </Link>
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <NavLink key={link.to} to={link.to} end={link.end} className={linkClass}>
+              <NavLink
+                key={link.to}
+                to={link.to}
+                end={link.end}
+                className={linkClass}
+              >
                 {link.label}
               </NavLink>
             ))}
@@ -49,17 +54,22 @@ export default function Header() {
             {isAuthenticated ? (
               <>
                 <Link
-                  to={user?.role === 'admin' ? '/admin' : '/orders'}
+                  to={user?.role === "admin" ? "/admin" : "/orders"}
                   className="text-sm text-silver-300 hover:text-warmwhite"
                 >
                   Dashboard
                 </Link>
                 <span className="text-silver-500">|</span>
-                <span className="text-sm text-warmwhite">{user?.name?.split(' ')[0]}</span>
+                <span className="text-sm text-warmwhite">
+                  {user?.name?.split(" ")[0]}
+                </span>
               </>
             ) : (
               <>
-                <Link to="/auth/login" className="text-sm text-silver-300 hover:text-warmwhite">
+                <Link
+                  to="/auth/login"
+                  className="text-sm text-silver-300 hover:text-warmwhite"
+                >
                   Log In
                 </Link>
                 <Link to="/auth/signup" className="btn-primary text-xs">
@@ -75,11 +85,26 @@ export default function Header() {
             className="md:hidden p-2 text-silver-400 hover:text-warmwhite"
             aria-label="Toggle menu"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               {mobileOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               )}
             </svg>
           </button>
@@ -96,7 +121,7 @@ export default function Header() {
                 to={link.to}
                 end={link.end}
                 className={({ isActive }) =>
-                  `block text-sm font-medium ${isActive ? 'text-cobalt-300' : 'text-silver-300'}`
+                  `block text-sm font-medium ${isActive ? "text-cobalt-300" : "text-silver-300"}`
                 }
                 onClick={() => setMobileOpen(false)}
               >
@@ -106,19 +131,35 @@ export default function Header() {
             <hr className="border-charcoal-600" />
             {isAuthenticated ? (
               <>
-                <Link to="/orders" className="block text-sm text-silver-300" onClick={() => setMobileOpen(false)}>
+                <Link
+                  to="/orders"
+                  className="block text-sm text-silver-300"
+                  onClick={() => setMobileOpen(false)}
+                >
                   Dashboard
                 </Link>
-                <Link to="/account/profile" className="block text-sm text-silver-300" onClick={() => setMobileOpen(false)}>
+                <Link
+                  to="/account/profile"
+                  className="block text-sm text-silver-300"
+                  onClick={() => setMobileOpen(false)}
+                >
                   Account
                 </Link>
               </>
             ) : (
               <>
-                <Link to="/auth/login" className="block text-sm text-silver-300" onClick={() => setMobileOpen(false)}>
+                <Link
+                  to="/auth/login"
+                  className="block text-sm text-silver-300"
+                  onClick={() => setMobileOpen(false)}
+                >
                   Log In
                 </Link>
-                <Link to="/auth/signup" className="block text-sm text-cobalt-300 font-medium" onClick={() => setMobileOpen(false)}>
+                <Link
+                  to="/auth/signup"
+                  className="block text-sm text-cobalt-300 font-medium"
+                  onClick={() => setMobileOpen(false)}
+                >
                   Sign Up
                 </Link>
               </>

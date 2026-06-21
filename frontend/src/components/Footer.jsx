@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -10,10 +10,11 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <h3 className="text-lg font-heading font-bold text-warmwhite mb-2">
-              Theolan Aluminium
+              The Olan Glass and Aluminium
             </h3>
             <p className="text-sm text-silver-500 leading-relaxed">
-              Premium aluminium fabrication and architectural glazing solutions in Nairobi, Kenya.
+              Premium aluminium fabrication and architectural glazing solutions
+              in Umoja 2, Nairobi, Kenya.
             </p>
           </div>
 
@@ -24,13 +25,16 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2">
               {[
-                { to: '/products', label: 'Products' },
-                { to: '/gallery', label: 'Gallery' },
-                { to: '/booking', label: 'Book a Visit' },
-                { to: '/quote', label: 'Get Quote' },
+                { to: "/products", label: "Products" },
+                { to: "/gallery", label: "Gallery" },
+                { to: "/booking", label: "Book a Visit" },
+                { to: "/quote", label: "Get Quote" },
               ].map((link) => (
                 <li key={link.to}>
-                  <Link to={link.to} className="text-sm text-silver-500 hover:text-warmwhite">
+                  <Link
+                    to={link.to}
+                    className="text-sm text-silver-500 hover:text-warmwhite"
+                  >
                     {link.label}
                   </Link>
                 </li>
@@ -44,16 +48,16 @@ export default function Footer() {
               Contact
             </h4>
             <ul className="space-y-2 text-sm text-silver-500">
-              <li>Nairobi, Kenya</li>
-              <li>info@olanallumint.co.ke</li>
-              <li>+254 700 000 000</li>
+              <li>Umoja 2, Nairobi, Kenya, 000</li>
+              <li>theolanaluminiumandglass@gmail.com</li>
+              <li>+254 712 916504</li>
             </ul>
           </div>
         </div>
 
         <div className="mt-8 pt-8 border-t border-charcoal-700 text-center">
           <p className="text-xs text-silver-600">
-            &copy; {year} Theolan Aluminium International Ltd. All rights reserved.
+            &copy; {year} The Olan Glass and Aluminium. All rights reserved.
           </p>
         </div>
       </div>
