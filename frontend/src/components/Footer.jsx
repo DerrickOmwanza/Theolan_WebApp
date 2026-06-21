@@ -49,8 +49,36 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2 text-sm text-silver-500">
               <li>Umoja 2, Nairobi, Kenya, 000</li>
-              <li>theolanaluminiumandglass@gmail.com</li>
-              <li>+254 712 916504</li>
+              <li>
+                <a
+                  href="mailto:theolanaluminiumandglass@gmail.com"
+                  className="hover:text-cobalt-300"
+                >
+                  theolanaluminiumandglass@gmail.com
+                </a>
+              </li>
+              <li>
+                <a href="tel:+254712916504" className="hover:text-cobalt-300">
+                  +254 712 916504
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.facebook.com/Theolanalumintltd"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-cobalt-300 flex items-center gap-1"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.5v-3.47h2.625V9.397c0-2.625 1.575-4.006 3.875-4.006 1.104 0 2.254.212 2.254.212v2.47h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 3.47h-2.33v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                  </svg>
+                  Facebook
+                </a>
+              </li>
             </ul>
           </div>
         </div>
