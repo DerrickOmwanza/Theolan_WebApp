@@ -60,3 +60,4 @@ tools:
             - mkdir *
             - robocopy images *
             - ls *
+            - Where-Object { *
