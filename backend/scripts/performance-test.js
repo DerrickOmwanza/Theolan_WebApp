@@ -57,7 +57,6 @@ export default function () {
 
   group('Products Catalogue', function () {
     const res = http.get(`${BASE_URL}/api/v1/products`);
-    const startTime = new Date();
 
     check(res, {
       'products status is 200': (r) => r.status === 200,

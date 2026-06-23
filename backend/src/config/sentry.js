@@ -1,7 +1,7 @@
 // Sentry Error Tracking Configuration
 // For production monitoring and alerting
 
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 
 /**
  * Initialize Sentry
@@ -30,9 +30,31 @@ export function initSentry() {
       // Ignore certain errors
       ignoreErrors: [
         'ECONNABORTED', // User cancelled request
-        'ECONNRESET' // Connection reset
+        'ECONNRESET', // Connection reset
+        'Service Unavailable' // Health check failures
       ]
     });
+
+    console.log('Sentry initialized for production monitoring');
+  } else {
+    console.log('Sentry disabled (not production or no DSN)');
+  }
+}
+
+/**
+ * Set user context for Sentry
+ * @param {Object} user - User object with id, email, etc.
+ */
+export function setSentryUser(user) {
+  if (user) {
+    Sentry.setUser({
+      id: user.id,
+      email: user.email,
+      phone: user.phone,
+      role: user.role
+    });
+  } else {
+    Sentry.setUser(null);
   }
 }
 

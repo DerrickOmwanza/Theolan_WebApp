@@ -1,6 +1,7 @@
 import ProductModel from '../models/productModel.js';
 import { NotFoundError, ValidationError } from '../middlewares/errorHandler.js';
 import logger from '../middlewares/logger.js';
+import { v4 as uuidv4 } from 'uuid';
 
 // ============================================================
 // Finish Multipliers (applied on top of product_rates)
@@ -163,7 +164,9 @@ const ProductService = {
       finish: p.finish,
       project_name: p.project_name,
       location: p.location,
+      description: p.description,
       image_url: p.image_url,
+      published: p.published,
       uploaded_at: p.created_at
     }));
 
@@ -174,6 +177,93 @@ const ProductService = {
         total,
         limit: options.limit || 20,
         offset: options.offset || 0
+      }
+    };
+  },
+
+  /**
+   * Upload a new gallery photo (admin only).
+   *
+   * @param {Object} data - Photo data (image_url, category, etc.)
+   * @param {string} adminId - Admin user UUID
+   * @returns {Promise<Object>} Created photo record
+   */
+  uploadGalleryPhoto: async (data, adminId) => {
+    const { image_url, category, finish, project_name, location, description, published } = data;
+
+    const photo = await ProductModel.createGalleryPhoto({
+      image_url,
+      category,
+      finish: finish || null,
+      project_name: project_name || null,
+      location: location || null,
+      description: description || null,
+      published,
+      uploaded_by: adminId
+    });
+
+    logger.info('Gallery photo uploaded', {
+      photoId: photo.id,
+      category,
+      adminId
+    });
+
+    return {
+      success: true,
+      message: 'Gallery photo uploaded successfully',
+      data: {
+        id: photo.id,
+        image_url: photo.image_url,
+        category: photo.category,
+        project_name: photo.project_name,
+        published: photo.published
+      }
+    };
+  },
+
+  /**
+   * Delete a gallery photo (admin only).
+   *
+   * @param {string} photoId - Photo UUID
+   * @returns {Promise<Object>} Success response
+   */
+  deleteGalleryPhoto: async (photoId) => {
+    const deleted = await ProductModel.deleteGalleryPhoto(photoId);
+    if (!deleted) {
+      throw new NotFoundError('Gallery photo not found');
+    }
+
+    logger.info('Gallery photo deleted', { photoId });
+
+    return {
+      success: true,
+      message: 'Gallery photo deleted successfully'
+    };
+  },
+
+  /**
+   * Update gallery photo metadata (admin only).
+   *
+   * @param {string} photoId - Photo UUID
+   * @param {Object} updates - Fields to update
+   * @returns {Promise<Object>} Updated photo
+   */
+  updateGalleryPhoto: async (photoId, updates) => {
+    const updated = await ProductModel.updateGalleryPhoto(photoId, updates);
+    if (!updated) {
+      throw new NotFoundError('Gallery photo not found');
+    }
+
+    logger.info('Gallery photo updated', { photoId });
+
+    return {
+      success: true,
+      message: 'Gallery photo updated successfully',
+      data: {
+        id: updated.id,
+        project_name: updated.project_name,
+        description: updated.description,
+        published: updated.published
       }
     };
   }

@@ -2,8 +2,6 @@
 // Maps local images folder to gallery_photos for development
 // Production should use Cloudinary URLs
 
-import galleryImageManifest from "../../public/images/manifest.json";
-
 /**
  * Get gallery image URL - works in both dev and production
  * In production, this would return Cloudinary URLs

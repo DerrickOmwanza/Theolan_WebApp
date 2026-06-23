@@ -3,9 +3,39 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
+import * as Sentry from "@sentry/react";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import App from "./App.jsx";
 import "./styles/index.css";
+
+// ============================================================
+// Sentry Error Tracking (Production Only)
+// ============================================================
+if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
+  Sentry.init({
+    dsn: import.meta.env.VITE_SENTRY_DSN,
+    environment: import.meta.env.MODE,
+    release: import.meta.env.VITE_APP_VERSION || "1.0.0",
+
+    // Performance monitoring
+    tracesSampleRate: 0.1, // 10% of transactions
+
+    // Security filtering
+    beforeSend(event) {
+      if (event.request?.headers) {
+        delete event.request.headers.authorization;
+        delete event.request.headers.cookie;
+      }
+      return event;
+    },
+
+    // Ignore certain errors
+    ignoreErrors: [
+      "ResizeObserver loop limit exceeded",
+      "Non-Error promise rejection captured"
+    ]
+  });
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,7 +59,7 @@ const queryClient = new QueryClient({
       // Retry mutations once on network error
       retry: 1,
       // Invalidate related queries on mutation success
-      onSuccess: (data, variables, context) => {
+      onSuccess: (_data, _variables, _context) => {
         // Default: invalidate all queries
         queryClient.invalidateQueries();
       },

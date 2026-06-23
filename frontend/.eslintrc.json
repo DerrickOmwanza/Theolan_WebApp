@@ -15,10 +15,7 @@
     "plugin:react/recommended",
     "plugin:react-hooks/recommended"
   ],
-  "plugins": [
-    "react",
-    "react-hooks"
-  ],
+  "plugins": ["react", "react-hooks"],
   "settings": {
     "react": {
       "version": "detect"
@@ -39,6 +36,8 @@
     "node_modules/",
     "dist/",
     "coverage/",
-    "build/"
+    "build/",
+    "*.css",
+    "*.scss"
   ]
 }

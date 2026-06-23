@@ -87,7 +87,7 @@ export default function AnalyticsPage() {
   });
 
   // Load dashboard (all analytics combined)
-  const { data: dashboardData, isLoading: dashboardLoading } = useQuery({
+  const { data: dashboardData } = useQuery({
     queryKey: ["analytics", "dashboard"],
     queryFn: () => analyticsApi.getDashboard(),
     enabled: !!user && user.role === "admin",

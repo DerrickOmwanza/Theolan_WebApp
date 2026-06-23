@@ -96,7 +96,7 @@ const OrderService = {
     const { data, total } = await OrderModel.findByClient(clientId, { status, limit, offset });
 
     const orders = await Promise.all(
-      data.map(async (o) => ({
+      data.map((o) => ({
         id: o.id,
         reference_number: o.reference_number,
         product_summary: o.product_summary,

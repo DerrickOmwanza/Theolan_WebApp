@@ -58,6 +58,8 @@ const listBookingsQuerySchema = Joi.object({
   status: Joi.string()
     .valid(...BOOKING_STATUSES)
     .optional(),
+  start_date: Joi.date().iso().optional(),
+  end_date: Joi.date().iso().optional(),
   limit: Joi.number().integer().min(1).max(100).default(20),
   offset: Joi.number().integer().min(0).default(0)
 });
@@ -65,7 +67,7 @@ const listBookingsQuerySchema = Joi.object({
 /**
  * Validate request data against a Joi schema.
  */
-const validate = (schema, data, source = 'body') => {
+const validate = (schema, data) => {
   const { error, value } = schema.validate(data, { abortEarly: false, stripUnknown: true });
   if (error) {
     const details = error.details.map((d) => ({
@@ -88,7 +90,7 @@ const BookingController = {
    * @access Public (used by booking form before login)
    */
   getAvailableSlots: asyncHandler(async (req, res) => {
-    const { start_date, end_date } = validate(availableSlotsQuerySchema, req.query, 'query');
+    const { start_date, end_date } = validate(availableSlotsQuerySchema, req.query);
     const result = await BookingService.getAvailableSlots(start_date, end_date);
     res.status(200).json(result);
   }),
@@ -110,7 +112,7 @@ const BookingController = {
    * @access Private
    */
   listBookings: asyncHandler(async (req, res) => {
-    const options = validate(listBookingsQuerySchema, req.query, 'query');
+    const options = validate(listBookingsQuerySchema, req.query);
     const result = await BookingService.getClientBookings(req.user.id, options);
     res.status(200).json(result);
   }),
@@ -142,7 +144,7 @@ const BookingController = {
    * @access Private (admin only)
    */
   adminListBookings: asyncHandler(async (req, res) => {
-    const options = validate(availableSlotsQuerySchema, req.query, 'query');
+    const options = validate(listBookingsQuerySchema, req.query);
     const result = await BookingService.adminListBookings(options);
     res.status(200).json(result);
   })

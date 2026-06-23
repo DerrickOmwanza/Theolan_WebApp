@@ -113,6 +113,85 @@ const OrderModel = {
       .sum('amount_kes as total')
       .first();
     return parseFloat(result?.total || 0);
+  },
+
+  // ============================================================
+  // Analytics Methods
+  // ============================================================
+
+  getTotalRevenue: async () => {
+    const result = await db('orders')
+      .whereNotIn('status', ['cancelled'])
+      .sum('total_price_kes as total')
+      .first();
+    return parseFloat(result?.total || 0);
+  },
+
+  getRevenueByCategory: async () => {
+    return db('orders')
+      .select('product_category as category')
+      .sum('total_price_kes as total')
+      .groupBy('product_category')
+      .orderBy('total', 'desc');
+  },
+
+  getRevenueByTechnician: async () => {
+    return db('orders')
+      .leftJoin('technicians', 'orders.assigned_technician_id', 'technicians.id')
+      .select(
+        db.raw("COALESCE(technicians.name, 'Unassigned') as technician_name")
+      )
+      .sum('orders.total_price_kes as total')
+      .groupBy('technicians.name')
+      .orderBy('total', 'desc');
+  },
+
+  getPaymentStatusBreakdown: async () => {
+    const rows = await db('orders')
+      .select('payment_status')
+      .count('id as count')
+      .groupBy('payment_status');
+    const breakdown = { unpaid: 0, deposit_received: 0, paid_in_full: 0 };
+    for (const row of rows) {
+      if (breakdown[row.payment_status] !== undefined) {
+        breakdown[row.payment_status] = parseInt(row.count, 10);
+      }
+    }
+    return breakdown;
+  },
+
+  getMonthlyRevenueTrend: async () => {
+    return db.raw(`
+      SELECT
+        EXTRACT(YEAR FROM created_at) as year,
+        EXTRACT(MONTH FROM created_at) as month,
+        COALESCE(SUM(total_price_kes), 0) as total
+      FROM orders
+      WHERE created_at >= NOW() - INTERVAL '12 months'
+        AND status != 'cancelled'
+      GROUP BY EXTRACT(YEAR FROM created_at), EXTRACT(MONTH FROM created_at)
+      ORDER BY year, month
+    `).then((r) => r.rows || []);
+  },
+
+  getFunnelStats: async () => {
+    const rows = await db('orders')
+      .select('status')
+      .count('id as count')
+      .groupBy('status');
+    const stats = {
+      quoted: 0, confirmed: 0, fabrication: 0, ready: 0, installed: 0, cancelled: 0
+    };
+    for (const row of rows) {
+      if (stats[row.status] !== undefined) {
+        stats[row.status] = parseInt(row.count, 10);
+      }
+    }
+    return stats;
+  },
+
+  getAvgFabricationTime: async () => {
+    return 0; // Requires order_events timeline data; stub until orders are created
   }
 };
 

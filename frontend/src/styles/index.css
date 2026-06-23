@@ -203,7 +203,98 @@
   .badge-success {
     @apply bg-green-500/20 text-green-400;
   }
+  /* Badge for failed */
   .badge-failed {
     @apply bg-red-500/20 text-red-400;
+  }
+
+  /* Hero curved image - for split layout hero section */
+  .hero-image-curved {
+    clip-path: ellipse(85% 100% at 100% 50%);
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .hero-image-curved-mobile {
+    clip-path: ellipse(95% 100% at 50% 50%);
+    object-fit: cover;
+    object-position: center;
+  }
+}
+
+/* Animation utilities - hero section effects */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-out forwards;
+    opacity: 0;
+  }
+
+  .animate-slide-in-left {
+    animation: slideInLeft 0.8s ease-out forwards;
+    opacity: 0;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.8s ease-out forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInLeft {
+    0% {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideInRight {
+    0% {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+/* Continuous Products Carousel - Right to Left */
+.carousel-container {
+  animation: scrollLeft 30s linear infinite;
+  display: flex;
+}
+
+.carousel-container:hover {
+  animation-play-state: paused;
+}
+
+@keyframes scrollLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-100% / 2));
+  }
+}
+
+/* Gallery columns for xs breakpoint */
+@layer utilities {
+  .xs\:columns-2 {
+    columns: 2;
   }
 }

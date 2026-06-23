@@ -1,4 +1,11 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+import * as Sentry from "@sentry/react";
 import {
   authApi,
   getAccessToken,
@@ -7,7 +14,7 @@ import {
   setTokens,
   setUser,
   clearAuth,
-} from '../services/api.js';
+} from "../services/api.js";
 
 const AuthContext = createContext(null);
 
@@ -47,6 +54,15 @@ export function AuthProvider({ children }) {
     setUser(userData);
     setUserState(userData);
 
+    // Set Sentry user context for error tracking
+    if (import.meta.env.PROD) {
+      Sentry.setUser({
+        id: userData.id,
+        phone: userData.phone,
+        role: userData.role
+      });
+    }
+
     return response.data;
   }, []);
 
@@ -59,6 +75,11 @@ export function AuthProvider({ children }) {
     }
     clearAuth();
     setUserState(null);
+
+    // Clear Sentry user context
+    if (import.meta.env.PROD) {
+      Sentry.setUser(null);
+    }
   }, []);
 
   const forgotPassword = useCallback(async (phone) => {
@@ -98,7 +119,7 @@ export function AuthProvider({ children }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

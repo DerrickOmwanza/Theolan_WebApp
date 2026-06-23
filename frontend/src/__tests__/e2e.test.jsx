@@ -1,7 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MemoryRouter } from "react-router-dom";
+import { QueryClient } from "@tanstack/react-query";
 
 // Mock the API module
 vi.mock("../services/api.js", () => ({
@@ -142,14 +140,6 @@ describe("Order Status Labels", () => {
 });
 
 describe("Quote Calculation Logic", () => {
-  const FINISH_MULTIPLIERS = {
-    mill: 1.0,
-    silver: 1.05,
-    black: 1.15,
-    champagne: 1.1,
-    bronze: 1.12,
-  };
-
   it("should calculate area correctly", () => {
     const width = 2;
     const height = 1.5;

@@ -1,5 +1,4 @@
 // Test product service functions with focused unit tests
-import { jest } from '@jest/globals';
 
 describe('QuoteService Logic', () => {
   // Replicate the multiplier logic from productService
@@ -96,7 +95,6 @@ describe('QuoteService Logic', () => {
     it('should calculate pagination correctly', () => {
       const total = 18;
       const limit = 10;
-      const offset = 0;
 
       expect(Math.ceil(total / limit)).toBe(2); // 2 pages
     });
@@ -119,9 +117,7 @@ describe('Payment Service Logic', () => {
     });
 
     it('should identify final payment', () => {
-      const totalPrice = '50000';
       const paidAmount = 20000;
-      const paymentAmount = 30000;
 
       let paymentType = 'full';
       if (paidAmount > 0) {
@@ -132,10 +128,6 @@ describe('Payment Service Logic', () => {
     });
 
     it('should identify full payment', () => {
-      const totalPrice = '50000';
-      const paidAmount = 0;
-      const paymentAmount = 50000;
-
       // eslint-disable-next-line prefer-const
       let paymentType = 'full';
 

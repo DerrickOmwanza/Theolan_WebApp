@@ -266,6 +266,59 @@ const BookingModel = {
    */
   findByReference: (referenceNumber) => {
     return db('bookings').where({ reference_number: referenceNumber }).first();
+  },
+
+  // ============================================================
+  // Analytics Methods
+  // ============================================================
+
+  getCompletionStats: async () => {
+    const totalResult = await db('bookings').count('id as total').first();
+    const completedResult = await db('bookings')
+      .where('status', 'completed')
+      .count('id as completed')
+      .first();
+    const total = parseInt(totalResult.total, 10) || 0;
+    const completed = parseInt(completedResult.completed, 10) || 0;
+    const rate = total > 0 ? ((completed / total) * 100).toFixed(1) : 0;
+    return { total, completed, rate };
+  },
+
+  getNoShowStats: async () => {
+    const result = await db('bookings')
+      .where('status', 'no_show')
+      .count('id as count')
+      .first();
+    const count = parseInt(result.count, 10) || 0;
+    const totalResult = await db('bookings').count('id as total').first();
+    const total = parseInt(totalResult.total, 10) || 0;
+    const rate = total > 0 ? ((count / total) * 100).toFixed(1) : 0;
+    return { count, rate };
+  },
+
+  getTechnicianUtilization: async () => {
+    return db('bookings')
+      .leftJoin('technicians', 'bookings.assigned_technician_id', 'technicians.id')
+      .select(
+        db.raw("COALESCE(technicians.name, 'Unassigned') as name"),
+        db.raw('COUNT(bookings.id) as assigned')
+      )
+      .groupBy('technicians.name')
+      .orderBy('assigned', 'desc');
+  },
+
+  getBusiestDays: async () => {
+    return db.raw(`
+      SELECT
+        DATE(scheduled_at)::text as date,
+        COUNT(*) as count
+      FROM bookings
+      WHERE scheduled_at >= NOW() - INTERVAL '30 days'
+        AND status != 'cancelled'
+      GROUP BY DATE(scheduled_at)
+      ORDER BY count DESC
+      LIMIT 7
+    `).then((r) => r.rows || []);
   }
 };
 

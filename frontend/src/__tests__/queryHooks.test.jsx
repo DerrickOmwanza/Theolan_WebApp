@@ -8,9 +8,6 @@ vi.mock("../services/api.js", () => ({
     list: vi.fn(),
     getGallery: vi.fn(),
   },
-  quoteApi: {
-    calculate: vi.fn(),
-  },
   orderApi: {
     list: vi.fn(),
     getById: vi.fn(),
@@ -23,10 +20,6 @@ vi.mock("../services/api.js", () => ({
     list: vi.fn(),
     create: vi.fn(),
   },
-  paymentApi: {
-    initiateSTK: vi.fn(),
-    getPaymentStatus: vi.fn(),
-  },
 }));
 
 // Mock queryKeys
@@ -34,12 +27,10 @@ vi.mock("../main.jsx", () => ({
   queryKeys: {
     products: (filters) => ["products", filters],
     gallery: (filters) => ["gallery", filters],
-    quote: (params) => ["quote", params],
     availableSlots: (date) => ["availableSlots", date],
     orders: (userId, filters) => ["orders", userId, filters],
     order: (orderId) => ["order", orderId],
     bookings: (userId, filters) => ["bookings", userId, filters],
-    payment: (checkoutRequestId) => ["payment", checkoutRequestId],
     adminOrders: (filters) => ["adminOrders", filters],
   },
 }));
@@ -50,13 +41,7 @@ import {
   useOrders,
   useAvailableSlots,
 } from "../utils/queryHooks.js";
-import {
-  productApi,
-  bookingApi,
-  orderApi,
-  quoteApi,
-  paymentApi,
-} from "../services/api.js";
+import { productApi, bookingApi, orderApi } from "../services/api.js";
 
 // Create a wrapper for testing hooks with QueryClient
 const createWrapper = () => {
@@ -87,6 +72,7 @@ describe("Query Hooks", () => {
       });
 
       const wrapper = createWrapper();
+      // eslint-disable-next-line no-unused-vars
       const { result } = renderHook(
         () => useProducts({ category: "windows" }),
         { wrapper },
@@ -101,7 +87,9 @@ describe("Query Hooks", () => {
       });
 
       const wrapper = createWrapper();
-      renderHook(() => useProducts({ category: "doors" }), { wrapper });
+      renderHook(() => useProducts({ category: "doors" }), {
+        wrapper,
+      });
 
       // Query key should include filters
       expect(productApi.list).toHaveBeenCalled();

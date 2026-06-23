@@ -132,7 +132,7 @@ export default function Header() {
             {isAuthenticated ? (
               <>
                 <Link
-                  to="/orders"
+                  to={user?.role === "admin" ? "/admin" : "/orders"}
                   className="block text-sm text-silver-300"
                   onClick={() => setMobileOpen(false)}
                 >

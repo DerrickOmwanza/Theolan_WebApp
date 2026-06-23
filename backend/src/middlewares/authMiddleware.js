@@ -1,6 +1,6 @@
 import { verifyAccessToken } from '../utils/auth.js';
 import UserModel from '../models/userModel.js';
-import { AuthenticationError, AuthorizationError } from './errorHandler.js';
+import { AuthenticationError } from './errorHandler.js';
 
 /**
  * Authentication Middleware

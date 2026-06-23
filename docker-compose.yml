@@ -21,6 +21,16 @@ services:
             timeout: 5s
             retries: 5
 
+    # Redis Cache
+    redis:
+        image: redis:7-alpine
+        container_name: theolan-redis
+        ports:
+            - "6379:6379"
+        command: redis-server --appendonly yes
+        volumes:
+            - redis_data:/data
+
     # Backend API
     backend:
         build:
@@ -33,13 +43,17 @@ services:
             DB_USER: postgres
             DB_PASSWORD: postgres
             DB_NAME: theolan_dev
-            JWT_SECRET: your-jwt-secret-at-least-32-characters
-            JWT_REFRESH_SECRET: your-refresh-secret-at-least-32-characters
+            JWT_SECRET: dev_secret_key_change_in_production_min_32_chars_required
+            JWT_REFRESH_SECRET: dev_refresh_secret_change_in_prod_min_32_chars_required
             NODE_ENV: development
+            REDIS_HOST: redis
+            REDIS_PORT: 6379
         ports:
-            - "3000:3000"
+            - "3001:3000"
         depends_on:
             postgres:
+                condition: service_healthy
+            redis:
                 condition: service_healthy
         volumes:
             - ./backend:/app
@@ -52,9 +66,9 @@ services:
             target: development
         container_name: theolan-frontend
         environment:
-            VITE_API_BASE_URL: http://localhost:3000/api/v1
+            VITE_API_BASE_URL: http://localhost:3001/api/v1
         ports:
-            - "5173:5173"
+            - "5174:5173"
         depends_on:
             - backend
         volumes:
@@ -63,3 +77,4 @@ services:
 
 volumes:
     postgres_data:
+    redis_data:

@@ -28,12 +28,21 @@ const JWT_EXPIRE = process.env.JWT_EXPIRE || '15m';
 const JWT_REFRESH_EXPIRE = process.env.JWT_REFRESH_EXPIRE || '7d';
 
 // ============================================================
-// Phone Number Normalization (Kenyan format)
+// Phone Number Normalization (East African format)
 // ============================================================
 
+const PHONE_CODES = [
+  '+254', '+255', '+256', '+250', '+257', '+211',
+  '+251', '+252', '+253', '+291', '+261', '+258',
+  '+260', '+263', '+265', '+230', '+269', '+243', '+248',
+];
+
+const EAST_AFRICAN_PHONE_REGEX = /^\+(254[17]\d{8}|255[67]\d{8}|256[7]\d{8}|250[7]\d{8}|257[7]\d{7}|211[9]\d{8}|251[97]\d{8}|252[97]\d{8}|253[7]\d{7}|291[178]\d{6}|261[3]\d{8}|258[8]\d{8}|260[97]\d{8}|263[7]\d{8}|265[17]\d{8}|230[5]\d{6}|269[3]\d{6}|243[89]\d{8}|248[2]\d{6})$/;
+
 /**
- * Normalize phone number to +254XXXXXXXXX format.
+ * Normalize phone number to +{code}XXXXXXXXX format.
  * Handles: 0712345678, 254712345678, +254712345678, +254 712 345 678
+ * Also handles all East African country codes.
  *
  * @param {string} phone - Raw phone input
  * @returns {string|null} - Normalized phone or null if invalid
@@ -44,42 +53,34 @@ export const normalizePhone = (phone) => {
   // Strip all non-digit characters except leading +
   let cleaned = phone.replace(/[\s\-()]/g, '');
 
-  // Handle different formats
-  if (cleaned.startsWith('+254')) {
-    // Already international: +254712345678
-    cleaned = cleaned.substring(1); // Remove + for processing
+  // If already starts with +{code}, return as-is
+  for (const code of PHONE_CODES) {
+    if (cleaned.startsWith(code)) {
+      return cleaned;
+    }
   }
 
+  // Handle Kenya-specific legacy formats (backward compatibility)
   if (cleaned.startsWith('254') && cleaned.length === 12) {
-    // 254712345678 → +254712345678
     return '+' + cleaned;
   }
-
   if (cleaned.startsWith('0') && cleaned.length === 10) {
-    // 0712345678 → +254712345678
     return '+254' + cleaned.substring(1);
   }
-
   if (cleaned.startsWith('7') && cleaned.length === 9) {
-    // 712345678 → +254712345678
     return '+254' + cleaned;
-  }
-
-  // If it starts with + and has 12 digits total (+254XXXXXXXXX)
-  if (cleaned.startsWith('+') && cleaned.length === 13) {
-    return cleaned;
   }
 
   return null; // Invalid format
 };
 
 /**
- * Validate Kenyan phone number format
- * @param {string} phone - Normalized phone (+254XXXXXXXXX)
+ * Validate East African phone number format
+ * @param {string} phone - Normalized phone (+{code}XXXXXXXXX)
  * @returns {boolean}
  */
 export const isValidKenyanPhone = (phone) => {
-  return /^\+254[17][0-9]{8}$/.test(phone);
+  return EAST_AFRICAN_PHONE_REGEX.test(phone);
 };
 
 // ============================================================

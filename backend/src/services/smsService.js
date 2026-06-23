@@ -25,9 +25,11 @@ const BASE_URL = IS_SANDBOX
 export const sendSMS = async (phone, message) => {
   // If API key is not configured, log and return (dev mode)
   if (!API_KEY || API_KEY === 'your_api_key') {
-    logger.info('SMS (dev mode — Africa\'s Talking not configured)', { phone, message });
+    logger.info("SMS (dev mode — Africa's Talking not configured)", { phone, message });
     return { sent: true, messageId: 'dev-mode', cost: 'KES 0.00' };
   }
+
+  logger.info('Attempting SMS send', { phone, username: USERNAME, baseUrl: BASE_URL });
 
   try {
     const response = await axios.post(
@@ -71,7 +73,8 @@ export const sendSMS = async (phone, message) => {
     logger.error('SMS send failed', {
       phone,
       error: error.response?.data || error.message,
-      status: error.response?.status
+      status: error.response?.status,
+      baseUrl: BASE_URL
     });
     return { sent: false, error: error.message };
   }
@@ -86,7 +89,7 @@ export const sendSMS = async (phone, message) => {
  * @param {string} clientPhone - Client phone number
  * @param {string} [technicianName] - Assigned technician name (optional)
  */
-export const sendBookingConfirmation = async (booking, clientPhone, technicianName) => {
+export const sendBookingConfirmation = (booking, clientPhone, technicianName) => {
   const date = new Date(booking.scheduled_at);
   const formattedDate = date.toLocaleDateString('en-KE', {
     weekday: 'short',
@@ -117,7 +120,7 @@ export const sendBookingConfirmation = async (booking, clientPhone, technicianNa
  * @param {string} clientPhone - Client phone number
  * @param {string} [reason] - Cancellation reason (optional)
  */
-export const sendBookingCancellation = async (referenceNumber, clientPhone, reason) => {
+export const sendBookingCancellation = (referenceNumber, clientPhone, reason) => {
   let message = `Theolan Aluminium: Your booking ${referenceNumber} has been cancelled.`;
   if (reason) {
     message += ` Reason: ${reason}.`;
@@ -134,7 +137,7 @@ export const sendBookingCancellation = async (referenceNumber, clientPhone, reas
  * @param {Date|string} newDateTime - New scheduled date/time
  * @param {string} clientPhone - Client phone number
  */
-export const sendBookingReschedule = async (referenceNumber, newDateTime, clientPhone) => {
+export const sendBookingReschedule = (referenceNumber, newDateTime, clientPhone) => {
   const date = new Date(newDateTime);
   const formattedDate = date.toLocaleDateString('en-KE', {
     weekday: 'short',

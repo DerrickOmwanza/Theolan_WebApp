@@ -30,7 +30,10 @@ const listOrdersQuerySchema = Joi.object({
 const validate = (schema, data) => {
   const { error, value } = schema.validate(data, { abortEarly: false, stripUnknown: true });
   if (error) {
-    const details = error.details.map((d) => ({ field: d.context?.key, issue: d.message }));
+    const details = error.details.map((d) => ({
+      field: d.context?.key,
+      issue: d.message
+    }));
     throw new ValidationError(error.details[0].message, details);
   }
   return value;

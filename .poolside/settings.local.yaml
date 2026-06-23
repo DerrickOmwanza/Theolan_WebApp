@@ -66,3 +66,21 @@ tools:
             - Remove-Item *
             - Format-Wide *
             - rm *
+            - copy *
+            - grep *
+            - Copy-Item *
+            - Standalone *
+            - "true"
+            - npm test
+            - npx tailwindcss *
+            - cat *
+            - npm ls *
+            - type *
+            - powershell *
+            - sleep 8
+            - timeout 30 node *
+            - sleep 6
+            - netstat *
+paths:
+    allow:
+        - path: C:/Users/ADMIN/Web&Standalone Applications/**

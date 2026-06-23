@@ -1,7 +1,25 @@
 import axios from "axios";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api/v1";
+// ============================================================
+// API Configuration
+// ============================================================
+
+// Get API URL from environment, default to backend dev server port
+const getApiBaseUrl = () => {
+  // Vite injects env vars at build time
+  if (
+    typeof import.meta !== "undefined" &&
+    import.meta.env?.VITE_API_BASE_URL
+  ) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+  // Development fallback - match backend default
+  return "http://localhost:3001/api/v1";
+};
+
+const API_BASE_URL = getApiBaseUrl();
+
+console.log("[API] Base URL:", API_BASE_URL);
 
 /**
  * Axios instance configured for the The Olan Glass and Aluminium API.
@@ -153,6 +171,7 @@ api.interceptors.response.use(
 export const authApi = {
   signup: (data) => api.post("/auth/signup", data),
   verifyOtp: (data) => api.post("/auth/verify-otp", data),
+  resendOTP: (data) => api.post("/auth/resend-otp", data),
   login: (data) => api.post("/auth/login", data),
   refreshToken: (refreshToken) =>
     api.post("/auth/refresh-token", { refresh_token: refreshToken }),
@@ -183,6 +202,9 @@ export const bookingApi = {
 export const productApi = {
   list: (params) => api.get("/products", { params }),
   getGallery: (params) => api.get("/products/gallery", { params }),
+  uploadGallery: (data) => api.post("/products/gallery", data),
+  deleteGallery: (id) => api.delete(`/products/gallery/${id}`),
+  updateGallery: (id, data) => api.patch(`/products/gallery/${id}`, data),
 };
 
 // ============================================================
@@ -202,7 +224,7 @@ export const orderApi = {
   list: (params) => api.get("/orders", { params }),
   getById: (id) => api.get(`/orders/${id}`),
   adminUpdate: (id, data) => api.patch(`/orders/${id}`, data),
-  adminList: (params) => api.get("/admin/orders", { params }), // Admin list all orders
+  adminList: (params) => api.get("/orders/admin", { params }),
 };
 
 // ============================================================

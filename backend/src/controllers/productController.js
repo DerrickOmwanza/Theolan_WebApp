@@ -1,6 +1,7 @@
 import Joi from 'joi';
 import { QuoteService, ProductService } from '../services/productService.js';
-import { asyncHandler, ValidationError } from '../middlewares/errorHandler.js';
+import { asyncHandler, ValidationError, NotFoundError } from '../middlewares/errorHandler.js';
+import { db } from '../config/database.js';
 
 // ============================================================
 // Constants
@@ -51,6 +52,25 @@ const galleryQuerySchema = Joi.object({
   search: Joi.string().trim().max(200).allow('').optional(),
   limit: Joi.number().integer().min(1).max(100).default(20),
   offset: Joi.number().integer().min(0).default(0)
+});
+
+const uploadGallerySchema = Joi.object({
+  image_url: Joi.string().uri().max(500).required()
+    .messages({ 'string.empty': 'Image URL is required', 'string.uri': 'Must be a valid URL' }),
+  category: Joi.string().valid(...CATEGORIES).required()
+    .messages({ 'any.only': 'Category must be one of: ' + CATEGORIES.join(', ') }),
+  finish: Joi.string().valid(...FINISHES).optional().allow(null),
+  project_name: Joi.string().trim().max(255).allow('', null).optional(),
+  location: Joi.string().trim().max(255).allow('', null).optional(),
+  description: Joi.string().trim().max(2000).allow('', null).optional(),
+  published: Joi.boolean().optional().default(true)
+});
+
+const updateGallerySchema = Joi.object({
+  project_name: Joi.string().trim().max(255).allow('', null).optional(),
+  location: Joi.string().trim().max(255).allow('', null).optional(),
+  description: Joi.string().trim().max(2000).allow('', null).optional(),
+  published: Joi.boolean().optional()
 });
 
 /**
@@ -104,6 +124,38 @@ const ProductController = {
   getGallery: asyncHandler(async (req, res) => {
     const options = validate(galleryQuerySchema, req.query);
     const result = await ProductService.getGallery(options);
+    res.status(200).json(result);
+  }),
+
+  /**
+   * POST /api/v1/products/gallery
+   * Upload a new gallery photo (admin only).
+   * @access Private (admin)
+   */
+  uploadGalleryPhoto: asyncHandler(async (req, res) => {
+    const data = validate(uploadGallerySchema, req.body);
+    const result = await ProductService.uploadGalleryPhoto(data, req.user.id);
+    res.status(201).json(result);
+  }),
+
+  /**
+   * DELETE /api/v1/products/gallery/:id
+   * Delete a gallery photo (admin only).
+   * @access Private (admin)
+   */
+  deleteGalleryPhoto: asyncHandler(async (req, res) => {
+    const result = await ProductService.deleteGalleryPhoto(req.params.id);
+    res.status(200).json(result);
+  }),
+
+  /**
+   * PATCH /api/v1/products/gallery/:id
+   * Update gallery photo metadata (admin only).
+   * @access Private (admin)
+   */
+  updateGalleryPhoto: asyncHandler(async (req, res) => {
+    const data = validate(updateGallerySchema, req.body);
+    const result = await ProductService.updateGalleryPhoto(req.params.id, data);
     res.status(200).json(result);
   })
 };

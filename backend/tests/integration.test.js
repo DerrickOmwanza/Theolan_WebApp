@@ -1,5 +1,3 @@
-import { jest } from '@jest/globals';
-
 // Test API route configuration
 describe('API Routes Configuration', () => {
   // Test that route files exist and can be imported

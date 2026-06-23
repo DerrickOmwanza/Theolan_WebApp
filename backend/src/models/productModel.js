@@ -161,6 +161,28 @@ const ProductModel = {
       data,
       total: parseInt(countResult.total, 10)
     };
+  },
+
+  // ============================================================
+  // Gallery Management (Admin)
+  // ============================================================
+
+  createGalleryPhoto: async (photoData) => {
+    const [photo] = await db('gallery_photos').insert(photoData).returning('*');
+    return photo;
+  },
+
+  deleteGalleryPhoto: async (id) => {
+    const deleted = await db('gallery_photos').where({ id }).del();
+    return deleted > 0;
+  },
+
+  updateGalleryPhoto: async (id, updates) => {
+    const [photo] = await db('gallery_photos')
+      .where({ id })
+      .update(updates)
+      .returning('*');
+    return photo;
   }
 };
 

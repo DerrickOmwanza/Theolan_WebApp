@@ -1,5 +1,6 @@
 import express from 'express';
 import ProductController from '../controllers/productController.js';
+import { protect, authorize } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
@@ -22,6 +23,31 @@ router.get('/', ProductController.getProducts);
  * @query   category, finish, search, limit, offset
  */
 router.get('/gallery', ProductController.getGallery);
+
+// ============================================================
+// ADMIN ENDPOINTS (require admin auth)
+// ============================================================
+
+/**
+ * @route   POST /api/v1/products/gallery
+ * @desc    Upload a new gallery photo (admin only)
+ * @access  Private (admin)
+ */
+router.post('/gallery', protect, authorize('admin'), ProductController.uploadGalleryPhoto);
+
+/**
+ * @route   DELETE /api/v1/products/gallery/:id
+ * @desc    Delete a gallery photo (admin only)
+ * @access  Private (admin)
+ */
+router.delete('/gallery/:id', protect, authorize('admin'), ProductController.deleteGalleryPhoto);
+
+/**
+ * @route   PATCH /api/v1/products/gallery/:id
+ * @desc    Toggle gallery photo published status (admin only)
+ * @access  Private (admin)
+ */
+router.patch('/gallery/:id', protect, authorize('admin'), ProductController.updateGalleryPhoto);
 
 export { router as productRoutes };
 export default router;

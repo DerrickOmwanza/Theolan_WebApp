@@ -3,7 +3,6 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { orderApi } from "../../services/api.js";
 import LoadingSpinner from "../../components/LoadingSpinner.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
-import { useNavigate } from "react-router-dom";
 
 const ORDER_STATUSES = [
   "quoted",
@@ -44,18 +43,15 @@ function formatDate(dateStr) {
 
 export default function AdminOrdersPage() {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [activeStatus, setActiveStatus] = useState("all");
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["admin-orders", activeStatus],
     queryFn: () =>
-      orderApi.listAll
-        ? orderApi.listAll(
-            activeStatus !== "all" ? { status: activeStatus } : {},
-          )
-        : null,
+      orderApi.adminList(
+        activeStatus !== "all" ? { status: activeStatus } : {},
+      ),
     enabled: !!user && user.role === "admin",
   });
 

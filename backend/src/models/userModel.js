@@ -129,6 +129,29 @@ const UserModel = {
     return db('refresh_tokens')
       .where({ user_id: userId, is_revoked: false })
       .update({ is_revoked: true });
+  },
+
+  // ============================================================
+  // Analytics Methods
+  // ============================================================
+
+  getRepeatCustomerStats: async () => {
+    const totalResult = await db('users')
+      .where({ role: 'client', deleted_at: null })
+      .count('id as total')
+      .first();
+    const total = parseInt(totalResult.total, 10) || 0;
+
+    // Repeat customers = clients with more than one order
+    const repeatResult = await db('orders')
+      .select('client_id')
+      .count('id as order_count')
+      .groupBy('client_id')
+      .having(db.raw('COUNT(id) > 1'));
+    const repeat = repeatResult.length;
+
+    const rate = total > 0 ? ((repeat / total) * 100).toFixed(1) : 0;
+    return { total, repeat, rate };
   }
 };
 

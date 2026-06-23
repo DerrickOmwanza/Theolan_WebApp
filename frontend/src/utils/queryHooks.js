@@ -114,7 +114,7 @@ export function useCreateOrder() {
 
   return useMutation({
     mutationFn: (data) => orderApi.create(data),
-    onSuccess: (data, variables) => {
+    onSuccess: (data) => {
       // Invalidate orders list to refetch
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       // Prefetch the new order
@@ -174,6 +174,7 @@ export function usePaymentStatus(checkoutRequestId, enabled = false) {
 }
 
 export function useInitiatePayment() {
+  // eslint-disable-next-line no-unused-vars
   const queryClient = useQueryClient();
 
   return useMutation({

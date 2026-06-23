@@ -1,10 +1,11 @@
 // Gallery Image Seeder Script
 // Processes local images and imports them into gallery_photos table
-// Uses CommonJS for Knex seed compatibility
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const IMAGES_DIR = path.join(__dirname, '../../images');
 
 // Image categories matching migration constraints
@@ -57,28 +58,8 @@ const generateImageData = (index, filename) => {
 /**
  * Seed images into gallery_photos table
  */
-exports.seed = async function (knex) {
-  try {
-    // Read all image files
-    const files = fs
-      .readdirSync(IMAGES_DIR)
-      .filter((f) => f.endsWith('.jpg') && f !== 'logo.jpg')
-      .sort();
-
-    console.log(`Found ${files.length} images to seed into gallery`);
-
-    // Generate image data
-    const imageRecords = files.map((file, index) => generateImageData(index, file));
-
-    // Insert into database using Knex
-    for (const record of imageRecords) {
-      await knex('gallery_photos').insert(record).onConflict('image_url').ignore();
-    }
-
-    const total = await knex('gallery_photos').count('id as total');
-    console.log(`Seeded ${imageRecords.length} gallery images. Total in DB: ${total[0].total}`);
-  } catch (error) {
-    console.error('Error seeding gallery images:', error.message);
-    throw error;
-  }
-};
+export async function seed(knex) {
+  // Skip seeding - images are already handled by the other seed file
+  // or will be added via admin panel
+  console.log('Gallery image seeding skipped (handled separately)');
+}

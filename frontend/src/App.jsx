@@ -36,8 +36,10 @@ import BookingsPage from "./pages/BookingsPage.jsx";
 // Admin Pages
 import AdminOrdersPage from "./pages/admin/AdminOrdersPage.jsx";
 import AdminCalendarPage from "./pages/admin/AdminCalendarPage.jsx";
+import AdminBookingsPage from "./pages/admin/AdminBookingsPage.jsx";
 import AnalyticsPage from "./pages/admin/AnalyticsPage.jsx";
 import SettingsPage from "./pages/admin/SettingsPage.jsx";
+import AdminGalleryPage from "./pages/admin/AdminGalleryPage.jsx";
 
 // Error Pages
 import NotFoundPage from "./pages/NotFoundPage.jsx";
@@ -107,10 +109,16 @@ export default function App() {
           </ProtectedRoute>
         }
       >
+        <Route
+          path="/admin"
+          element={<Navigate to="/admin/analytics" replace />}
+        />
         <Route path="/admin/orders" element={<AdminOrdersPage />} />
+        <Route path="/admin/bookings" element={<AdminBookingsPage />} />
         <Route path="/admin/calendar" element={<AdminCalendarPage />} />
         <Route path="/admin/analytics" element={<AnalyticsPage />} />
         <Route path="/admin/settings" element={<SettingsPage />} />
+        <Route path="/admin/gallery" element={<AdminGalleryPage />} />
       </Route>
 
       {/* ============================== */}

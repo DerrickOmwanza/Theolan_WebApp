@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import { db, healthCheck, closeDb } from './config/database.js';
+import { redis, closeRedis } from './config/redis.js';
+import { initSentry, setSentryUser } from './config/sentry.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import logger, { requestLogger } from './middlewares/logger.js';
 import { authRoutes } from './routes/auth.js';
@@ -14,6 +16,9 @@ import { productRoutes } from './routes/products.js';
 import { orderRoutes } from './routes/orders.js';
 import { paymentRoutes } from './routes/payments.js';
 import analyticsRoutes from './routes/analytics.js';
+
+// Initialize Sentry for error tracking
+initSentry();
 
 dotenv.config();
 
@@ -111,12 +116,14 @@ app.use(requestLogger);
 app.get('/health', async (req, res) => {
   try {
     const dbHealth = await healthCheck();
+    const redisHealth = redis.status === 'ready' ? 'healthy' : 'unavailable';
     res.status(200).json({
       status: 'ok',
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
       environment: NODE_ENV,
-      database: dbHealth
+      database: dbHealth,
+      redis: redisHealth
     });
   } catch (error) {
     logger.error('Health check failed', { error: error.message });
@@ -192,16 +199,17 @@ const server = app.listen(PORT, async () => {
  * Triggered by SIGTERM (container orchestrator), SIGINT (Ctrl+C),
  * uncaught exceptions, and unhandled promise rejections.
  */
-const gracefulShutdown = async (signal) => {
+const gracefulShutdown = (signal) => {
   logger.warn(`Shutdown signal received: ${signal}`);
 
   server.close(async () => {
     try {
       await closeDb();
-      logger.info('Database connection closed. Shutdown complete.');
+      await closeRedis();
+      logger.info('Database and Redis connections closed. Shutdown complete.');
       process.exit(0);
     } catch (error) {
-      logger.error('Error during database shutdown', { error: error.message });
+      logger.error('Error during shutdown', { error: error.message });
       process.exit(1);
     }
   });
@@ -224,7 +232,7 @@ process.on('uncaughtException', (error) => {
   gracefulShutdown('uncaughtException');
 });
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', (reason) => {
   logger.error('Unhandled Promise Rejection — initiating shutdown', {
     reason: reason instanceof Error ? reason.message : reason,
     stack: reason instanceof Error ? reason.stack : undefined

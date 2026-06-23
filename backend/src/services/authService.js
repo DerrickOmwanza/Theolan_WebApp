@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import UserModel from '../models/userModel.js';
 import {
   generateAccessToken,
@@ -14,6 +15,7 @@ import {
   NotFoundError
 } from '../middlewares/errorHandler.js';
 import logger from '../middlewares/logger.js';
+import { sendSMS } from './smsService.js';
 
 const BCRYPT_SALT_ROUNDS = 10;
 const OTP_LENGTH = 6;
@@ -26,7 +28,7 @@ const REFRESH_TOKEN_EXPIRY_DAYS = 7;
 const generateOTPCode = () => {
   const min = Math.pow(10, OTP_LENGTH - 1);
   const max = Math.pow(10, OTP_LENGTH) - 1;
-  return Math.floor(min + Math.random() * (max - min)).toString();
+  return crypto.randomInt(min, max + 1).toString();
 };
 
 /**
@@ -35,7 +37,6 @@ const generateOTPCode = () => {
  * Every method uses typed AppError subclasses for proper HTTP status mapping.
  */
 const AuthService = {
-
   // ============================================================
   // Signup
   // ============================================================
@@ -44,7 +45,7 @@ const AuthService = {
     // Normalize phone
     const phone = normalizePhone(rawPhone);
     if (!phone || !isValidKenyanPhone(phone)) {
-      throw new ValidationError('Phone number must be a valid Kenyan number (+254XXXXXXXXX)');
+      throw new ValidationError('Phone number must be a valid East African number (e.g. +254XXXXXXXXX)');
     }
 
     // Check phone uniqueness
@@ -89,10 +90,27 @@ const AuthService = {
       expires_at
     });
 
-    // TODO: Send OTP via Africa's Talking SMS
-    // For development, log the OTP (never log in production)
+    // Log OTP in development for debugging
     if (process.env.NODE_ENV === 'development') {
-      logger.debug('DEV OTP (do not log in production)', { phone, code: otpCode });
+      logger.info('DEV OTP for testing:', { phone, otpCode, expiresIn: OTP_EXPIRY_MINUTES * 60 });
+    }
+
+    // Send OTP via Africa's Talking SMS (if configured)
+    const smsSent = await sendSMS(
+      phone,
+      `Your Olan Aluminium verification code is: ${otpCode}. Expires in ${OTP_EXPIRY_MINUTES} minutes.`
+    );
+    if (
+      !smsSent.sent &&
+      process.env.AFRICASTALKING_API_KEY &&
+      process.env.AFRICASTALKING_API_KEY !== 'your_api_key'
+    ) {
+      logger.warn('Failed to send SMS, falling back to log', { phone });
+    }
+
+    // For development, log the OTP (never in production when SMS works)
+    if (process.env.NODE_ENV === 'development' || !smsSent.sent) {
+      logger.debug('DEV OTP - check server logs', { phone, code: otpCode });
     }
 
     logger.info('User registered', { userId: user.id, phone });
@@ -304,14 +322,84 @@ const AuthService = {
       expires_at
     });
 
-    // TODO: Send OTP via Africa's Talking SMS
-    if (process.env.NODE_ENV === 'development') {
-      logger.debug('DEV Reset OTP (do not log in production)', { phone, code: otpCode });
+    // Send OTP via Africa's Talking SMS (if configured)
+    const smsSent = await sendSMS(
+      phone,
+      `Your Olan Aluminium password reset code is: ${otpCode}. Expires in ${OTP_EXPIRY_MINUTES} minutes.`
+    );
+    if (
+      !smsSent.sent &&
+      process.env.AFRICASTALKING_API_KEY &&
+      process.env.AFRICASTALKING_API_KEY !== 'your_api_key'
+    ) {
+      logger.warn('Failed to send SMS, falling back to log', { phone });
+    }
+
+    // For development, log the OTP (never in production when SMS works)
+    if (process.env.NODE_ENV === 'development' || !smsSent.sent) {
+      logger.debug('DEV Reset OTP - check server logs', { phone, code: otpCode });
     }
 
     logger.info('Password reset requested', { phone });
 
     return { success: true, message: 'Reset OTP sent to phone' };
+  },
+
+  // ============================================================
+  // Resend OTP
+  // ============================================================
+
+  resendOTP: async (rawPhone) => {
+    const phone = normalizePhone(rawPhone);
+    if (!phone || !isValidKenyanPhone(phone)) {
+      throw new ValidationError('Phone number must be a valid East African number (e.g. +254XXXXXXXXX)');
+    }
+
+    // Find user by phone
+    const user = await UserModel.findByPhone(phone);
+    if (!user) {
+      // Don't reveal whether user exists
+      return { success: true, message: 'If the phone number exists, a new code has been sent.' };
+    }
+
+    // Check if phone already verified
+    if (user.phone_verified) {
+      return { success: true, message: 'Phone already verified. Please log in.' };
+    }
+
+    // Invalidate previous OTPs
+    await UserModel.invalidatePreviousOTPs(phone, 'signup');
+
+    // Generate new OTP
+    const otpCode = generateOTPCode();
+    const expires_at = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
+
+    await UserModel.saveOTP({
+      phone,
+      code: otpCode,
+      type: 'signup',
+      expires_at
+    });
+
+    // Log OTP in development
+    if (process.env.NODE_ENV === 'development') {
+      logger.info('DEV OTP for testing:', { phone, otpCode, expiresIn: OTP_EXPIRY_MINUTES * 60 });
+    }
+
+    // Send SMS
+    await sendSMS(
+      phone,
+      `Your Olan Aluminium verification code is: ${otpCode}. Expires in ${OTP_EXPIRY_MINUTES} minutes.`
+    );
+
+    return {
+      success: true,
+      message: 'New verification code sent to your phone.',
+      data: {
+        phone,
+        otp_expires_in_seconds: OTP_EXPIRY_MINUTES * 60
+      }
+    };
   },
 
   // ============================================================

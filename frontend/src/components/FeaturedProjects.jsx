@@ -1,5 +1,5 @@
 // Featured Projects Component
-// Modern masonry grid design - admin manages all content via web admin panel
+// 2x3 Grid layout - Admin controls which images are featured via backend
 
 import { useQuery } from "@tanstack/react-query";
 import { productApi } from "../services/api.js";
@@ -9,31 +9,16 @@ export default function FeaturedProjects() {
   const { data, isLoading } = useQuery({
     queryKey: ["featured-gallery"],
     queryFn: () =>
-      productApi.getGallery({ limit: 6 }).catch(() => ({ data: [] })),
+      productApi
+        .getGallery({ limit: 6, featured: true })
+        .catch(() => ({ data: [] })),
   });
 
   const featuredPhotos = data?.data?.data || [];
 
-  // Fallback to local images if no database data
-  const displayPhotos =
-    featuredPhotos.length > 0
-      ? featuredPhotos.slice(0, 6)
-      : Array.from({ length: 6 }, (_, i) => ({
-          id: `local-${i + 1}`,
-          image_url: `/images/image_${i + 1}.jpg`,
-          category: [
-            "windows",
-            "doors",
-            "curtain_walls",
-            "partitions",
-            "balustrades",
-          ][i % 5],
-          finish: ["bronze", "black", "silver", "white", "mill"][i % 5],
-        }));
-
   if (isLoading) {
     return (
-      <section className="py-16 bg-gradient-to-b from-charcoal-900 to-charcoal-800">
+      <section className="py-12 bg-gradient-to-b from-charcoal-900 to-charcoal-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-center py-12">
             <LoadingSpinner />
@@ -43,10 +28,15 @@ export default function FeaturedProjects() {
     );
   }
 
+  // Don't render if no featured photos from admin
+  if (featuredPhotos.length === 0) {
+    return null;
+  }
+
   return (
-    <section className="py-16 bg-gradient-to-b from-charcoal-900 to-charcoal-800">
+    <section className="py-12 bg-gradient-to-b from-charcoal-900 to-charcoal-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+        <div className="text-center mb-10">
           <h2 className="text-3xl font-heading font-bold text-warmwhite mb-3">
             Featured Projects
           </h2>
@@ -55,59 +45,58 @@ export default function FeaturedProjects() {
           </p>
         </div>
 
-        {/* Masonry Grid - Images displayed at native resolution */}
-        <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
-          {displayPhotos.map((photo, idx) => (
+        {/* 2x3 Grid - Featured images controlled by admin */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {featuredPhotos.slice(0, 6).map((photo) => (
             <div
               key={photo.id}
-              className="break-inside-avoid rounded-xl overflow-hidden bg-charcoal-800 border border-charcoal-700"
+              className="rounded-xl overflow-hidden bg-charcoal-800 border border-charcoal-700 group"
             >
-              <div className="w-full">
+              <div className="relative w-full overflow-hidden">
                 {photo.image_url ? (
                   <img
                     src={photo.image_url}
                     alt={photo.project_name || "Project photo"}
-                    className="w-full h-auto block"
+                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
-                    style={{
-                      maxWidth: "100%",
-                      width: "100%",
-                      objectFit: "contain",
-                    }}
                   />
                 ) : null}
+                {photo.category && (
+                  <div className="absolute top-3 right-3 badge-cobalt text-xs capitalize backdrop-blur-sm">
+                    {photo.category.replace("_", " ")}
+                  </div>
+                )}
               </div>
-              <div className="p-5">
-                {photo.project_name && (
-                  <h3 className="text-warmwhite font-heading font-semibold text-lg mb-2 line-clamp-1">
+              <div className="p-4">
+                {photo.project_name ? (
+                  <h3 className="text-warmwhite font-heading font-semibold text-base mb-1 line-clamp-1 group-hover:text-cobalt-300 transition-colors">
                     {photo.project_name}
                   </h3>
+                ) : (
+                  <h3 className="text-warmwhite font-heading font-semibold text-base mb-1 line-clamp-1 capitalize">
+                    {photo.category?.replace("_", " ") || "Project"}
+                  </h3>
                 )}
-                {photo.location && (
-                  <p className="text-silver-400 text-sm mb-3">
+                {photo.location ? (
+                  <p className="text-silver-400 text-xs mb-2">
                     {photo.location}
                   </p>
+                ) : (
+                  <p className="text-silver-500 text-xs mb-2 italic">
+                    {photo.finish
+                      ? `${photo.finish} finish`
+                      : "Aluminium installation"}
+                  </p>
                 )}
-                <div className="flex gap-2">
-                  {photo.category && (
-                    <span className="badge-cobalt text-xs">
-                      {photo.category.replace("_", " ")}
-                    </span>
-                  )}
-                  {photo.finish && (
-                    <span className="badge-charcoal text-xs capitalize">
-                      {photo.finish}
-                    </span>
-                  )}
-                </div>
+                {photo.finish && (
+                  <span className="badge-charcoal text-xs capitalize">
+                    {photo.finish}
+                  </span>
+                )}
               </div>
             </div>
           ))}
         </div>
-
-        <p className="text-silver-500 text-sm mt-8 text-center">
-          Admin manages image details via the gallery admin panel
-        </p>
       </div>
     </section>
   );

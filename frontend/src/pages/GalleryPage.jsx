@@ -27,7 +27,9 @@ const FINISHES = [
   { value: "champagne", label: "Champagne" },
 ];
 
-const LOCATIONS = [
+// Note: LOCATIONS array reserved for future location-based filtering
+// eslint-disable-next-line no-unused-vars
+const _LOCATIONS = [
   "Nairobi Westlands",
   "Nairobi Kileleshwa",
   "Nairobi Muthaiga",
@@ -92,8 +94,9 @@ export default function GalleryPage() {
   const search = searchParams.get("search") || "";
   const [page, setPage] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState(null);
-  const LIMIT = 12;
+  const LIMIT = 16; // 16 images per page for 4x4 grid
 
+  // Query for paginated grid display
   const { data, isLoading, error } = useQuery({
     queryKey: ["gallery", category, finish, search, page],
     queryFn: () =>
@@ -107,22 +110,55 @@ export default function GalleryPage() {
         })
         .catch(() => {
           // Fallback to local data if API fails
+          const allLocal = generateLocalGalleryData();
+          const filtered = allLocal
+            .filter((p) => !category || p.category === category)
+            .filter((p) => !finish || p.finish === finish)
+            .filter(
+              (p) =>
+                !search ||
+                (p.project_name &&
+                  p.project_name
+                    .toLowerCase()
+                    .includes(search.toLowerCase())) ||
+                (p.description &&
+                  p.description.toLowerCase().includes(search.toLowerCase())),
+            );
           return {
             data: {
-              data: generateLocalGalleryData()
-                .filter((p) => !category || p.category === category)
-                .filter((p) => !finish || p.finish === finish)
-                .filter(
-                  (p) =>
-                    !search ||
+              data: filtered.slice(page * LIMIT, (page + 1) * LIMIT),
+              total: filtered.length,
+            },
+          };
+        }),
+  });
+
+  // Query for FULL gallery (lightbox navigation across all images)
+  const { data: allGalleryData } = useQuery({
+    queryKey: ["gallery-all", category, finish, search],
+    queryFn: () =>
+      productApi
+        .getGallery({
+          category: category || undefined,
+          finish: finish || undefined,
+          search: search || undefined,
+          limit: 1000, // Get all images for lightbox
+        })
+        .catch(() => {
+          return {
+            data: generateLocalGalleryData()
+              .filter((p) => !category || p.category === category)
+              .filter((p) => !finish || p.finish === finish)
+              .filter(
+                (p) =>
+                  !search ||
+                  (p.project_name &&
                     p.project_name
                       .toLowerCase()
-                      .includes(search.toLowerCase()) ||
-                    p.description.toLowerCase().includes(search.toLowerCase()),
-                )
-                .slice(page * LIMIT, (page + 1) * LIMIT),
-              total: generateLocalGalleryData().length,
-            },
+                      .includes(search.toLowerCase())) ||
+                  (p.description &&
+                    p.description.toLowerCase().includes(search.toLowerCase())),
+              ),
           };
         }),
   });
@@ -136,18 +172,53 @@ export default function GalleryPage() {
     setPage(0);
   };
 
-  // Use API data or fallback to local data
-  const photos =
-    data?.data?.data?.length > 0 ? data.data.data : generateLocalGalleryData();
-  const total = data?.data?.total || photos.length;
-  const totalPages = Math.ceil(total / LIMIT);
+  // Grid display uses paginated data - properly calculated for fallback
+  const photos = data?.data?.data || [];
+  const total = data?.data?.total || 0;
+
+  // eslint-disable-next-line no-unused-vars
+  const _totalPages = Math.ceil(total / LIMIT);
+
+  // If API returned no data, use fallback
+  const displayPhotos =
+    photos.length > 0
+      ? photos
+      : generateLocalGalleryData()
+          .filter((p) => !category || p.category === category)
+          .filter((p) => !finish || p.finish === finish)
+          .filter(
+            (p) =>
+              !search ||
+              (p.project_name &&
+                p.project_name.toLowerCase().includes(search.toLowerCase())) ||
+              (p.description &&
+                p.description.toLowerCase().includes(search.toLowerCase())),
+          )
+          .slice(page * LIMIT, (page + 1) * LIMIT);
+
+  const displayTotal =
+    total > 0
+      ? total
+      : generateLocalGalleryData()
+          .filter((p) => !category || p.category === category)
+          .filter((p) => !finish || p.finish === finish).length;
+
+  const displayTotalPages = Math.ceil(displayTotal / LIMIT);
+
+  // Lightbox uses ALL images for cross-page navigation
+  const allPhotos =
+    allGalleryData?.data?.data?.length > 0
+      ? allGalleryData.data.data
+      : generateLocalGalleryData()
+          .filter((p) => !category || p.category === category)
+          .filter((p) => !finish || p.finish === finish);
 
   const openLightbox = (idx) => setLightboxIndex(idx);
   const closeLightbox = () => setLightboxIndex(null);
   const prevPhoto = () =>
-    setLightboxIndex((i) => (i > 0 ? i - 1 : photos.length - 1));
+    setLightboxIndex((i) => (i > 0 ? i - 1 : allPhotos.length - 1));
   const nextPhoto = () =>
-    setLightboxIndex((i) => (i < photos.length - 1 ? i + 1 : 0));
+    setLightboxIndex((i) => (i < allPhotos.length - 1 ? i + 1 : 0));
 
   return (
     <div>
@@ -214,37 +285,49 @@ export default function GalleryPage() {
                 Clear filters
               </button>
             )}
-            <span className="ml-auto text-sm text-silver-500">
-              {total} project{total !== 1 ? "s" : ""}
-            </span>
           </div>
         </div>
       </section>
 
-      {/* Gallery Grid - Modern Masonry Design */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      {/* Gallery Grid - 4x4 Grid Layout */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {isLoading ? (
-          <div className="flex justify-center py-20">
+          <div className="flex justify-center py-16">
             <LoadingSpinner size="lg" />
           </div>
         ) : error ? (
-          <div className="card text-center py-12">
+          <div className="card text-center py-12 mx-4">
             <p className="text-red-400">Failed to load gallery.</p>
+          </div>
+        ) : displayPhotos.length === 0 ? (
+          <div className="card text-center py-16 mx-4">
+            <p className="text-silver-400 text-lg mb-4">
+              No images found matching your filters.
+            </p>
+            <button
+              onClick={() => setSearchParams({})}
+              className="btn-primary text-sm"
+            >
+              View All Gallery
+            </button>
           </div>
         ) : (
           <>
-            <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
-              {photos.map((photo, idx) => (
-                <ImageGalleryItem
-                  key={photo.id}
-                  photo={photo}
-                  onClick={() => openLightbox(idx)}
-                />
-              ))}
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {displayPhotos.map((photo, idx) => {
+                const allIndex = allPhotos.findIndex((p) => p.id === photo.id);
+                return (
+                  <ImageGalleryItem
+                    key={photo.id}
+                    photo={photo}
+                    onClick={() => openLightbox(allIndex >= 0 ? allIndex : idx)}
+                  />
+                );
+              })}
             </div>
 
             {/* Pagination */}
-            {totalPages > 1 && (
+            {displayTotalPages > 1 && (
               <div className="flex justify-center items-center gap-4 mt-12">
                 <button
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
@@ -254,13 +337,13 @@ export default function GalleryPage() {
                   Previous
                 </button>
                 <span className="text-sm text-silver-400">
-                  Page {page + 1} of {totalPages}
+                  Page {page + 1} of {displayTotalPages}
                 </span>
                 <button
                   onClick={() =>
-                    setPage((p) => Math.min(totalPages - 1, p + 1))
+                    setPage((p) => Math.min(displayTotalPages - 1, p + 1))
                   }
-                  disabled={page >= totalPages - 1}
+                  disabled={page >= displayTotalPages - 1}
                   className="btn-ghost text-sm disabled:opacity-30"
                 >
                   Next
@@ -272,7 +355,7 @@ export default function GalleryPage() {
       </section>
 
       {/* Lightbox Modal */}
-      {lightboxIndex !== null && photos[lightboxIndex] && (
+      {lightboxIndex !== null && allPhotos[lightboxIndex] && (
         <div
           className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
           onClick={closeLightbox}
@@ -305,10 +388,10 @@ export default function GalleryPage() {
             className="max-w-6xl max-h-[90vh] w-full"
             onClick={(e) => e.stopPropagation()}
           >
-            {photos[lightboxIndex].image_url ? (
+            {allPhotos[lightboxIndex].image_url ? (
               <img
-                src={photos[lightboxIndex].image_url}
-                alt={photos[lightboxIndex].project_name || "Project photo"}
+                src={allPhotos[lightboxIndex].image_url}
+                alt={allPhotos[lightboxIndex].project_name || "Project photo"}
                 className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
                 loading="eager"
               />
@@ -318,14 +401,31 @@ export default function GalleryPage() {
               </div>
             )}
             <div className="mt-4 px-4">
-              {photos[lightboxIndex].project_name && (
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm text-silver-500">
+                  Image {lightboxIndex + 1} of {allPhotos.length}
+                </span>
+                <div className="flex gap-2">
+                  {allPhotos[lightboxIndex].category && (
+                    <span className="badge-cobalt text-xs capitalize">
+                      {allPhotos[lightboxIndex].category.replace("_", " ")}
+                    </span>
+                  )}
+                  {allPhotos[lightboxIndex].finish && (
+                    <span className="badge-charcoal text-xs capitalize">
+                      {allPhotos[lightboxIndex].finish}
+                    </span>
+                  )}
+                </div>
+              </div>
+              {allPhotos[lightboxIndex].project_name && (
                 <h3 className="text-warmwhite font-heading text-xl mb-2">
-                  {photos[lightboxIndex].project_name}
+                  {allPhotos[lightboxIndex].project_name}
                 </h3>
               )}
-              {photos[lightboxIndex].location && (
+              {allPhotos[lightboxIndex].location && (
                 <p className="text-silver-400 text-sm">
-                  {photos[lightboxIndex].location}
+                  {allPhotos[lightboxIndex].location}
                 </p>
               )}
             </div>

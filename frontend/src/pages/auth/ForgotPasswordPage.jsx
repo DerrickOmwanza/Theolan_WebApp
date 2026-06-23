@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { forgotPasswordSchema } from '../../utils/validation.js';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
+import CountryPhoneInput from '../../components/CountryPhoneInput.jsx';
 
 export default function ForgotPasswordPage() {
   const { forgotPassword } = useAuth();
@@ -15,6 +16,7 @@ export default function ForgotPasswordPage() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(forgotPasswordSchema),
@@ -43,8 +45,19 @@ export default function ForgotPasswordPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div>
           <label htmlFor="phone" className="input-label">Phone Number</label>
-          <input id="phone" type="tel" placeholder="+254712345678" className="input-field" {...register('phone')} />
-          {errors.phone && <p className="input-error">{errors.phone.message}</p>}
+          <Controller
+            name="phone"
+            control={control}
+            render={({ field }) => (
+              <CountryPhoneInput
+                id="phone"
+                value={field.value}
+                onChange={field.onChange}
+                error={errors.phone?.message}
+                placeholder="712345678"
+              />
+            )}
+          />
         </div>
 
         <button type="submit" disabled={submitting} className="btn-primary w-full">

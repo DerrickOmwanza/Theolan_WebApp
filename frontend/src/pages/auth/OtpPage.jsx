@@ -1,22 +1,23 @@
-import { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import toast from 'react-hot-toast';
-import { useAuth } from '../../contexts/AuthContext.jsx';
-import LoadingSpinner from '../../components/LoadingSpinner.jsx';
+import { useState, useRef, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useAuth } from "../../contexts/AuthContext.jsx";
+import { authApi } from "../../services/api.js";
+import LoadingSpinner from "../../components/LoadingSpinner.jsx";
 
 export default function OtpPage() {
-  const { verifyOtp, login } = useAuth();
+  const { verifyOtp } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [code, setCode] = useState(['', '', '', '', '', '']);
+  const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [submitting, setSubmitting] = useState(false);
   const inputsRef = useRef([]);
 
-  const phone = location.state?.phone || '';
+  const phone = location.state?.phone || "";
 
   useEffect(() => {
     if (!phone) {
-      navigate('/auth/signup', { replace: true });
+      navigate("/auth/signup", { replace: true });
     }
   }, [phone, navigate]);
 
@@ -38,14 +39,17 @@ export default function OtpPage() {
   };
 
   const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !code[index] && index > 0) {
+    if (e.key === "Backspace" && !code[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();
     }
   };
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    const pasted = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
     const newCode = [...code];
     for (let i = 0; i < pasted.length; i++) {
       newCode[i] = pasted[i];
@@ -57,32 +61,45 @@ export default function OtpPage() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    const otpCode = code.join('');
+    const otpCode = code.join("");
     if (otpCode.length !== 6) {
-      toast.error('Please enter all 6 digits');
+      toast.error("Please enter all 6 digits");
       return;
     }
 
     setSubmitting(true);
     try {
       await verifyOtp(phone, otpCode);
-      toast.success('Phone verified! You can now log in.');
-      navigate('/auth/login');
+      toast.success("Phone verified! You can now log in.");
+      navigate("/auth/login");
     } catch (err) {
-      const msg = err.response?.data?.message || 'Invalid or expired code';
+      const msg = err.response?.data?.message || "Invalid or expired code";
       toast.error(msg);
-      setCode(['', '', '', '', '', '']);
+      setCode(["", "", "", "", "", ""]);
       inputsRef.current[0]?.focus();
     } finally {
       setSubmitting(false);
     }
   };
 
+  const handleResend = async () => {
+    try {
+      const response = await authApi.resendOTP({ phone });
+      toast.success(response.data.message || "New code sent!");
+    } catch (err) {
+      const msg = err.response?.data?.message || "Failed to resend code";
+      toast.error(msg);
+    }
+  };
+
   return (
     <div className="card">
-      <h2 className="text-2xl font-heading font-bold text-warmwhite mb-2">Verify Your Phone</h2>
+      <h2 className="text-2xl font-heading font-bold text-warmwhite mb-2">
+        Verify Your Phone
+      </h2>
       <p className="text-sm text-silver-400 mb-8">
-        We sent a 6-digit code to <span className="text-warmwhite">{phone}</span>
+        We sent a 6-digit code to{" "}
+        <span className="text-warmwhite">{phone}</span>
       </p>
 
       <form onSubmit={onSubmit} className="space-y-6">
@@ -103,20 +120,34 @@ export default function OtpPage() {
           ))}
         </div>
 
-        <button type="submit" disabled={submitting} className="btn-primary w-full">
-          {submitting ? <LoadingSpinner size="sm" className="text-white" /> : 'Verify Code'}
+        <button
+          type="submit"
+          disabled={submitting}
+          className="btn-primary w-full"
+        >
+          {submitting ? (
+            <LoadingSpinner size="sm" className="text-white" />
+          ) : (
+            "Verify Code"
+          )}
         </button>
       </form>
 
       <p className="mt-6 text-center text-sm text-silver-400">
-        Didn&apos;t receive the code?{' '}
-        <button className="text-cobalt-400 hover:text-cobalt-300 font-medium">
+        Didn&apos;t receive the code?{" "}
+        <button
+          onClick={handleResend}
+          className="text-cobalt-400 hover:text-cobalt-300 font-medium"
+        >
           Resend
         </button>
       </p>
 
       <p className="mt-4 text-center">
-        <Link to="/auth/login" className="text-sm text-silver-500 hover:text-warmwhite">
+        <Link
+          to="/auth/login"
+          className="text-sm text-silver-500 hover:text-warmwhite"
+        >
           Back to Login
         </Link>
       </p>

@@ -70,6 +70,9 @@
 | CLOUDINARY_NAME | Your Cloudinary name |
 | CLOUDINARY_KEY | Your Cloudinary key |
 | CLOUDINARY_SECRET | Your Cloudinary secret |
+| REDIS_HOST | Your Redis host |
+| REDIS_PORT | 6379 |
+| REDIS_PASSWORD | Your Redis password |
 
 ### 3. Deploy
 - Railway auto-deploys on push to `main`

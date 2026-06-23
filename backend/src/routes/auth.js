@@ -18,6 +18,13 @@ router.post('/signup', AuthController.signup);
 router.post('/verify-otp', AuthController.verifyOTP);
 
 /**
+ * @route   POST /api/v1/auth/resend-otp
+ * @desc    Resend verification OTP
+ * @access  Public
+ */
+router.post('/resend-otp', AuthController.resendOTP);
+
+/**
  * @route   POST /api/v1/auth/login
  * @desc    Authenticate user and return JWT tokens
  * @access  Public
