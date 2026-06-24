@@ -86,8 +86,14 @@ export default {
   production: {
     client: 'pg',
     connection: {
-      ...connectionConfig,
-      ssl: databaseUrl ? { rejectUnauthorized: false } : false
+      host: DB_HOST,
+      port: DB_PORT || 5432,
+      user: DB_USER,
+      password: DB_PASSWORD,
+      database: DB_NAME,
+      ssl: {
+        rejectUnauthorized: false
+      }
     },
     pool: {
       min: parseInt(DB_POOL_MIN) || 5,
