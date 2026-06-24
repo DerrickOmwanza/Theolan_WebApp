@@ -107,6 +107,10 @@ tools:
             - git reset HEAD *
             - git checkout *
             - measure-object *
+            - git show *
+            - git ls-files
+            - git cat-file *
+            - mv *
 paths:
     allow:
         - path: C:/Users/ADMIN/Web&Standalone Applications/**
