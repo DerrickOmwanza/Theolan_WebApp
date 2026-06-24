@@ -14,8 +14,6 @@ COPY backend/src ./src
 COPY backend/migrations ./migrations
 COPY backend/seeds ./seeds
 COPY backend/knexfile.js ./
-COPY backend/server.js ./
+COPY backend/jest.config.js ./
 
-EXPOSE 3000
-
-CMD ["node", "server.js"]
+CMD ["node", "src/server.js"]
