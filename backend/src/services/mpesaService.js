@@ -202,3 +202,73 @@ export const parseCallbackMetadata = (callbackItems) => {
 
   return metadata;
 };
+
+/**
+ * Query the status of an STK Push request.
+ * Used to check pending payments that never received a callback.
+ *
+ * @param {string} checkoutRequestId - The CheckoutRequestID from STK Push
+ * @returns {Promise<Object>} Query result with status
+ */
+export const querySTKPushStatus = async (checkoutRequestId) => {
+  // Dev mode: simulate
+  if (!CONSUMER_KEY || CONSUMER_KEY === 'your_consumer_key') {
+    logger.info('M-Pesa STK Query (dev mode)', { checkoutRequestId });
+    return {
+      success: true,
+      devMode: true,
+      checkoutRequestId,
+      resultCode: 1, // Simulate "cancelled by user" in dev
+      resultDesc: 'The transaction was cancelled by the user'
+    };
+  }
+
+  const accessToken = await getAccessToken();
+  const timestamp = formatTimestamp();
+  const password = generatePassword(timestamp);
+
+  const payload = {
+    BusinessShortCode: SHORTCODE,
+    Password: password,
+    Timestamp: timestamp,
+    CheckoutRequestID: checkoutRequestId
+  };
+
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/mpesa/stkpushquery/v1/query`,
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 30000
+      }
+    );
+
+    const result = response.data;
+
+    logger.info('M-Pesa STK Push query result', {
+      checkoutRequestId,
+      resultCode: result.ResultCode,
+      resultDesc: result.ResultDesc
+    });
+
+    return {
+      success: true,
+      checkoutRequestId,
+      resultCode: result.ResultCode,
+      resultDesc: result.ResultDesc,
+      customerMessage: result.CustomerMessage
+    };
+  } catch (error) {
+    logger.error('M-Pesa STK Push query failed', {
+      checkoutRequestId,
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
+    throw error;
+  }
+};

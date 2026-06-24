@@ -1,0 +1,11 @@
+# Nixpacks configuration for Railway deployment
+# https://docs.railway.app/docs/builders/nixpacks
+
+[variables]
+NODE_ENV = "production"
+
+[build]
+cmd = "npm ci --only=production"
+
+[start]
+cmd = "npm start"

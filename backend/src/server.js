@@ -183,7 +183,7 @@ app.use(errorHandler);
 const server = app.listen(PORT, async () => {
   try {
     await db.raw('SELECT 1');
-    logger.info(`Theolan Aluminium API server started`, {
+    logger.info('The Olan Glass and Aluminium API server started', {
       port: PORT,
       environment: NODE_ENV,
       database: `${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`

@@ -26,13 +26,20 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <span className="text-xl font-heading font-bold text-warmwhite tracking-tight">
-              The Olan
-            </span>
-            <span className="text-xs text-gold-400 font-medium uppercase tracking-widest hidden sm:block">
-              Glass & Aluminium
-            </span>
+          <Link to="/" className="flex items-center gap-3">
+            <img
+              src="/images/logo.png"
+              alt="The Olan Glass and Aluminium"
+              className="h-16 w-auto object-contain"
+            />
+            <div className="hidden sm:block">
+              <p className="text-warmwhite font-bold text-lg leading-tight">
+                The Olan Glass
+              </p>
+              <p className="text-xs text-silver-400 uppercase tracking-wider">
+                and Aluminium
+              </p>
+            </div>
           </Link>
 
           {/* Desktop Nav */}

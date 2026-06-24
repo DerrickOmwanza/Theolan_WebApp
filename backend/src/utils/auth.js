@@ -10,7 +10,7 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 if (!JWT_SECRET || JWT_SECRET.length < 32) {
   throw new Error(
     'FATAL: JWT_SECRET must be set in environment and be at least 32 characters long. ' +
-    'Generate one with: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"'
+      "Generate one with: node -e \"console.log(require('crypto').randomBytes(64).toString('hex'))\""
   );
 }
 
@@ -32,12 +32,29 @@ const JWT_REFRESH_EXPIRE = process.env.JWT_REFRESH_EXPIRE || '7d';
 // ============================================================
 
 const PHONE_CODES = [
-  '+254', '+255', '+256', '+250', '+257', '+211',
-  '+251', '+252', '+253', '+291', '+261', '+258',
-  '+260', '+263', '+265', '+230', '+269', '+243', '+248',
+  '+254',
+  '+255',
+  '+256',
+  '+250',
+  '+257',
+  '+211',
+  '+251',
+  '+252',
+  '+253',
+  '+291',
+  '+261',
+  '+258',
+  '+260',
+  '+263',
+  '+265',
+  '+230',
+  '+269',
+  '+243',
+  '+248'
 ];
 
-const EAST_AFRICAN_PHONE_REGEX = /^\+(254[17]\d{8}|255[67]\d{8}|256[7]\d{8}|250[7]\d{8}|257[7]\d{7}|211[9]\d{8}|251[97]\d{8}|252[97]\d{8}|253[7]\d{7}|291[178]\d{6}|261[3]\d{8}|258[8]\d{8}|260[97]\d{8}|263[7]\d{8}|265[17]\d{8}|230[5]\d{6}|269[3]\d{6}|243[89]\d{8}|248[2]\d{6})$/;
+const EAST_AFRICAN_PHONE_REGEX =
+  /^\+(254[17]\d{8}|255[67]\d{8}|256[7]\d{8}|250[7]\d{8}|257[7]\d{7}|211[9]\d{8}|251[97]\d{8}|252[97]\d{8}|253[7]\d{7}|291[178]\d{6}|261[3]\d{8}|258[8]\d{8}|260[97]\d{8}|263[7]\d{8}|265[17]\d{8}|230[5]\d{6}|269[3]\d{6}|243[89]\d{8}|248[2]\d{6})$/;
 
 /**
  * Normalize phone number to +{code}XXXXXXXXX format.
@@ -51,7 +68,7 @@ export const normalizePhone = (phone) => {
   if (!phone || typeof phone !== 'string') return null;
 
   // Strip all non-digit characters except leading +
-  let cleaned = phone.replace(/[\s\-()]/g, '');
+  const cleaned = phone.replace(/[\s\-()]/g, '');
 
   // If already starts with +{code}, return as-is
   for (const code of PHONE_CODES) {
@@ -119,14 +136,10 @@ export const generateAccessToken = (user) => {
  * @returns {string} - JWT Refresh Token
  */
 export const generateRefreshToken = (user) => {
-  return jwt.sign(
-    { sub: user.id },
-    JWT_REFRESH_SECRET,
-    {
-      expiresIn: JWT_REFRESH_EXPIRE,
-      issuer: 'theolan-aluminium-api'
-    }
-  );
+  return jwt.sign({ sub: user.id }, JWT_REFRESH_SECRET, {
+    expiresIn: JWT_REFRESH_EXPIRE,
+    issuer: 'theolan-aluminium-api'
+  });
 };
 
 // ============================================================

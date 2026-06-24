@@ -1,17 +1,24 @@
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link } from "react-router-dom";
 
 export default function AuthLayout() {
   return (
     <div className="flex flex-col min-h-screen bg-charcoal-900">
       {/* Minimal header with logo */}
       <header className="py-4 px-6">
-        <Link to="/" className="inline-flex items-center gap-2">
-          <span className="text-xl font-heading font-bold text-warmwhite tracking-tight">
-            Theolan
-          </span>
-          <span className="text-xs text-gold-400 font-medium uppercase tracking-widest">
-            Aluminium
-          </span>
+        <Link to="/" className="flex items-center gap-3">
+          <img
+            src="/images/logo.png"
+            alt="The Olan Glass and Aluminium"
+            className="h-16 w-auto object-contain"
+          />
+          <div>
+            <p className="text-warmwhite font-bold text-lg leading-tight">
+              The Olan Glass
+            </p>
+            <p className="text-xs text-gold-400 uppercase tracking-wider">
+              and Aluminium
+            </p>
+          </div>
         </Link>
       </header>
 
@@ -25,7 +32,7 @@ export default function AuthLayout() {
       {/* Minimal footer */}
       <footer className="py-4 text-center">
         <p className="text-xs text-silver-600">
-          &copy; {new Date().getFullYear()} Theolan Aluminium International Ltd
+          &copy; {new Date().getFullYear()} The Olan Glass and Aluminium
         </p>
       </footer>
     </div>

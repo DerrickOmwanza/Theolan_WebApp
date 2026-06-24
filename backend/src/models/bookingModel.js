@@ -285,10 +285,7 @@ const BookingModel = {
   },
 
   getNoShowStats: async () => {
-    const result = await db('bookings')
-      .where('status', 'no_show')
-      .count('id as count')
-      .first();
+    const result = await db('bookings').where('status', 'no_show').count('id as count').first();
     const count = parseInt(result.count, 10) || 0;
     const totalResult = await db('bookings').count('id as total').first();
     const total = parseInt(totalResult.total, 10) || 0;
@@ -297,7 +294,7 @@ const BookingModel = {
   },
 
   getTechnicianUtilization: async () => {
-    return db('bookings')
+    return await db('bookings')
       .leftJoin('technicians', 'bookings.assigned_technician_id', 'technicians.id')
       .select(
         db.raw("COALESCE(technicians.name, 'Unassigned') as name"),
@@ -308,7 +305,9 @@ const BookingModel = {
   },
 
   getBusiestDays: async () => {
-    return db.raw(`
+    return await db
+      .raw(
+        `
       SELECT
         DATE(scheduled_at)::text as date,
         COUNT(*) as count
@@ -318,7 +317,9 @@ const BookingModel = {
       GROUP BY DATE(scheduled_at)
       ORDER BY count DESC
       LIMIT 7
-    `).then((r) => r.rows || []);
+    `
+      )
+      .then((r) => r.rows || []);
   }
 };
 

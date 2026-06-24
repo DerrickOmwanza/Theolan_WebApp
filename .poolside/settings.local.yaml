@@ -81,6 +81,23 @@ tools:
             - timeout 30 node *
             - sleep 6
             - netstat *
+            - more *
+            - npm view nodemailer *
+            - npm list cloudinary nodemailer *
+            - New-Item *
+            - cp *
+            - pkill *
+            - docker *
+            - git log *
+            - npm outdated
+            - npm start
+            - npm test *
+            - psql *
+            - docker-compose up *
+            - set *
+            - sleep 4
+            - sleep 1
 paths:
     allow:
         - path: C:/Users/ADMIN/Web&Standalone Applications/**
+        - path: C:/Users/ADMIN/**

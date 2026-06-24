@@ -20,11 +20,11 @@ router.post('/', protect, OrderController.createOrder);
 router.get('/', protect, OrderController.listOrders);
 
 /**
- * @route   GET /api/v1/orders/:id
- * @desc    Get order detail with timeline
- * @access  Private (client — own orders only)
+ * @route   GET /api/v1/orders/admin
+ * @desc    Admin lists all orders
+ * @access  Private (admin only)
  */
-router.get('/:id', protect, OrderController.getOrder);
+router.get('/admin', protect, authorize('admin'), OrderController.adminListOrders);
 
 /**
  * @route   PATCH /api/v1/orders/:id
@@ -34,11 +34,11 @@ router.get('/:id', protect, OrderController.getOrder);
 router.patch('/:id', protect, authorize('admin'), OrderController.updateOrderStatus);
 
 /**
- * @route   GET /api/v1/orders/admin
- * @desc    Admin lists all orders
- * @access  Private (admin only)
+ * @route   GET /api/v1/orders/:id
+ * @desc    Get order detail with timeline
+ * @access  Private (client — own orders only)
  */
-router.get('/admin', protect, authorize('admin'), OrderController.adminListOrders);
+router.get('/:id', protect, OrderController.getOrder);
 
 export { router as orderRoutes };
 export default router;

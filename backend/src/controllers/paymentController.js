@@ -61,6 +61,20 @@ const PaymentController = {
   mpesaCallback: asyncHandler(async (req, res) => {
     const result = await PaymentService.processCallback(req.body);
     res.status(200).json({ success: true, ...result });
+  }),
+
+  /**
+   * POST /api/v1/payments/admin/process-expired
+   * Manually trigger processing of expired/abandoned STK Push payments.
+   * @access Private (admin only)
+   */
+  processExpired: asyncHandler(async (req, res) => {
+    const result = await PaymentService.processExpiredPayments();
+    res.status(200).json({
+      success: true,
+      data: result,
+      message: `Processed ${result.processed} expired payments (${result.cancelled} cancelled, ${result.errors} errors)`
+    });
   })
 };
 

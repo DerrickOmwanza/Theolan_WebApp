@@ -25,20 +25,21 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (data) => {
-    console.log("Login submitted with:", data.phone);
     setSubmitting(true);
     try {
       const result = await login(data.phone, data.password);
-      console.log("Login success:", result);
+      // result = { success: true, data: { access_token, refresh_token, user: { id, phone, name, role } } }
+      const userData = result.data?.user;
+      const userRole = userData?.role;
+
       toast.success("Welcome back!");
 
       // Role-based redirect: admins go to analytics, clients go to orders
-      const userRole = result.data?.user?.role;
-      const defaultRedirect = userRole === "admin" ? "/admin/analytics" : "/orders";
+      const defaultRedirect =
+        userRole === "admin" ? "/admin/analytics" : "/orders";
       const redirectTo = location.state?.from?.pathname || defaultRedirect;
       navigate(redirectTo, { replace: true });
     } catch (err) {
-      console.error("Login catch error:", err);
       let msg = "Login failed. Please try again.";
       if (err?.response?.data?.message) {
         msg = err.response.data.message;
@@ -57,7 +58,7 @@ export default function LoginPage() {
         Welcome Back
       </h2>
       <p className="text-sm text-silver-400 mb-8">
-        Log in to your Theolan account
+        Log in to your The Olan Glass and Aluminium account
       </p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">

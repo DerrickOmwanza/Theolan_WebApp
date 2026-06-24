@@ -8,14 +8,14 @@ import * as Sentry from '@sentry/node';
  * Add to server.js after imports to capture all errors
  */
 export function initSentry() {
-  if (process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
+  if (process.env.NODE_ENV === 'production') {
     Sentry.init({
-      dsn: process.env.SENTRY_DSN,
+      dsn: process.env.SENTRY_DSN || 'https://a87103538948c6578e2daa6e6cf2dc24@o4509310465802240.ingest.us.sentry.io/4509366690824192',
       environment: process.env.NODE_ENV || 'development',
       release: process.env.APP_VERSION || '1.0.0',
 
-      // Performance monitoring
-      tracesSampleRate: 0.1, // 10% of transactions
+      // Tracing
+      tracesSampleRate: 1.0, // Capture 100% of the transactions
 
       // Security filtering
       beforeSend(event) {

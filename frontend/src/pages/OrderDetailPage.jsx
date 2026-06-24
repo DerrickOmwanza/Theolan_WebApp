@@ -222,13 +222,21 @@ function PaymentModal({ order, onClose, onSuccess }) {
   // eslint-disable-next-line no-unused-vars
   const [checkoutRequestId, setCheckoutRequestId] = useState(null);
   const [error, setError] = useState("");
+  const [pollCount, setPollCount] = useState(0);
 
   const remaining =
     parseFloat(order.total_price_kes) - parseFloat(order.paid_amount_kes);
 
+  // STK Push expires in ~2 min on phone. We poll for 90 seconds total (30 attempts x 3s).
+  const MAX_POLL_ATTEMPTS = 30;
+  const POLL_INTERVAL_MS = 3000;
+  const totalTimeoutSec = MAX_POLL_ATTEMPTS * (POLL_INTERVAL_MS / 1000);
+  const timeRemaining = Math.max(0, totalTimeoutSec - pollCount * (POLL_INTERVAL_MS / 1000));
+
   const handlePay = async (e) => {
     e.preventDefault();
     setError("");
+    setPollCount(0);
 
     const payAmount = parseFloat(amount);
     if (!payAmount || payAmount <= 0) {
@@ -249,6 +257,8 @@ function PaymentModal({ order, onClose, onSuccess }) {
       normalizedPhone.startsWith("1")
     ) {
       normalizedPhone = "+254" + normalizedPhone;
+    } else if (!normalizedPhone.startsWith("+")) {
+      normalizedPhone = "+254" + normalizedPhone;
     }
 
     setStep("processing");
@@ -263,9 +273,8 @@ function PaymentModal({ order, onClose, onSuccess }) {
       const requestId = response.data.data.checkout_request_id;
       setCheckoutRequestId(requestId);
 
-      // Poll for payment status every 3 seconds, up to ~90 seconds
+      // Poll for payment status every 3 seconds
       let attempts = 0;
-      const maxAttempts = 30;
       const poll = async () => {
         try {
           const statusRes = await paymentApi.getPaymentStatus(requestId);
@@ -281,29 +290,36 @@ function PaymentModal({ order, onClose, onSuccess }) {
             setError("Payment was not successful. Please try again.");
             return;
           }
+          if (status === "cancelled") {
+            setStep("failed");
+            setError("Payment was cancelled or expired. Please try again.");
+            return;
+          }
 
           // Still pending — poll again
           attempts++;
-          if (attempts < maxAttempts) {
-            setTimeout(poll, 3000);
+          setPollCount(attempts);
+          if (attempts < MAX_POLL_ATTEMPTS) {
+            setTimeout(poll, POLL_INTERVAL_MS);
           } else {
             setStep("failed");
             setError(
-              "Payment verification timed out. Check your M-Pesa messages and refresh the page.",
+              `Payment verification timed out after ${totalTimeoutSec / 60} minutes. Check your M-Pesa messages and refresh the page, or try again.`,
             );
           }
         } catch {
           attempts++;
-          if (attempts < maxAttempts) {
-            setTimeout(poll, 3000);
+          setPollCount(attempts);
+          if (attempts < MAX_POLL_ATTEMPTS) {
+            setTimeout(poll, POLL_INTERVAL_MS);
           } else {
             setStep("failed");
-            setError("Could not verify payment. Check your M-Pesa messages.");
+            setError("Could not verify payment. Check your M-Pesa messages or try again.");
           }
         }
       };
 
-      setTimeout(poll, 4000);
+      setTimeout(poll, POLL_INTERVAL_MS);
     } catch (err) {
       setStep("failed");
       setError(
@@ -416,6 +432,17 @@ function PaymentModal({ order, onClose, onSuccess }) {
             </p>
             <div className="flex justify-center">
               <LoadingSpinner size="md" />
+            </div>
+            {/* Countdown timer */}
+            <div className="mt-4">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-charcoal-600 rounded-full">
+                <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-sm text-amber-400 font-mono">
+                  {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, "0")} remaining
+                </span>
+              </div>
             </div>
             <p className="text-xs text-silver-500 mt-4">
               Waiting for payment confirmation...

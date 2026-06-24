@@ -1,7 +1,7 @@
 {
   "name": "olanallumint-backend",
   "version": "1.0.0",
-  "description": "Theolan Aluminium International Ltd - Backend API",
+  "description": "The Olan Glass and Aluminium - Backend API",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -20,7 +20,8 @@
     "format:check": "prettier --check \"src/**/*.js\"",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
-    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "payments:process-expired": "node scripts/process-expired-payments.js"
   },
   "keywords": [
     "aluminium",
@@ -30,7 +31,7 @@
     "nairobi",
     "kenya"
   ],
-  "author": "Theolan Aluminium International Ltd",
+  "author": "The Olan Glass and Aluminium",
   "license": "PROPRIETARY",
   "dependencies": {
     "@sentry/node": "^10.59.0",

@@ -36,6 +36,13 @@ router.post('/', protect, BookingController.createBooking);
 router.get('/', protect, BookingController.listBookings);
 
 /**
+ * @route   GET /api/v1/bookings/admin
+ * @desc    Admin lists all bookings with optional filters
+ * @access  Private (admin only)
+ */
+router.get('/admin', protect, authorize('admin'), BookingController.adminListBookings);
+
+/**
  * @route   GET /api/v1/bookings/:id
  * @desc    Get a single booking detail
  * @access  Private (client — own bookings only)
@@ -48,13 +55,6 @@ router.get('/:id', protect, BookingController.getBooking);
  * @access  Private (client — own bookings only)
  */
 router.patch('/:id', protect, BookingController.updateBooking);
-
-/**
- * @route   GET /api/v1/bookings/admin
- * @desc    Admin lists all bookings with optional filters
- * @access  Private (admin only)
- */
-router.get('/admin', protect, authorize('admin'), BookingController.adminListBookings);
 
 export { router as bookingRoutes };
 export default router;

@@ -11,14 +11,25 @@ import "./styles/index.css";
 // ============================================================
 // Sentry Error Tracking (Production Only)
 // ============================================================
-if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
+if (import.meta.env.PROD) {
   Sentry.init({
-    dsn: import.meta.env.VITE_SENTRY_DSN,
+    dsn: "https://a87103538948c6578e2daa6e6cf2dc24@o4509310465802240.ingest.us.sentry.io/4509366690824192",
     environment: import.meta.env.MODE,
     release: import.meta.env.VITE_APP_VERSION || "1.0.0",
 
-    // Performance monitoring
-    tracesSampleRate: 0.1, // 10% of transactions
+    integrations: [
+      Sentry.replayIntegration({
+        maskAllText: false,
+        blockAllMedia: false,
+      }),
+    ],
+
+    // Tracing
+    tracesSampleRate: 1.0, // Capture 100% of the transactions
+
+    // Session Replay
+    replaysSessionSampleRate: 0.1, // 10% in production
+    replaysOnErrorSampleRate: 1.0, // 100% when errors occur
 
     // Security filtering
     beforeSend(event) {

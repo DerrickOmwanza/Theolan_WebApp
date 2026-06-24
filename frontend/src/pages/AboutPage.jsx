@@ -46,9 +46,21 @@ export default function AboutPage() {
           <p className="text-gold-400 text-sm font-medium uppercase tracking-widest mb-3">
             About Us
           </p>
-          <h1 className="text-4xl md:text-5xl font-heading font-bold text-warmwhite mb-4">
-            The Olan Glass and Aluminium
-          </h1>
+          <div className="mb-4 flex items-center gap-4">
+            <img
+              src="/images/logo.png"
+              alt="The Olan Glass and Aluminium"
+              className="h-16 w-auto object-contain"
+            />
+            <div>
+              <p className="text-warmwhite font-bold text-xl leading-tight">
+                The Olan Glass
+              </p>
+              <p className="text-xs text-gold-400 uppercase tracking-wider">
+                and Aluminium
+              </p>
+            </div>
+          </div>
           <p className="text-silver-300 max-w-2xl">
             Umoja 2, Nairobi-based aluminium fabrication company, delivering
             precision-crafted windows, doors, curtain walls, and architectural

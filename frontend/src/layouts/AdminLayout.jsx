@@ -51,11 +51,20 @@ export default function AdminLayout() {
       {/* Sidebar — desktop */}
       <aside className="hidden lg:flex lg:flex-col w-64 bg-charcoal-900 border-r border-charcoal-600">
         <div className="p-6">
-          <Link
-            to="/"
-            className="text-lg font-heading font-bold text-warmwhite"
-          >
-            Theolan Admin
+          <Link to="/" className="flex items-center gap-3">
+            <img
+              src="/images/logo.png"
+              alt="The Olan Glass and Aluminium"
+              className="h-16 w-auto object-contain"
+            />
+            <div>
+              <p className="text-warmwhite font-bold text-lg leading-tight">
+                The Olan Glass
+              </p>
+              <p className="text-xs text-silver-500 uppercase tracking-wider">
+                Aluminium
+              </p>
+            </div>
           </Link>
         </div>
         <div className="px-3 pb-3">
@@ -131,9 +140,22 @@ export default function AdminLayout() {
             <div className="p-6 flex justify-between items-center">
               <Link
                 to="/"
-                className="text-lg font-heading font-bold text-warmwhite"
+                className="flex items-center gap-3"
+                onClick={() => setSidebarOpen(false)}
               >
-                Theolan Admin
+                <img
+                  src="/images/logo.png"
+                  alt="The Olan Glass and Aluminium"
+                  className="h-16 w-auto object-contain"
+                />
+                <div>
+                  <p className="text-warmwhite font-bold text-lg leading-tight">
+                    The Olan Glass
+                  </p>
+                  <p className="text-xs text-silver-500 uppercase tracking-wider">
+                    Aluminium
+                  </p>
+                </div>
               </Link>
               <button
                 onClick={() => setSidebarOpen(false)}

@@ -21,7 +21,7 @@
 
 | Check | Status | Notes |
 |-------|--------|-------|
-| 🔴 npm vulnerabilities (21 remaining) | In Progress | cloudinary, nodemailer updates needed |
+| 🔴 npm vulnerabilities (21 remaining) | ✅ Complete | All prod deps at latest (cloudinary@2.10.0, nodemailer@9.0.1), 0 vulns in production |
 | 🔴 Sentry configured in production | Pending | DSN needed from sentry.io |
 | 🔴 M-Pesa sandbox tested | Pending | Verify STK push + callback |
 | ⚠️ Environment variables verified | Pending | Production values confirmed |

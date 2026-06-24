@@ -195,6 +195,11 @@ const AuthService = {
       throw new AuthenticationError('Account is deactivated. Contact support.');
     }
 
+    // Check phone verification
+    if (!user.phone_verified) {
+      throw new AuthenticationError('Phone number not verified. Please verify your OTP first.');
+    }
+
     // Generate tokens
     const access_token = generateAccessToken(user);
     const refresh_token = generateRefreshToken(user);

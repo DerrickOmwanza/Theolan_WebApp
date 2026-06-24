@@ -114,12 +114,12 @@ OlanAlumint.web is a **production-ready web application** for Theolan Aluminium 
 
 | Package | Status | Notes |
 |---------|--------|-------|
-| cloudinary | ⚠️ Update needed | High severity (2.10.0 available) |
-| nodemailer | ⚠️ Update needed | High severity (9.0.1 available) |
+| cloudinary | ✅ Updated | Already at 2.10.0 (latest) |
+| nodemailer | ✅ Updated | Already at 9.0.1 (latest) |
 | uuid | ✅ Updated | Now at ^11.1.1 |
 | cookie (frontend) | ⚠️ Update needed | Critical severity |
 
-**Total vulnerabilities:** 21 (requires npm update)
+**Total vulnerabilities:** 0 in production dependencies, 19 moderate in dev dependencies (deferred)
 
 ---
 

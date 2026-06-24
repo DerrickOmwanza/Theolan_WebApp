@@ -1,0 +1,32 @@
+{
+    "$schema": "https://railway.app/schemas/v2.json",
+    "name": "olanallumint-backend",
+    "services": [
+        {
+            "name": "api",
+            "type": "node",
+            "root": "./backend",
+            "build": {
+                "type": "nixpacks",
+                "outputDirectory": "dist"
+            },
+            "run": {
+                "type": "shell",
+                "command": "npm start"
+            },
+            "env": {
+                "NODE_ENV": "production"
+            },
+            "domains": ["api.olanalumint.co.ke"],
+            "ports": {
+                "start": 3000
+            }
+        }
+    ],
+    "volumes": [
+        {
+            "name": "data",
+            "path": "/app/data"
+        }
+    ]
+}

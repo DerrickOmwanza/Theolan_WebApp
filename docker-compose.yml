@@ -43,8 +43,8 @@ services:
             DB_USER: postgres
             DB_PASSWORD: postgres
             DB_NAME: theolan_dev
-            JWT_SECRET: dev_secret_key_change_in_production_min_32_chars_required
-            JWT_REFRESH_SECRET: dev_refresh_secret_change_in_prod_min_32_chars_required
+            JWT_SECRET: ${JWT_SECRET}
+            JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
             NODE_ENV: development
             REDIS_HOST: redis
             REDIS_PORT: 6379

@@ -128,19 +128,19 @@ const OrderModel = {
   },
 
   getRevenueByCategory: async () => {
-    return db('orders')
-      .select('product_category as category')
+    // orders table has product_summary, not product_category
+    // We'll parse the category from product_summary or return placeholder
+    return await db('orders')
+      .select("CASE WHEN product_summary ILIKE '%window%' THEN 'windows' WHEN product_summary ILIKE '%door%' THEN 'doors' WHEN product_summary ILIKE '%curtain%' THEN 'curtain_walls' WHEN product_summary ILIKE '%partition%' THEN 'partitions' WHEN product_summary ILIKE '%balustrade%' THEN 'balustrades' ELSE 'other' END as category")
       .sum('total_price_kes as total')
-      .groupBy('product_category')
+      .groupBy('category')
       .orderBy('total', 'desc');
   },
 
   getRevenueByTechnician: async () => {
-    return db('orders')
+    return await db('orders')
       .leftJoin('technicians', 'orders.assigned_technician_id', 'technicians.id')
-      .select(
-        db.raw("COALESCE(technicians.name, 'Unassigned') as technician_name")
-      )
+      .select(db.raw("COALESCE(technicians.name, 'Unassigned') as technician_name"))
       .sum('orders.total_price_kes as total')
       .groupBy('technicians.name')
       .orderBy('total', 'desc');
@@ -161,7 +161,9 @@ const OrderModel = {
   },
 
   getMonthlyRevenueTrend: async () => {
-    return db.raw(`
+    return await db
+      .raw(
+        `
       SELECT
         EXTRACT(YEAR FROM created_at) as year,
         EXTRACT(MONTH FROM created_at) as month,
@@ -171,16 +173,20 @@ const OrderModel = {
         AND status != 'cancelled'
       GROUP BY EXTRACT(YEAR FROM created_at), EXTRACT(MONTH FROM created_at)
       ORDER BY year, month
-    `).then((r) => r.rows || []);
+    `
+      )
+      .then((r) => r.rows || []);
   },
 
   getFunnelStats: async () => {
-    const rows = await db('orders')
-      .select('status')
-      .count('id as count')
-      .groupBy('status');
+    const rows = await db('orders').select('status').count('id as count').groupBy('status');
     const stats = {
-      quoted: 0, confirmed: 0, fabrication: 0, ready: 0, installed: 0, cancelled: 0
+      quoted: 0,
+      confirmed: 0,
+      fabrication: 0,
+      ready: 0,
+      installed: 0,
+      cancelled: 0
     };
     for (const row of rows) {
       if (stats[row.status] !== undefined) {
@@ -191,7 +197,7 @@ const OrderModel = {
   },
 
   getAvgFabricationTime: async () => {
-    return 0; // Requires order_events timeline data; stub until orders are created
+    return await Promise.resolve(0); // Requires order_events timeline data; stub until orders are created
   }
 };
 

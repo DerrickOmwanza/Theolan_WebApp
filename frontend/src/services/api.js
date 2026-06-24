@@ -22,7 +22,7 @@ const API_BASE_URL = getApiBaseUrl();
 console.log("[API] Base URL:", API_BASE_URL);
 
 /**
- * Axios instance configured for the The Olan Glass and Aluminium API.
+ * Axios instance configured for The Olan Glass and Aluminium API.
  * Handles JWT token injection and automatic refresh on 401.
  */
 const api = axios.create({

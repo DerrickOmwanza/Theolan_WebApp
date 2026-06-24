@@ -35,7 +35,7 @@ const createTransporter = () => {
 
 const templates = {
   quotation: (data) => ({
-    subject: `Quotation #${data.reference_number} - Theolan Aluminium`,
+    subject: `Quotation #${data.reference_number} - The Olan Glass and Aluminium`,
     html: `
       <h2>Quotation Details</h2>
       <p><strong>Reference:</strong> ${data.reference_number}</p>
@@ -43,7 +43,7 @@ const templates = {
       <p><strong>Total:</strong> KES ${data.total_price_kes?.toLocaleString()}</p>
       <p><strong>Quote Range:</strong> KES ${data.estimate_min_kes?.toLocaleString()} - ${data.estimate_max_kes?.toLocaleString()}</p>
       ${data.pdf_url ? `<p><a href="${data.pdf_url}">Download PDF</a></p>` : ''}
-      <p>Thank you for choosing Theolan Aluminium International Ltd.</p>
+      <p>Thank you for choosing The Olan Glass and Aluminium.</p>
     `
   }),
 

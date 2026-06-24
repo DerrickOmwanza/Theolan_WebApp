@@ -9,9 +9,21 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand */}
           <div>
-            <h3 className="text-lg font-heading font-bold text-warmwhite mb-2">
-              The Olan Glass and Aluminium
-            </h3>
+            <Link to="/" className="flex items-center gap-3 mb-2">
+              <img
+                src="/images/logo.png"
+                alt="The Olan Glass and Aluminium"
+                className="h-16 w-auto object-contain"
+              />
+              <div>
+                <p className="text-warmwhite font-bold text-lg leading-tight">
+                  The Olan Glass
+                </p>
+                <p className="text-xs text-silver-500 uppercase tracking-wider">
+                  and Aluminium
+                </p>
+              </div>
+            </Link>
             <p className="text-sm text-silver-500 leading-relaxed">
               Premium aluminium fabrication and architectural glazing solutions
               in Umoja 2, Nairobi, Kenya.

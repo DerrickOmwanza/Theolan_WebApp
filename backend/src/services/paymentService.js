@@ -1,13 +1,13 @@
 import PaymentModel from '../models/paymentModel.js';
 import OrderModel from '../models/orderModel.js';
-import { initiateSTKPush, parseCallbackMetadata } from './mpesaService.js';
+import { initiateSTKPush, parseCallbackMetadata, querySTKPushStatus } from './mpesaService.js';
 import { sendSMS } from './smsService.js';
 import UserModel from '../models/userModel.js';
+import { db } from '../config/database.js';
 import { ValidationError, NotFoundError, AuthorizationError } from '../middlewares/errorHandler.js';
 import logger from '../middlewares/logger.js';
 
 const PaymentService = {
-
   /**
    * Initiate M-Pesa STK Push for an order payment.
    *
@@ -34,7 +34,9 @@ const PaymentService = {
 
     const remaining = parseFloat(order.total_price_kes) - parseFloat(order.paid_amount_kes);
     if (amountKes > remaining) {
-      throw new ValidationError(`Amount exceeds remaining balance of KES ${remaining.toLocaleString()}`);
+      throw new ValidationError(
+        `Amount exceeds remaining balance of KES ${remaining.toLocaleString()}`
+      );
     }
 
     // Determine payment type
@@ -140,12 +142,7 @@ const PaymentService = {
       throw new ValidationError('Invalid callback payload');
     }
 
-    const {
-      CheckoutRequestID,
-      ResultCode,
-      ResultDesc,
-      CallbackMetadata
-    } = stkCallback;
+    const { CheckoutRequestID, ResultCode, ResultDesc, CallbackMetadata } = stkCallback;
 
     // Find the payment record by checkout request ID
     const payment = await PaymentModel.findByCheckoutRequestId(CheckoutRequestID);
@@ -188,21 +185,29 @@ const PaymentService = {
 
         await OrderModel.update(order.id, {
           paid_amount_kes: newPaidAmount,
-          payment_status: newPaymentStatus
+          payment_status: newPaymentStatus,
+          // Auto-advance order status when fully paid
+          status: newPaymentStatus === 'paid_in_full' ? 'confirmed' : order.status
         });
 
         // Add timeline event
+        const eventTitle = `Payment received: KES ${parseFloat(payment.amount_kes).toLocaleString()}`;
+        let eventDescription = `M-Pesa receipt: ${metadata.mpesaReceipt || 'N/A'}. Payment status: ${newPaymentStatus}.`;
+        if (newPaymentStatus === 'paid_in_full') {
+          eventDescription += ' Order confirmed — fabrication begins soon.';
+        }
+
         await OrderModel.addEvent({
           order_id: order.id,
-          title: `Payment received: KES ${parseFloat(payment.amount_kes).toLocaleString()}`,
-          description: `M-Pesa receipt: ${metadata.mpesaReceipt || 'N/A'}. Payment status: ${newPaymentStatus}.`,
+          title: eventTitle,
+          description: eventDescription,
           occurred_at: new Date()
         });
 
         // Send SMS confirmation to client
         const client = await UserModel.findById(order.client_id);
         if (client) {
-          const msg = `Theolan Aluminium: Ksh ${parseFloat(payment.amount_kes).toLocaleString()} payment received for Order ${order.reference_number}. ${newPaymentStatus === 'paid_in_full' ? 'Fully paid!' : 'Deposit confirmed. Fabrication begins soon.'}`;
+          const msg = `The Olan Glass and Aluminium: Ksh ${parseFloat(payment.amount_kes).toLocaleString()} payment received for Order ${order.reference_number}. ${newPaymentStatus === 'paid_in_full' ? 'Fully paid!' : 'Deposit confirmed. Fabrication begins soon.'}`;
           sendSMS(client.phone, msg).catch((err) => {
             logger.error('Payment confirmation SMS failed', { error: err.message });
           });
@@ -232,6 +237,83 @@ const PaymentService = {
     }
 
     return { result_code: 0 };
+  },
+
+  /**
+   * Process expired/abandoned STK Push payments.
+   * Called by cron job to clean up pending payments that never received a callback.
+   *
+   * STK Push prompts expire after 2 minutes on the user's phone.
+   * We give a 5-minute grace period before marking as cancelled.
+   *
+   * @returns {Promise<Object>} Processing summary
+   */
+  processExpiredPayments: async () => {
+    const FIVE_MINUTES_AGO = new Date(Date.now() - 5 * 60 * 1000);
+
+    // Find all pending payments older than 5 minutes
+    const pendingPayments = await db('payments')
+      .where({ status: 'pending' })
+      .where('created_at', '<', FIVE_MINUTES_AGO)
+      .select('id', 'mpesa_checkout_request_id', 'order_id', 'amount_kes');
+
+    if (pendingPayments.length === 0) {
+      return { processed: 0, cancelled: 0, errors: 0 };
+    }
+
+    let cancelled = 0;
+    let errors = 0;
+
+    for (const payment of pendingPayments) {
+      try {
+        // Query Daraja API for the actual status
+        const queryResult = await querySTKPushStatus(payment.mpesa_checkout_request_id);
+
+        // ResultCode: 0 = success, 1 = cancelled by user, 2 = insufficient funds, etc.
+        if (queryResult.resultCode !== 0) {
+          await PaymentModel.update(payment.id, {
+            status: 'cancelled',
+            mpesa_result_code: queryResult.resultCode.toString(),
+            mpesa_result_description: queryResult.resultDesc
+          });
+
+          logger.info('Expired payment cancelled', {
+            paymentId: payment.id,
+            checkoutRequestId: payment.mpesa_checkout_request_id,
+            resultCode: queryResult.resultCode,
+            resultDesc: queryResult.resultDesc
+          });
+
+          cancelled++;
+        }
+      } catch (error) {
+        // If query fails, mark as cancelled anyway (callback likely lost)
+        await PaymentModel.update(payment.id, {
+          status: 'cancelled',
+          mpesa_result_code: 'ERROR',
+          mpesa_result_description: `Query failed: ${error.message}`
+        });
+
+        logger.warn('Failed to query payment status, marked as cancelled', {
+          paymentId: payment.id,
+          error: error.message
+        });
+
+        errors++;
+      }
+    }
+
+    logger.info('Expired payment processing complete', {
+      total: pendingPayments.length,
+      cancelled,
+      errors
+    });
+
+    return {
+      processed: pendingPayments.length,
+      cancelled,
+      errors
+    };
   }
 };
 

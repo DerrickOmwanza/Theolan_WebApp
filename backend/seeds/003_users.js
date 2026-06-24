@@ -26,7 +26,7 @@ export async function seed(knex) {
 
   const now = new Date();
 
-  // Create admin account only
+  // Create admin and test client accounts
   const users = [
     {
       id: '00000000-0000-0000-0000-000000000001',
@@ -39,6 +39,20 @@ export async function seed(knex) {
       phone_verified_at: now,
       is_active: true,
       notification_preference: 'email',
+      created_at: now,
+      updated_at: now
+    },
+    {
+      id: '00000000-0000-0000-0000-000000000002',
+      phone: '+254712345678',
+      email: 'client@test.co.ke',
+      name: 'Test Client',
+      password_hash: hashPassword('Password123!'),
+      role: 'client',
+      phone_verified: true,
+      phone_verified_at: now,
+      is_active: true,
+      notification_preference: 'sms',
       created_at: now,
       updated_at: now
     }
