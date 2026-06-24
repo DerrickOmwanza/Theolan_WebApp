@@ -97,6 +97,14 @@ tools:
             - set *
             - sleep 4
             - sleep 1
+            - git mv *
+            - Write-Host *
+            - Write-Host ""
+            - move *
+            - del *
+            - rd *
+            - git rm *
+            - git reset HEAD *
 paths:
     allow:
         - path: C:/Users/ADMIN/Web&Standalone Applications/**
