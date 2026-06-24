@@ -43,15 +43,7 @@ const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173').spli
 console.log('Allowed origins:', allowedOrigins); // Debug log
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, curl, Postman)
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      console.log('CORS blocked origin:', origin); // Debug log
-      callback(new Error(`Origin ${origin} not allowed by CORS`));
-    },
+    origin: true, // Allow all origins (temporarily for testing)
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
