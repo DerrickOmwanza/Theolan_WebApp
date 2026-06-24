@@ -106,6 +106,7 @@ tools:
             - git rm *
             - git reset HEAD *
             - git checkout *
+            - measure-object *
 paths:
     allow:
         - path: C:/Users/ADMIN/Web&Standalone Applications/**
