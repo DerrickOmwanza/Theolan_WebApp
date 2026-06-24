@@ -115,3 +115,4 @@ paths:
     allow:
         - path: C:/Users/ADMIN/Web&Standalone Applications/**
         - path: C:/Users/ADMIN/**
+        - path: C:/Users/ ADMIN/Web&Standalone Applications/OlanAlumint.web/backend/scripts/**

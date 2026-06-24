@@ -13,7 +13,9 @@ RUN npm install --only=production
 COPY backend/src ./src
 COPY backend/migrations ./migrations
 COPY backend/seeds ./seeds
+COPY backend/scripts ./scripts
 COPY backend/knexfile.js ./
 COPY backend/jest.config.js ./
 
-CMD ["node", "src/server.js"]
+# Runs migrations then starts server
+CMD ["sh", "-c", "npm run migrate:latest && node src/server.js"]

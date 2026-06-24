@@ -12,11 +12,14 @@ async function runMigrations() {
     console.log('Running migrations...');
     await db.migrate.latest();
     console.log('✓ Migrations complete');
+    process.exit(0);
   } catch (error) {
     console.error('Migration error:', error.message);
+    console.error('Stack:', error.stack);
+    process.exit(1);
   } finally {
     await db.destroy();
   }
 }
 
-await runMigrations();
+runMigrations();
