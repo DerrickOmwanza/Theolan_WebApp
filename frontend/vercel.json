@@ -5,7 +5,8 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "VITE_API_BASE_URL": "https://olan-backend-alsj.onrender.com/api/v1"
   },
   "routes": [
     {
