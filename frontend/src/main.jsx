@@ -3,84 +3,29 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
-import * as Sentry from "@sentry/react";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import App from "./App.jsx";
 import "./styles/index.css";
 
-// ============================================================
-// Sentry Error Tracking (Production Only)
-// ============================================================
-if (import.meta.env.PROD) {
-  Sentry.init({
-    dsn: "https://a87103538948c6578e2daa6e6cf2dc24@o4509310465802240.ingest.us.sentry.io/4509366690824192",
-    environment: import.meta.env.MODE,
-    release: import.meta.env.VITE_APP_VERSION || "1.0.0",
-
-    integrations: [
-      Sentry.replayIntegration({
-        maskAllText: false,
-        blockAllMedia: false,
-      }),
-    ],
-
-    // Tracing
-    tracesSampleRate: 1.0, // Capture 100% of the transactions
-
-    // Session Replay
-    replaysSessionSampleRate: 0.1, // 10% in production
-    replaysOnErrorSampleRate: 1.0, // 100% when errors occur
-
-    // Security filtering
-    beforeSend(event) {
-      if (event.request?.headers) {
-        delete event.request.headers.authorization;
-        delete event.request.headers.cookie;
-      }
-      return event;
-    },
-
-    // Ignore certain errors
-    ignoreErrors: [
-      "ResizeObserver loop limit exceeded",
-      "Non-Error promise rejection captured"
-    ]
-  });
-}
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // Cache for 5 minutes before refetching
       staleTime: 5 * 60 * 1000,
-      // Cache for 1 hour before garbage collection
       gcTime: 60 * 60 * 1000,
-      // Retry failed requests once
       retry: 1,
-      // Don't refetch when window regains focus
       refetchOnWindowFocus: false,
-      // Refetch on reconnect
       refetchOnReconnect: true,
-      // Background refetch interval (disabled by default)
       refetchInterval: false,
-      // Error retry delay with exponential backoff
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     },
     mutations: {
-      // Retry mutations once on network error
       retry: 1,
-      // Invalidate related queries on mutation success
-      onSuccess: (_data, _variables, _context) => {
-        // Default: invalidate all queries
+      onSuccess: () => {
         queryClient.invalidateQueries();
       },
     },
   },
 });
-
-// ============================================================
-// Query Keys - Centralized for consistent caching
-// ============================================================
 
 export const queryKeys = {
   products: (filters) => ["products", filters],
