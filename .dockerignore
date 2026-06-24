@@ -1,0 +1,16 @@
+# Docker ignore file
+node_modules
+npm-debug.log
+.env
+.env.*
+.git
+.gitignore
+README.md
+Docs/
+frontend/
+images/
+.dockerignore
+Dockerfile*
+*.log
+coverage
+.tmp
