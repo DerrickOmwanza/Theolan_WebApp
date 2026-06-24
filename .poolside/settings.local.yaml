@@ -105,6 +105,7 @@ tools:
             - rd *
             - git rm *
             - git reset HEAD *
+            - git checkout *
 paths:
     allow:
         - path: C:/Users/ADMIN/Web&Standalone Applications/**
