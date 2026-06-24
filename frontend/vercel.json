@@ -4,9 +4,6 @@
   "outputDirectory": "dist",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
-  "versions": {
-    "node": "20"
-  },
   "env": {
     "NODE_ENV": "production"
   },
