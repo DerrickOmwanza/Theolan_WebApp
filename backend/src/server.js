@@ -40,6 +40,7 @@ app.use(
 
 // CORS — restricted to configured origins
 const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',');
+console.log('Allowed origins:', allowedOrigins); // Debug log
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -48,6 +49,7 @@ app.use(
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
+      console.log('CORS blocked origin:', origin); // Debug log
       callback(new Error(`Origin ${origin} not allowed by CORS`));
     },
     credentials: true,
