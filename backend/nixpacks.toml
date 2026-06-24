@@ -1,11 +1,11 @@
-# Nixpacks configuration for Railway deployment
-# https://docs.railway.app/docs/builders/nixpacks
+# Nixpacks configuration for Render deployment
+# https://render.com/docs/buildpacks
 
 [variables]
 NODE_ENV = "production"
 
 [build]
-cmd = "npm install --only=production"
+cmd = "cd backend && npm install --only=production"
 
 [start]
-cmd = "npm start"
+cmd = "cd backend && npm start"
