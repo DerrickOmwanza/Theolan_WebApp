@@ -116,7 +116,7 @@ app.use(requestLogger);
 app.get('/health', async (req, res) => {
   try {
     const dbHealth = await healthCheck();
-    const redisHealth = redis.status === 'ready' ? 'healthy' : 'unavailable';
+    const redisHealth = redis ? (redis.status === 'ready' ? 'healthy' : 'unavailable') : 'disabled';
     res.status(200).json({
       status: 'ok',
       timestamp: new Date().toISOString(),

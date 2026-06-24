@@ -11,7 +11,7 @@ import logger from '../middlewares/logger.js';
 
 const env = process.env.NODE_ENV || 'development';
 
-// Redis connection configuration
+// Redis connection configuration - make it optional
 const redisConfig = {
   host: process.env.REDIS_HOST || 'localhost',
   port: process.env.REDIS_PORT || 6379,
@@ -20,50 +20,55 @@ const redisConfig = {
   // Retry strategy for connection failures
   retryStrategy: (times) => {
     if (times > 3) {
-      logger.error('Redis connection failed after 3 retries');
-      return null; // Stop retrying
+      logger.warn('Redis connection failed after 3 retries - continuing without cache');
+      return null; // Stop retrying but don't crash
     }
     return Math.min(times * 100, 2000); // Exponential backoff
   }
 };
 
-// Create Redis instance
-export const redis = new Redis(redisConfig);
+// Create Redis instance only if REDIS_HOST is configured
+export const redis = process.env.REDIS_HOST
+  ? new Redis(redisConfig)
+  : null;
 
-// Event handlers
-redis.on('connect', () => {
-  logger.info('Redis connected', { host: redisConfig.host, port: redisConfig.port });
-});
+// Event handlers (only if redis exists)
+if (redis) {
+  redis.on('connect', () => {
+    logger.info('Redis connected', { host: redisConfig.host, port: redisConfig.port });
+  });
 
-redis.on('error', (error) => {
-  logger.error('Redis connection error', { error: error.message });
-});
+  redis.on('error', (error) => {
+    logger.warn('Redis connection error - continuing without cache', { error: error.message });
+  });
 
-redis.on('reconnecting', () => {
-  logger.warn('Redis reconnecting...');
-});
+  redis.on('reconnecting', () => {
+    logger.warn('Redis reconnecting...');
+  });
 
-redis.on('ready', () => {
-  logger.info('Redis is ready for operations');
-});
+  redis.on('ready', () => {
+    logger.info('Redis is ready for operations');
+  });
+}
 
 /**
  * Check if Redis is connected
  * @returns {boolean}
  */
 export const isRedisConnected = () => {
-  return redis.status === 'ready' || redis.status === 'connect';
+  return redis && (redis.status === 'ready' || redis.status === 'connect');
 };
 
 /**
  * Gracefully close Redis connection
  */
 export const closeRedis = async () => {
+  if (!redis) return;
   try {
     await redis.disconnect();
     logger.info('Redis connection closed');
   } catch (error) {
-    logger.error('Error closing Redis connection', { error: error.message });
+    logger.warn('Error closing Redis connection', { error: error.message });
   }
 };
 
