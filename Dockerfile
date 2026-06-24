@@ -17,5 +17,5 @@ COPY backend/scripts ./scripts
 COPY backend/knexfile.js ./
 COPY backend/jest.config.js ./
 
-# Runs migrations then starts server
-CMD ["sh", "-c", "npm run migrate:latest && node src/server.js"]
+# Run migrations then seeds, then start server
+CMD ["sh", "-c", "npm run migrate:latest && npm run seed:run && node src/server.js"]
