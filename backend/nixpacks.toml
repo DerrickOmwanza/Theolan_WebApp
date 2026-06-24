@@ -5,7 +5,7 @@
 NODE_ENV = "production"
 
 [build]
-cmd = "npm ci --only=production"
+cmd = "npm install --only=production"
 
 [start]
 cmd = "npm start"
