@@ -2,6 +2,5 @@
 # Run migrations on startup
 cd backend
 npm run migrate:latest
-npm run seed:run
-# Start server
+# Start server — seeds run once manually, not on every boot
 npm start
