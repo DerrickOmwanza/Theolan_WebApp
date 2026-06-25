@@ -26,6 +26,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
+// Trust proxy — required behind Render's reverse proxy for rate limiting IP detection
+app.set('trust proxy', 1);
+
 // ============================================================
 // SECURITY MIDDLEWARE
 // ============================================================
