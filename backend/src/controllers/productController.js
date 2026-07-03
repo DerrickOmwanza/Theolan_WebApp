@@ -50,7 +50,7 @@ const galleryQuerySchema = Joi.object({
   category: Joi.string().valid(...CATEGORIES).optional(),
   finish: Joi.string().valid(...FINISHES).optional(),
   search: Joi.string().trim().max(200).allow('').optional(),
-  limit: Joi.number().integer().min(1).max(100).default(20),
+  limit: Joi.number().integer().min(1).max(1000).default(20),
   offset: Joi.number().integer().min(0).default(0)
 });
 
