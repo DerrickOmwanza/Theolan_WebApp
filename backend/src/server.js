@@ -106,10 +106,12 @@ app.use(morgan('combined', { stream: morganStream }));
 // Custom request logger (status codes, duration)
 app.use(requestLogger);
 
-// Disable ETag caching for API routes to prevent 304 responses
-// causing empty data to be returned to clients
+// Disable ETags globally to prevent 304 Not Modified responses
+// which cause axios to return empty cached data
+app.set('etag', false);
+
+// Set cache control headers for API routes
 app.use('/api/', (req, res, next) => {
-  res.disable('etag');
   res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
   next();
 });
