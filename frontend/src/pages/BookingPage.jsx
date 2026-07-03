@@ -55,16 +55,14 @@ export default function BookingPage() {
     enabled: step >= 1,
   });
 
-  const availableSlots = slotsData?.data?.slots || slotsData?.data || [];
-
-  // Group slots by date
+  // Group slots by date — API returns data as array of date groups
+  // Format: [{ date: "2026-07-03", slots: [...] }, ...]
   const slotsByDate = {};
-  if (Array.isArray(availableSlots)) {
-    availableSlots.forEach(slot => {
-      const dateKey = slot.date || (slot.scheduled_at && slot.scheduled_at.split('T')[0]);
-      if (!dateKey) return;
-      if (!slotsByDate[dateKey]) slotsByDate[dateKey] = [];
-      slotsByDate[dateKey].push(slot);
+  if (Array.isArray(slotsData?.data)) {
+    slotsData.data.forEach(dateGroup => {
+      const dateKey = dateGroup.date;
+      if (!dateKey || !Array.isArray(dateGroup.slots)) return;
+      slotsByDate[dateKey] = dateGroup.slots;
     });
   }
   const availableDates = Object.keys(slotsByDate).sort();

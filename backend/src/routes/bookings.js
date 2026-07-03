@@ -46,6 +46,8 @@ router.get('/admin', protect, authorize('admin'), BookingController.adminListBoo
  * @route   GET /api/v1/bookings/:id
  * @desc    Get a single booking detail
  * @access  Private (client — own bookings only)
+ * NOTE: This route must come AFTER specific routes like /admin and /available-slots
+ * to avoid matching those paths as if they were IDs.
  */
 router.get('/:id', protect, BookingController.getBooking);
 
