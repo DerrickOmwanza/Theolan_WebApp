@@ -61,29 +61,42 @@ export default function BookingPage() {
   
   // Debug: log what we received
   if (slotsData) {
-    console.log('DEBUG: slotsData full object:', slotsData);
-    console.log('DEBUG: slotsData.data:', slotsData.data);
-    console.log('DEBUG: Is slotsData.data an array?', Array.isArray(slotsData?.data));
-    if (slotsData.data && Array.isArray(slotsData.data) && slotsData.data.length > 0) {
-      console.log('DEBUG: First item in data:', slotsData.data[0]);
+    console.log('DEBUG: slotsData full object:', JSON.stringify(slotsData, null, 2).substring(0, 500));
+    console.log('DEBUG: slotsData.data type:', typeof slotsData.data);
+    console.log('DEBUG: slotsData.data is array?', Array.isArray(slotsData?.data));
+    console.log('DEBUG: slotsData.data keys:', Object.keys(slotsData.data || {}));
+    
+    // Check if it's an object keyed by date (wrong format)
+    if (slotsData.data && typeof slotsData.data === 'object' && !Array.isArray(slotsData.data)) {
+      console.warn('ERROR: slotsData.data is an Object, not an Array!');
+      console.log('Keys in data object:', Object.keys(slotsData.data));
+      const firstKey = Object.keys(slotsData.data)[0];
+      if (firstKey) {
+        console.log('First entry:', firstKey, '=', slotsData.data[firstKey]);
+      }
     }
   }
   
+  // Handle both array and object formats
   if (Array.isArray(slotsData?.data)) {
+    console.log('Processing as array...');
     slotsData.data.forEach(dateGroup => {
       const dateKey = dateGroup.date;
       if (!dateKey || !Array.isArray(dateGroup.slots)) return;
       slotsByDate[dateKey] = dateGroup.slots;
     });
+  } else if (slotsData?.data && typeof slotsData.data === 'object') {
+    console.log('Processing as object (converting to array)...');
+    // If it's an object keyed by date, convert to array format
+    Object.entries(slotsData.data).forEach(([date, slots]) => {
+      if (Array.isArray(slots)) {
+        slotsByDate[date] = slots;
+      }
+    });
   }
-  const availableDates = Object.keys(slotsByDate).sort();
   
-  // Debug: log the result
-  if (availableDates.length > 0) {
-    console.log('DEBUG: Found', availableDates.length, 'available dates');
-  } else if (slotsData && !slotsLoading) {
-    console.warn('DEBUG: No available dates found. slotsByDate:', slotsByDate);
-  }
+  const availableDates = Object.keys(slotsByDate).sort();
+  console.log('Final availableDates:', availableDates);
 
   const handleChange = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
