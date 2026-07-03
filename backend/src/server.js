@@ -41,12 +41,36 @@ app.use(
   })
 );
 
-// CORS — restricted to configured origins
-const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',');
-console.log('Allowed origins:', allowedOrigins); // Debug log
+// CORS — restricted to configured origins with wildcard support
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',').map(s => s.trim());
+const allowedPatterns = (process.env.CORS_ORIGIN_PATTERNS || '').split(',').map(s => s.trim()).filter(Boolean);
+
+console.log('Allowed origins:', allowedOrigins);
+console.log('Allowed patterns (wildcard):', allowedPatterns);
+
 app.use(
   cors({
-    origin: allowedOrigins, // Restricted to whitelisted origins
+    origin: function (origin, callback) {
+      // Allow requests with no origin (mobile apps, curl, Render health checks)
+      if (!origin) return callback(null, true);
+
+      // Check exact match first
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // Check wildcard patterns (e.g. *.vercel.app)
+      const matchesPattern = allowedPatterns.some(pattern => {
+        const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
+        return regex.test(origin);
+      });
+
+      if (matchesPattern) {
+        return callback(null, true);
+      }
+
+      callback(new Error(`CORS blocked: ${origin}`));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
