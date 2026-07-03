@@ -1,44 +1,44 @@
-import { useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { useNavigate, Link } from 'react-router-dom';
-import { bookingApi } from '../services/api.js';
-import { useAuth } from '../contexts/AuthContext.jsx';
-import LoadingSpinner from '../components/LoadingSpinner.jsx';
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useNavigate, Link } from "react-router-dom";
+import { bookingApi } from "../services/api.js";
+import { useAuth } from "../contexts/AuthContext.jsx";
+import LoadingSpinner from "../components/LoadingSpinner.jsx";
 
 const SERVICE_TYPES = [
-  { value: 'windows', label: 'Windows', icon: '🪟' },
-  { value: 'doors', label: 'Doors', icon: '🚪' },
-  { value: 'curtain_wall', label: 'Curtain Walls', icon: '🏢' },
-  { value: 'partitions', label: 'Partitions', icon: '🔲' },
-  { value: 'balustrades', label: 'Balustrades', icon: '🏗️' },
-  { value: 'glazing', label: 'Glazing', icon: '✨' },
+  { value: "windows", label: "Windows", icon: "🪟" },
+  { value: "doors", label: "Doors", icon: "🚪" },
+  { value: "curtain_wall", label: "Curtain Walls", icon: "🏢" },
+  { value: "partitions", label: "Partitions", icon: "🔲" },
+  { value: "balustrades", label: "Balustrades", icon: "🏗️" },
+  { value: "glazing", label: "Glazing", icon: "✨" },
 ];
 
 const PROPERTY_TYPES = [
-  { value: 'residential', label: 'Residential' },
-  { value: 'commercial', label: 'Commercial' },
-  { value: 'industrial', label: 'Industrial' },
+  { value: "residential", label: "Residential" },
+  { value: "commercial", label: "Commercial" },
+  { value: "industrial", label: "Industrial" },
 ];
 
 const CONTACT_METHODS = [
-  { value: 'sms', label: 'SMS' },
-  { value: 'whatsapp', label: 'WhatsApp' },
-  { value: 'email', label: 'Email' },
+  { value: "sms", label: "SMS" },
+  { value: "whatsapp", label: "WhatsApp" },
+  { value: "email", label: "Email" },
 ];
 
-const STEPS = ['Service', 'Date & Time', 'Details', 'Review'];
+const STEPS = ["Service", "Date & Time", "Details", "Review"];
 
 export default function BookingPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
-    service_type: '',
-    property_type: 'residential',
-    location: '',
-    scheduled_at: '',
-    contact_method: 'sms',
-    notes: '',
+    service_type: "",
+    property_type: "residential",
+    location: "",
+    scheduled_at: "",
+    contact_method: "sms",
+    notes: "",
   });
   const [errors, setErrors] = useState({});
   // Available slots query
@@ -47,93 +47,115 @@ export default function BookingPage() {
   endDate.setDate(endDate.getDate() + 90);
 
   const { data: slotsData, isLoading: slotsLoading } = useQuery({
-    queryKey: ['available-slots'],
-    queryFn: () => bookingApi.getAvailableSlots({
-      start_date: today.toISOString().split('T')[0],
-      end_date: endDate.toISOString().split('T')[0],
-    }),
+    queryKey: ["available-slots"],
+    queryFn: () =>
+      bookingApi.getAvailableSlots({
+        start_date: today.toISOString().split("T")[0],
+        end_date: endDate.toISOString().split("T")[0],
+      }),
     enabled: step >= 1,
   });
 
   // Group slots by date
-  // API wraps response as: { data: { success, data: [...], total_slots, date_range } }
+  // API wraps response as: { success: true, data: [...], total_slots, date_range }
+  // Axios response: response.data = { success, data: [...], ... }
   const slotsByDate = {};
-  
+
+  // Safe access with defaults
+  const apiResponse = slotsData?.data;
   let slotsArray = null;
-  
-  if (slotsData?.data) {
+
+  if (apiResponse) {
     // Handle nested response structure
-    // slotsData = { data: { success, data: [...], ... } }
-    // So slotsData.data.data contains the actual slots array
-    if (slotsData.data.data && Array.isArray(slotsData.data.data)) {
-      slotsArray = slotsData.data.data;
-    } else if (Array.isArray(slotsData.data)) {
-      // Fallback: handle if slotsData.data is already the array
-      slotsArray = slotsData.data;
+    // apiResponse = { success, data: [...], total_slots, date_range }
+    // So apiResponse.data contains the actual slots array
+    if (Array.isArray(apiResponse.data)) {
+      slotsArray = apiResponse.data;
+    } else if (apiResponse.success && Array.isArray(apiResponse.data)) {
+      // Fallback: handle if data is directly an array
+      slotsArray = apiResponse.data;
     }
   }
-  
+
   // Extract date groups from slots
-  if (slotsArray) {
-    slotsArray.forEach(dateGroup => {
-      const dateKey = dateGroup.date;
-      if (!dateKey || !Array.isArray(dateGroup.slots)) return;
+  if (slotsArray && Array.isArray(slotsArray)) {
+    slotsArray.forEach((dateGroup) => {
+      const dateKey = dateGroup?.date;
+      if (!dateKey || !Array.isArray(dateGroup?.slots)) return;
       slotsByDate[dateKey] = dateGroup.slots;
     });
-  } else {
-    console.warn('Warning: Could not find slots array in response', slotsData);
-    Object.entries(slotsData.data).forEach(([date, slots]) => {
-      if (Array.isArray(slots)) {
-        slotsByDate[date] = slots;
-      }
-    });
+  } else if (apiResponse && !Array.isArray(apiResponse)) {
+    // Try to handle object keyed by date as fallback
+    console.warn(
+      "Warning: Could not find slots array in response",
+      apiResponse,
+    );
+    if (apiResponse.data && typeof apiResponse.data === "object") {
+      Object.entries(apiResponse.data).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          // Check if this could be date-keyed slots
+          const isDateKey = /^\d{4}-\d{2}-\d{2}$/.test(key);
+          if (isDateKey) {
+            slotsByDate[key] = value;
+          }
+        }
+      });
+    }
   }
-  
+
   const availableDates = Object.keys(slotsByDate).sort();
-  console.log('Final availableDates:', availableDates);
+  console.log("Final availableDates:", availableDates);
 
   const handleChange = (field, value) => {
-    setForm(prev => ({ ...prev, [field]: value }));
-    if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
+    setForm((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: null }));
   };
 
   const validateStep = (s) => {
     const errs = {};
     if (s === 0) {
-      if (!form.service_type) errs.service_type = 'Select a service type';
+      if (!form.service_type) errs.service_type = "Select a service type";
     }
     if (s === 1) {
-      if (!form.scheduled_at) errs.scheduled_at = 'Select a date and time';
+      if (!form.scheduled_at) errs.scheduled_at = "Select a date and time";
     }
     if (s === 2) {
-      if (!form.location || form.location.trim().length < 3) errs.location = 'Location is required (min 3 characters)';
+      if (!form.location || form.location.trim().length < 3)
+        errs.location = "Location is required (min 3 characters)";
     }
     return errs;
   };
 
   const nextStep = () => {
     const errs = validateStep(step);
-    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-    setStep(s => Math.min(s + 1, STEPS.length - 1));
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
+    setStep((s) => Math.min(s + 1, STEPS.length - 1));
   };
 
-  const prevStep = () => setStep(s => Math.max(s - 1, 0));
+  const prevStep = () => setStep((s) => Math.max(s - 1, 0));
 
   const createBookingMutation = useMutation({
     mutationFn: (data) => bookingApi.create(data),
     onSuccess: (res) => {
-      const ref = res?.data?.data?.reference_number || res?.data?.reference_number || '';
+      const ref =
+        res?.data?.data?.reference_number || res?.data?.reference_number || "";
       navigate(`/bookings?booking_confirmed=${ref}`, { replace: true });
     },
     onError: (err) => {
-      const msg = err.response?.data?.error?.message || err.response?.data?.message || 'Booking failed. Please try again.';
+      const msg =
+        err.response?.data?.error?.message ||
+        err.response?.data?.message ||
+        "Booking failed. Please try again.";
       setErrors({ submit: msg });
     },
   });
 
   const handleSubmit = () => {
     if (!user) {
-      navigate('/auth/login?redirect=/booking');
+      navigate("/auth/login?redirect=/booking");
       return;
     }
     createBookingMutation.mutate({
@@ -147,17 +169,20 @@ export default function BookingPage() {
   };
 
   const formatTime = (timeStr) => {
-    if (!timeStr) return '';
-    const [h, m] = timeStr.split(':');
+    if (!timeStr) return "";
+    const [h, m] = timeStr.split(":");
     const hour = parseInt(h, 10);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const ampm = hour >= 12 ? "PM" : "AM";
     const h12 = hour % 12 || 12;
     return `${h12}:${m} ${ampm}`;
   };
 
   const formatDate = (dateStr) => {
-    return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-KE', {
-      weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
+    return new Date(dateStr + "T00:00:00").toLocaleDateString("en-KE", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
     });
   };
 
@@ -166,12 +191,15 @@ export default function BookingPage() {
       {/* Hero Banner */}
       <section className="bg-charcoal-900 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-gold-400 text-sm font-medium uppercase tracking-widest mb-3">Book a Visit</p>
+          <p className="text-gold-400 text-sm font-medium uppercase tracking-widest mb-3">
+            Book a Visit
+          </p>
           <h1 className="text-4xl md:text-5xl font-heading font-bold text-warmwhite mb-4">
             Schedule a Site Visit
           </h1>
           <p className="text-silver-300 max-w-2xl">
-            Our technicians will visit your site, take measurements, and provide a detailed quotation. Free within Nairobi.
+            Our technicians will visit your site, take measurements, and provide
+            a detailed quotation. Free within Nairobi.
           </p>
         </div>
       </section>
@@ -182,20 +210,30 @@ export default function BookingPage() {
           <div className="flex items-center justify-between">
             {STEPS.map((label, idx) => (
               <div key={label} className="flex items-center">
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-colors ${
-                  idx < step ? 'bg-cobalt text-white' :
-                  idx === step ? 'bg-cobalt/20 text-cobalt-300 border-2 border-cobalt' :
-                  'bg-charcoal-700 text-silver-500'
-                }`}>
-                  {idx < step ? '✓' : idx + 1}
+                <div
+                  className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-colors ${
+                    idx < step
+                      ? "bg-cobalt text-white"
+                      : idx === step
+                        ? "bg-cobalt/20 text-cobalt-300 border-2 border-cobalt"
+                        : "bg-charcoal-700 text-silver-500"
+                  }`}
+                >
+                  {idx < step ? "✓" : idx + 1}
                 </div>
-                <span className={`hidden sm:inline ml-2 text-sm ${
-                  idx === step ? 'text-warmwhite' : 'text-silver-500'
-                }`}>{label}</span>
+                <span
+                  className={`hidden sm:inline ml-2 text-sm ${
+                    idx === step ? "text-warmwhite" : "text-silver-500"
+                  }`}
+                >
+                  {label}
+                </span>
                 {idx < STEPS.length - 1 && (
-                  <div className={`w-8 sm:w-16 lg:w-24 h-0.5 mx-2 ${
-                    idx < step ? 'bg-cobalt' : 'bg-charcoal-600'
-                  }`} />
+                  <div
+                    className={`w-8 sm:w-16 lg:w-24 h-0.5 mx-2 ${
+                      idx < step ? "bg-cobalt" : "bg-charcoal-600"
+                    }`}
+                  />
                 )}
               </div>
             ))}
@@ -208,35 +246,50 @@ export default function BookingPage() {
         {/* Step 0: Service Selection */}
         {step === 0 && (
           <div>
-            <h2 className="text-2xl font-heading font-bold text-warmwhite mb-6">What service do you need?</h2>
+            <h2 className="text-2xl font-heading font-bold text-warmwhite mb-6">
+              What service do you need?
+            </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {SERVICE_TYPES.map(svc => (
+              {SERVICE_TYPES.map((svc) => (
                 <button
                   key={svc.value}
                   type="button"
-                  onClick={() => handleChange('service_type', svc.value)}
+                  onClick={() => handleChange("service_type", svc.value)}
                   className={`card text-center hover:border-cobalt/50 transition-all ${
-                    form.service_type === svc.value ? 'border-cobalt bg-cobalt/10' : ''
+                    form.service_type === svc.value
+                      ? "border-cobalt bg-cobalt/10"
+                      : ""
                   }`}
                 >
                   <span className="text-3xl block mb-2">{svc.icon}</span>
-                  <span className="text-warmwhite font-medium text-sm">{svc.label}</span>
+                  <span className="text-warmwhite font-medium text-sm">
+                    {svc.label}
+                  </span>
                 </button>
               ))}
             </div>
-            {errors.service_type && <p className="input-error mt-2">{errors.service_type}</p>}
+            {errors.service_type && (
+              <p className="input-error mt-2">{errors.service_type}</p>
+            )}
           </div>
         )}
 
         {/* Step 1: Date &amp; Time */}
         {step === 1 && (
           <div>
-            <h2 className="text-2xl font-heading font-bold text-warmwhite mb-6">Choose a date and time</h2>
+            <h2 className="text-2xl font-heading font-bold text-warmwhite mb-6">
+              Choose a date and time
+            </h2>
             {slotsLoading ? (
-              <div className="flex justify-center py-12"><LoadingSpinner size="lg" /></div>
+              <div className="flex justify-center py-12">
+                <LoadingSpinner size="lg" />
+              </div>
             ) : availableDates.length === 0 ? (
               <div className="card text-center py-12">
-                <p className="text-silver-400">No available slots found. Please check back later or contact us directly.</p>
+                <p className="text-silver-400">
+                  No available slots found. Please check back later or contact
+                  us directly.
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -244,18 +297,18 @@ export default function BookingPage() {
                 <div>
                   <label className="input-label">Select Date</label>
                   <div className="grid grid-cols-1 gap-2 max-h-[400px] overflow-y-auto pr-2">
-                    {availableDates.map(date => (
+                    {availableDates.map((date) => (
                       <button
                         key={date}
                         type="button"
                         onClick={() => {
-                          handleChange('scheduled_at', '');
-                          setForm(prev => ({ ...prev, _selectedDate: date }));
+                          handleChange("scheduled_at", "");
+                          setForm((prev) => ({ ...prev, _selectedDate: date }));
                         }}
                         className={`text-left p-3 rounded-md border transition-colors ${
                           form._selectedDate === date
-                            ? 'border-cobalt bg-cobalt/10 text-warmwhite'
-                            : 'border-charcoal-600 text-silver-300 hover:border-cobalt/50'
+                            ? "border-cobalt bg-cobalt/10 text-warmwhite"
+                            : "border-charcoal-600 text-silver-300 hover:border-cobalt/50"
                         }`}
                       >
                         {formatDate(date)}
@@ -268,7 +321,7 @@ export default function BookingPage() {
                   <label className="input-label">Select Time</label>
                   {form._selectedDate ? (
                     <div className="grid grid-cols-2 gap-2">
-                      {(slotsByDate[form._selectedDate] || []).map(slot => {
+                      {(slotsByDate[form._selectedDate] || []).map((slot) => {
                         const slotDatetime = `${form._selectedDate}T${slot.start_time}`;
                         const isSelected = form.scheduled_at === slotDatetime;
                         return (
@@ -276,49 +329,59 @@ export default function BookingPage() {
                             key={slot.id}
                             type="button"
                             onClick={() => {
-                              handleChange('scheduled_at', slotDatetime);
+                              handleChange("scheduled_at", slotDatetime);
                             }}
                             className={`p-3 rounded-md border text-center transition-colors ${
                               isSelected
-                                ? 'border-cobalt bg-cobalt/10 text-warmwhite'
-                                : 'border-charcoal-600 text-silver-300 hover:border-cobalt/50'
+                                ? "border-cobalt bg-cobalt/10 text-warmwhite"
+                                : "border-charcoal-600 text-silver-300 hover:border-cobalt/50"
                             }`}
                           >
-                            <span className="text-sm font-medium">{formatTime(slot.start_time)}</span>
-                            <span className="text-xs text-silver-500 block">– {formatTime(slot.end_time)}</span>
+                            <span className="text-sm font-medium">
+                              {formatTime(slot.start_time)}
+                            </span>
+                            <span className="text-xs text-silver-500 block">
+                              – {formatTime(slot.end_time)}
+                            </span>
                           </button>
                         );
                       })}
                     </div>
                   ) : (
                     <div className="card text-center py-8">
-                      <p className="text-silver-500 text-sm">Select a date to see available times</p>
+                      <p className="text-silver-500 text-sm">
+                        Select a date to see available times
+                      </p>
                     </div>
                   )}
                 </div>
               </div>
             )}
-            {errors.scheduled_at && <p className="input-error mt-2">{errors.scheduled_at}</p>}
+            {errors.scheduled_at && (
+              <p className="input-error mt-2">{errors.scheduled_at}</p>
+            )}
           </div>
         )}
 
         {/* Step 2: Details */}
         {step === 2 && (
           <div>
-            <h2 className="text-2xl font-heading font-bold text-warmwhite mb-6">Your Details</h2>
+            <h2 className="text-2xl font-heading font-bold text-warmwhite mb-6">
+              Your Details
+            </h2>
             <div className="space-y-5">
               <div>
                 <label className="input-label">Property Type</label>
                 <div className="flex gap-3">
-                  {PROPERTY_TYPES.map(pt => (
+                  {PROPERTY_TYPES.map((pt) => (
                     <button
                       key={pt.value}
                       type="button"
-                      onClick={() => handleChange('property_type', pt.value)}
+                      onClick={() => handleChange("property_type", pt.value)}
                       className={`px-4 py-2 rounded-md border text-sm transition-colors ${
                         form.property_type === pt.value
-                          ? 'border-cobalt bg-cobalt/10 text-warmwhite'
-                          : 'border-charcoal-600 text-silver-400 hover:border-cobalt/50'
+                          ? "border-cobalt bg-cobalt/10 text-warmwhite"
+                          : "border-charcoal-600 text-silver-400 hover:border-cobalt/50"
                       }`}
                     >
                       {pt.label}
@@ -331,24 +394,26 @@ export default function BookingPage() {
                 <input
                   type="text"
                   value={form.location}
-                  onChange={(e) => handleChange('location', e.target.value)}
-                  className={`input-field ${errors.location ? 'border-red-500' : ''}`}
+                  onChange={(e) => handleChange("location", e.target.value)}
+                  className={`input-field ${errors.location ? "border-red-500" : ""}`}
                   placeholder="e.g. Karen, Nairobi — Plot 23 Likoni Drive"
                 />
-                {errors.location && <p className="input-error">{errors.location}</p>}
+                {errors.location && (
+                  <p className="input-error">{errors.location}</p>
+                )}
               </div>
               <div>
                 <label className="input-label">Preferred Contact Method</label>
                 <div className="flex gap-3">
-                  {CONTACT_METHODS.map(cm => (
+                  {CONTACT_METHODS.map((cm) => (
                     <button
                       key={cm.value}
                       type="button"
-                      onClick={() => handleChange('contact_method', cm.value)}
+                      onClick={() => handleChange("contact_method", cm.value)}
                       className={`px-4 py-2 rounded-md border text-sm transition-colors ${
                         form.contact_method === cm.value
-                          ? 'border-cobalt bg-cobalt/10 text-warmwhite'
-                          : 'border-charcoal-600 text-silver-400 hover:border-cobalt/50'
+                          ? "border-cobalt bg-cobalt/10 text-warmwhite"
+                          : "border-charcoal-600 text-silver-400 hover:border-cobalt/50"
                       }`}
                     >
                       {cm.label}
@@ -357,10 +422,12 @@ export default function BookingPage() {
                 </div>
               </div>
               <div>
-                <label className="input-label">Additional Notes (optional)</label>
+                <label className="input-label">
+                  Additional Notes (optional)
+                </label>
                 <textarea
                   value={form.notes}
-                  onChange={(e) => handleChange('notes', e.target.value)}
+                  onChange={(e) => handleChange("notes", e.target.value)}
                   className="input-field min-h-[100px]"
                   placeholder="Any special requirements, measurements, or details..."
                   rows={3}
@@ -373,40 +440,72 @@ export default function BookingPage() {
         {/* Step 3: Review */}
         {step === 3 && (
           <div>
-            <h2 className="text-2xl font-heading font-bold text-warmwhite mb-6">Review Your Booking</h2>
+            <h2 className="text-2xl font-heading font-bold text-warmwhite mb-6">
+              Review Your Booking
+            </h2>
             <div className="card space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-silver-500 uppercase tracking-wider">Service</p>
-                  <p className="text-warmwhite font-medium capitalize">{form.service_type?.replace('_', ' ')}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-silver-500 uppercase tracking-wider">Property Type</p>
-                  <p className="text-warmwhite font-medium capitalize">{form.property_type}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-silver-500 uppercase tracking-wider">Date &amp; Time</p>
-                  <p className="text-warmwhite font-medium">
-                    {form.scheduled_at
-                      ? new Date(form.scheduled_at).toLocaleDateString('en-KE', {
-                          weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
-                        }) + ' at ' + new Date(form.scheduled_at).toLocaleTimeString('en-KE', {
-                          hour: '2-digit', minute: '2-digit'
-                        })
-                      : 'Not selected'}
+                  <p className="text-xs text-silver-500 uppercase tracking-wider">
+                    Service
+                  </p>
+                  <p className="text-warmwhite font-medium capitalize">
+                    {form.service_type?.replace("_", " ")}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-silver-500 uppercase tracking-wider">Contact Method</p>
-                  <p className="text-warmwhite font-medium capitalize">{form.contact_method}</p>
+                  <p className="text-xs text-silver-500 uppercase tracking-wider">
+                    Property Type
+                  </p>
+                  <p className="text-warmwhite font-medium capitalize">
+                    {form.property_type}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-silver-500 uppercase tracking-wider">
+                    Date &amp; Time
+                  </p>
+                  <p className="text-warmwhite font-medium">
+                    {form.scheduled_at
+                      ? new Date(form.scheduled_at).toLocaleDateString(
+                          "en-KE",
+                          {
+                            weekday: "short",
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          },
+                        ) +
+                        " at " +
+                        new Date(form.scheduled_at).toLocaleTimeString(
+                          "en-KE",
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          },
+                        )
+                      : "Not selected"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-silver-500 uppercase tracking-wider">
+                    Contact Method
+                  </p>
+                  <p className="text-warmwhite font-medium capitalize">
+                    {form.contact_method}
+                  </p>
                 </div>
                 <div className="sm:col-span-2">
-                  <p className="text-xs text-silver-500 uppercase tracking-wider">Location</p>
+                  <p className="text-xs text-silver-500 uppercase tracking-wider">
+                    Location
+                  </p>
                   <p className="text-warmwhite font-medium">{form.location}</p>
                 </div>
                 {form.notes && (
                   <div className="sm:col-span-2">
-                    <p className="text-xs text-silver-500 uppercase tracking-wider">Notes</p>
+                    <p className="text-xs text-silver-500 uppercase tracking-wider">
+                      Notes
+                    </p>
                     <p className="text-silver-300">{form.notes}</p>
                   </div>
                 )}
@@ -416,7 +515,8 @@ export default function BookingPage() {
             {!user && (
               <div className="card mt-4 border-gold/30 bg-gold/5">
                 <p className="text-gold-400 text-sm">
-                  You&apos;ll need to log in or create an account to confirm this booking.
+                  You&apos;ll need to log in or create an account to confirm
+                  this booking.
                 </p>
               </div>
             )}
@@ -436,7 +536,9 @@ export default function BookingPage() {
               Back
             </button>
           ) : (
-            <Link to="/" className="btn-ghost">Cancel</Link>
+            <Link to="/" className="btn-ghost">
+              Cancel
+            </Link>
           )}
           {step < STEPS.length - 1 ? (
             <button type="button" onClick={nextStep} className="btn-primary">
@@ -449,7 +551,11 @@ export default function BookingPage() {
               className="btn-primary"
               disabled={createBookingMutation.isPending}
             >
-              {createBookingMutation.isPending ? <LoadingSpinner size="sm" /> : 'Confirm Booking'}
+              {createBookingMutation.isPending ? (
+                <LoadingSpinner size="sm" />
+              ) : (
+                "Confirm Booking"
+              )}
             </button>
           )}
         </div>
