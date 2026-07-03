@@ -42,15 +42,38 @@ app.use(
 );
 
 // CORS — restricted to configured origins with wildcard support
-const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',').map(s => s.trim());
-const allowedPatterns = (process.env.CORS_ORIGIN_PATTERNS || '').split(',').map(s => s.trim()).filter(Boolean);
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((s) => s.trim());
+const allowedPatterns = (process.env.CORS_ORIGIN_PATTERNS || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
 
-console.log('Allowed origins:', allowedOrigins);
-console.log('Allowed patterns (wildcard):', allowedPatterns);
+console.log('[CORS] Allowed origins (exact match):', allowedOrigins);
+console.log('[CORS] Allowed patterns (wildcard):', allowedPatterns);
 
+// Body parsing — limited payload size (MUST be before CORS and other middleware)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+// CORS error handler - catches CORS errors and returns 403 instead of 500
+const handleCorsError = (err, req, res, next) => {
+  if (err.message && err.message.includes('CORS blocked')) {
+    res.setHeader('Access-Control-Allow-Origin', 'false');
+    return res.status(403).json({
+      success: false,
+      error: 'CORS_FORBIDDEN',
+      message: err.message
+    });
+  }
+  next(err);
+};
+
+// Apply CORS middleware
 app.use(
   cors({
-    origin: function (origin, callback) {
+    origin: (origin, callback) => {
       // Allow requests with no origin (mobile apps, curl, Render health checks)
       if (!origin) return callback(null, true);
 
@@ -60,7 +83,7 @@ app.use(
       }
 
       // Check wildcard patterns (e.g. *.vercel.app)
-      const matchesPattern = allowedPatterns.some(pattern => {
+      const matchesPattern = allowedPatterns.some((pattern) => {
         const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
         return regex.test(origin);
       });
@@ -69,19 +92,20 @@ app.use(
         return callback(null, true);
       }
 
-      callback(new Error(`CORS blocked: ${origin}`));
+      // Origin not allowed - trigger CORS error
+      callback(new Error(`CORS blocked: ${origin}`), false);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
-    maxAge: 86400 // 24 hours preflight cache
+    maxAge: 86400, // 24 hours preflight cache
+    optionsSuccessStatus: 204
   })
 );
 
-// Body parsing — limited payload size
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
+// Register CORS error handler
+app.use(handleCorsError);
 
 // ============================================================
 // RATE LIMITING

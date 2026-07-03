@@ -10,5 +10,18 @@ const router = express.Router();
  */
 router.post('/', ProductController.calculateQuote);
 
+/**
+ * @route   GET /api/v1/quote
+ * @desc    Method not allowed - quote endpoint only accepts POST
+ * @access  Public
+ */
+router.get('/', (req, res) => {
+  res.status(405).json({
+    success: false,
+    error: 'METHOD_NOT_ALLOWED',
+    message: 'GET /api/v1/quote not allowed. Use POST to calculate quotes.'
+  });
+});
+
 export { router as quoteRoutes };
 export default router;
