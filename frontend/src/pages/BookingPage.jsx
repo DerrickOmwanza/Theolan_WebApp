@@ -58,6 +58,18 @@ export default function BookingPage() {
   // Group slots by date — API returns data as array of date groups
   // Format: [{ date: "2026-07-03", slots: [...] }, ...]
   const slotsByDate = {};
+  
+  // Debug: log what we received
+  if (slotsData) {
+    console.log('DEBUG: slotsData received:', {
+      isArray: Array.isArray(slotsData),
+      hasData: !!slotsData.data,
+      dataIsArray: Array.isArray(slotsData?.data),
+      dataLength: slotsData?.data?.length,
+      fullData: slotsData
+    });
+  }
+  
   if (Array.isArray(slotsData?.data)) {
     slotsData.data.forEach(dateGroup => {
       const dateKey = dateGroup.date;
@@ -66,6 +78,13 @@ export default function BookingPage() {
     });
   }
   const availableDates = Object.keys(slotsByDate).sort();
+  
+  // Debug: log the result
+  if (availableDates.length > 0) {
+    console.log('DEBUG: Found', availableDates.length, 'available dates');
+  } else if (slotsData && !slotsLoading) {
+    console.warn('DEBUG: No available dates found. slotsByDate:', slotsByDate);
+  }
 
   const handleChange = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
