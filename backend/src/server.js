@@ -106,6 +106,14 @@ app.use(morgan('combined', { stream: morganStream }));
 // Custom request logger (status codes, duration)
 app.use(requestLogger);
 
+// Disable ETag caching for API routes to prevent 304 responses
+// causing empty data to be returned to clients
+app.use('/api/', (req, res, next) => {
+  res.disable('etag');
+  res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+  next();
+});
+
 // ============================================================
 // HEALTH CHECK
 // ============================================================
