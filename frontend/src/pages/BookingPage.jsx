@@ -61,13 +61,12 @@ export default function BookingPage() {
   
   // Debug: log what we received
   if (slotsData) {
-    console.log('DEBUG: slotsData received:', {
-      isArray: Array.isArray(slotsData),
-      hasData: !!slotsData.data,
-      dataIsArray: Array.isArray(slotsData?.data),
-      dataLength: slotsData?.data?.length,
-      fullData: slotsData
-    });
+    console.log('DEBUG: slotsData full object:', slotsData);
+    console.log('DEBUG: slotsData.data:', slotsData.data);
+    console.log('DEBUG: Is slotsData.data an array?', Array.isArray(slotsData?.data));
+    if (slotsData.data && Array.isArray(slotsData.data) && slotsData.data.length > 0) {
+      console.log('DEBUG: First item in data:', slotsData.data[0]);
+    }
   }
   
   if (Array.isArray(slotsData?.data)) {
