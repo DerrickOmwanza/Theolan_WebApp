@@ -55,39 +55,33 @@ export default function BookingPage() {
     enabled: step >= 1,
   });
 
-  // Group slots by date — API returns data as array of date groups
-  // Format: [{ date: "2026-07-03", slots: [...] }, ...]
+  // Group slots by date
+  // API wraps response as: { data: { success, data: [...], total_slots, date_range } }
   const slotsByDate = {};
   
-  // Debug: log what we received
-  if (slotsData) {
-    console.log('DEBUG: slotsData full object:', JSON.stringify(slotsData, null, 2).substring(0, 500));
-    console.log('DEBUG: slotsData.data type:', typeof slotsData.data);
-    console.log('DEBUG: slotsData.data is array?', Array.isArray(slotsData?.data));
-    console.log('DEBUG: slotsData.data keys:', Object.keys(slotsData.data || {}));
-    
-    // Check if it's an object keyed by date (wrong format)
-    if (slotsData.data && typeof slotsData.data === 'object' && !Array.isArray(slotsData.data)) {
-      console.warn('ERROR: slotsData.data is an Object, not an Array!');
-      console.log('Keys in data object:', Object.keys(slotsData.data));
-      const firstKey = Object.keys(slotsData.data)[0];
-      if (firstKey) {
-        console.log('First entry:', firstKey, '=', slotsData.data[firstKey]);
-      }
+  let slotsArray = null;
+  
+  if (slotsData?.data) {
+    // Handle nested response structure
+    // slotsData = { data: { success, data: [...], ... } }
+    // So slotsData.data.data contains the actual slots array
+    if (slotsData.data.data && Array.isArray(slotsData.data.data)) {
+      slotsArray = slotsData.data.data;
+    } else if (Array.isArray(slotsData.data)) {
+      // Fallback: handle if slotsData.data is already the array
+      slotsArray = slotsData.data;
     }
   }
   
-  // Handle both array and object formats
-  if (Array.isArray(slotsData?.data)) {
-    console.log('Processing as array...');
-    slotsData.data.forEach(dateGroup => {
+  // Extract date groups from slots
+  if (slotsArray) {
+    slotsArray.forEach(dateGroup => {
       const dateKey = dateGroup.date;
       if (!dateKey || !Array.isArray(dateGroup.slots)) return;
       slotsByDate[dateKey] = dateGroup.slots;
     });
-  } else if (slotsData?.data && typeof slotsData.data === 'object') {
-    console.log('Processing as object (converting to array)...');
-    // If it's an object keyed by date, convert to array format
+  } else {
+    console.warn('Warning: Could not find slots array in response', slotsData);
     Object.entries(slotsData.data).forEach(([date, slots]) => {
       if (Array.isArray(slots)) {
         slotsByDate[date] = slots;
