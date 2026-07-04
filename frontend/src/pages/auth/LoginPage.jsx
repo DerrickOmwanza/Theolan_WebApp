@@ -41,11 +41,20 @@ export default function LoginPage() {
       navigate(redirectTo, { replace: true });
     } catch (err) {
       let msg = "Login failed. Please try again.";
-      if (err?.response?.data?.message) {
-        msg = err.response.data.message;
-      } else if (err?.message) {
-        msg = err.message;
+      const errorMessage = err?.response?.data?.message || err?.message || "";
+
+      // Check if phone number is not verified - redirect to OTP verification page
+      if (errorMessage.toLowerCase().includes("phone number not verified")) {
+        toast.error("Please verify your phone number to login.");
+        // Redirect to OTP verification page with phone number
+        navigate("/auth/verify-otp", {
+          state: { phone: data.phone },
+          replace: true,
+        });
+        return;
       }
+
+      msg = errorMessage;
       toast.error(msg);
     } finally {
       setSubmitting(false);
