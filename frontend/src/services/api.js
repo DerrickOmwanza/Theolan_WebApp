@@ -113,6 +113,16 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       const refreshToken = getRefreshToken();
 
+      // Allow 401 on login endpoint to pass through to LoginPage catch block
+      // This enables redirecting unverified users to OTP page
+      if (
+        originalRequest.url === "/auth/login" ||
+        originalRequest.url.includes("/auth/login")
+      ) {
+        clearAuth();
+        return Promise.reject(error);
+      }
+
       if (!refreshToken) {
         clearAuth();
         window.location.href = "/auth/login";
