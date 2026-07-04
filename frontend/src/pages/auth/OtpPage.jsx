@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../../contexts/AuthContext.jsx";
@@ -11,9 +11,22 @@ export default function OtpPage() {
   const location = useLocation();
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [submitting, setSubmitting] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const inputsRef = useRef([]);
 
   const phone = location.state?.phone || "";
+
+  // Countdown timer effect for resend cooldown
+  useEffect(() => {
+    let timer = null;
+    if (countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [countdown]);
 
   useEffect(() => {
     if (!phone) {
@@ -82,15 +95,23 @@ export default function OtpPage() {
     }
   };
 
-  const handleResend = async () => {
+  const handleResend = useCallback(async () => {
+    // Prevent spamming if already resending or in cooldown
+    if (countdown > 0 || resending) return;
+
+    setResending(true);
     try {
       const response = await authApi.resendOTP({ phone });
-      toast.success(response.data.message || "New code sent!");
+      toast.success(response.data.message || "New verification code sent!");
+      // Start the 60-second cooldown timer
+      setCountdown(60);
     } catch (err) {
       const msg = err.response?.data?.message || "Failed to resend code";
       toast.error(msg);
+    } finally {
+      setResending(false);
     }
-  };
+  }, [countdown, resending, phone]);
 
   return (
     <div className="card">
@@ -137,9 +158,22 @@ export default function OtpPage() {
         Didn&apos;t receive the code?{" "}
         <button
           onClick={handleResend}
-          className="text-cobalt-400 hover:text-cobalt-300 font-medium"
+          disabled={countdown > 0 || resending || !phone}
+          className={`text-cobalt-400 hover:text-cobalt-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
         >
-          Resend
+          {countdown > 0 ? (
+            <span className="flex items-center justify-center">
+              <LoadingSpinner size="xs" className="mr-1" />
+              Resend in {countdown}s
+            </span>
+          ) : resending ? (
+            <span className="flex items-center justify-center">
+              <LoadingSpinner size="xs" className="mr-1" />
+              Sending...
+            </span>
+          ) : (
+            "Resend Code"
+          )}
         </button>
       </p>
 
