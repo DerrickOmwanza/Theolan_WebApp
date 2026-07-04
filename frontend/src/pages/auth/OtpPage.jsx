@@ -33,7 +33,26 @@ export default function OtpPage() {
   // Auto-focus the first input on mount
   useEffect(() => {
     inputsRef.current[0]?.focus();
-  }, []);
+
+    // If no phone is available and we didn't come from login redirect, go to login
+    if (!phone) {
+      const fromLogin = sessionStorage.getItem("auth_redirect_from_login");
+      if (!fromLogin) {
+        // Not from login, redirect to login page
+        navigate("/auth/login", { replace: true });
+      }
+      // If from login, stay on page (will show "Sign up or log in first" message)
+    }
+  }, [phone, navigate]);
+
+  // Mark that we've visited the OTP page from login
+  useEffect(() => {
+    const fromLogin = sessionStorage.getItem("auth_redirect_from_login");
+    if (fromLogin && !location.state?.phone) {
+      // We came from login redirect but don't have the phone
+      // This means we need to stay on page but show the fallback
+    }
+  }, [location.state]);
 
   const handleChange = (index, value) => {
     if (!/^\d*$/.test(value)) return;
@@ -80,8 +99,9 @@ export default function OtpPage() {
     setSubmitting(true);
     try {
       await verifyOtp(phone, otpCode);
-      // Clear session storage after successful verification
+      // Clear all session storage after successful verification
       sessionStorage.removeItem("pending_otp_phone");
+      sessionStorage.removeItem("auth_redirect_from_login");
       toast.success("Phone verified! You can now log in.");
       navigate("/auth/login", { replace: true });
     } catch (err) {

@@ -48,6 +48,8 @@ export default function LoginPage() {
         toast.error("Please verify your phone number to login.");
         // Store phone in sessionStorage for persistence across redirects
         sessionStorage.setItem("pending_otp_phone", data.phone);
+        // Mark that we're coming from login to prevent redirect loops
+        sessionStorage.setItem("auth_redirect_from_login", "true");
         // Redirect to OTP verification page with phone number
         navigate("/auth/verify-otp", {
           state: { phone: data.phone },

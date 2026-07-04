@@ -32,7 +32,8 @@ export default function CountryPhoneInput({
 
   const { countryCode, localNumber } = parsePhone(value);
   const selectedCountry =
-    EAST_AFRICAN_COUNTRIES.find((c) => c.code === countryCode) || DEFAULT_COUNTRY;
+    EAST_AFRICAN_COUNTRIES.find((c) => c.code === countryCode) ||
+    DEFAULT_COUNTRY;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -87,7 +88,11 @@ export default function CountryPhoneInput({
           aria-label="Select country code"
           aria-expanded={dropdownOpen}
         >
-          <span className="text-base" role="img" aria-label={`${selectedCountry.name} flag`}>
+          <span
+            className="text-base"
+            role="img"
+            aria-label={`${selectedCountry.name} flag`}
+          >
             {getFlagEmoji(selectedCountry.iso)}
           </span>
           <span className="text-warmwhite text-sm font-medium">
@@ -101,7 +106,12 @@ export default function CountryPhoneInput({
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
         </button>
 
@@ -114,6 +124,7 @@ export default function CountryPhoneInput({
           value={localNumber}
           onChange={handleLocalNumberChange}
           disabled={disabled}
+          autoComplete="tel"
           className="flex-1 px-3 py-3 bg-transparent text-warmwhite placeholder-silver-500
                      focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed
                      text-base"
@@ -146,7 +157,9 @@ export default function CountryPhoneInput({
           {/* Country List */}
           <ul className="max-h-56 overflow-y-auto py-1">
             {filteredCountries.length === 0 && (
-              <li className="px-3 py-2 text-sm text-silver-400">No countries found</li>
+              <li className="px-3 py-2 text-sm text-silver-400">
+                No countries found
+              </li>
             )}
             {filteredCountries.map((country) => (
               <li
@@ -161,7 +174,11 @@ export default function CountryPhoneInput({
                       : "text-warmwhite hover:bg-charcoal-600"
                   }`}
               >
-                <span className="text-base" role="img" aria-label={`${country.name} flag`}>
+                <span
+                  className="text-base"
+                  role="img"
+                  aria-label={`${country.name} flag`}
+                >
                   {getFlagEmoji(country.iso)}
                 </span>
                 <span className="flex-1 text-sm">{country.name}</span>
