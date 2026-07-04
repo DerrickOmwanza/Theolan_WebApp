@@ -15,8 +15,9 @@ export default function OtpPage() {
   const [countdown, setCountdown] = useState(0);
   const inputsRef = useRef([]);
 
-  // Get phone from location state (persists across redirects)
-  const phone = location.state?.phone || "";
+  // Get phone from location state, fallback to sessionStorage
+  const phone =
+    location.state?.phone || sessionStorage.getItem("pending_otp_phone") || "";
 
   // Countdown timer effect for resend cooldown
   useEffect(() => {
@@ -79,6 +80,8 @@ export default function OtpPage() {
     setSubmitting(true);
     try {
       await verifyOtp(phone, otpCode);
+      // Clear session storage after successful verification
+      sessionStorage.removeItem("pending_otp_phone");
       toast.success("Phone verified! You can now log in.");
       navigate("/auth/login", { replace: true });
     } catch (err) {

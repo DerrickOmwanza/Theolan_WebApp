@@ -46,6 +46,8 @@ export default function LoginPage() {
       // Check if phone number is not verified - redirect to OTP verification page
       if (errorMessage.toLowerCase().includes("phone number not verified")) {
         toast.error("Please verify your phone number to login.");
+        // Store phone in sessionStorage for persistence across redirects
+        sessionStorage.setItem("pending_otp_phone", data.phone);
         // Redirect to OTP verification page with phone number
         navigate("/auth/verify-otp", {
           state: { phone: data.phone },
