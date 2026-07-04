@@ -28,13 +28,11 @@ export default function LoginPage() {
     setSubmitting(true);
     try {
       const result = await login(data.phone, data.password);
-      // result = { success: true, data: { access_token, refresh_token, user: { id, phone, name, role } } }
       const userData = result.data?.user;
       const userRole = userData?.role;
 
       toast.success("Welcome back!");
 
-      // Role-based redirect: admins go to analytics, clients go to orders
       const defaultRedirect =
         userRole === "admin" ? "/admin/analytics" : "/orders";
       const redirectTo = location.state?.from?.pathname || defaultRedirect;
@@ -46,10 +44,6 @@ export default function LoginPage() {
       // Check if phone number is not verified - redirect to OTP verification page
       if (errorMessage.toLowerCase().includes("phone number not verified")) {
         toast.error("Please verify your phone number to login.");
-        // Store phone in sessionStorage for persistence across redirects
-        sessionStorage.setItem("pending_otp_phone", data.phone);
-        // Mark that we're coming from login to prevent redirect loops
-        sessionStorage.setItem("auth_redirect_from_login", "true");
         // Redirect to OTP verification page with phone number
         navigate("/auth/verify-otp", {
           state: { phone: data.phone },
