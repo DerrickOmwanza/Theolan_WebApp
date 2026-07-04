@@ -16,6 +16,8 @@ import { productRoutes } from './routes/products.js';
 import { orderRoutes } from './routes/orders.js';
 import { paymentRoutes } from './routes/payments.js';
 import analyticsRoutes from './routes/analytics.js';
+import { profileRoutes } from './routes/profile.js';
+import adminRoutes from './routes/admin.js';
 
 // Initialize Sentry for error tracking
 initSentry();
@@ -211,6 +213,12 @@ app.use('/api/v1/orders', orderRoutes);
 
 // Payment routes (M-Pesa STK Push + callback webhook)
 app.use('/api/v1/payments', paymentRoutes);
+
+// Profile/User settings routes
+app.use('/api/v1/profile', profileRoutes);
+
+// Admin setup routes (one-time use only)
+app.use('/api/v1/admin', adminRoutes);
 
 // Analytics routes (admin only)
 app.use('/api/v1/admin/analytics', analyticsRoutes);

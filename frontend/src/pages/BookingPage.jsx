@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { bookingApi } from "../services/api.js";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import LoadingSpinner from "../components/LoadingSpinner.jsx";
+import DateTimePicker from "../components/DateTimePicker.jsx";
 
 const SERVICE_TYPES = [
   { value: "windows", label: "Windows", icon: "🪟" },
@@ -70,9 +71,6 @@ export default function BookingPage() {
     // apiResponse = { success, data: [...], total_slots, date_range }
     // So apiResponse.data contains the actual slots array
     if (Array.isArray(apiResponse.data)) {
-      slotsArray = apiResponse.data;
-    } else if (apiResponse.success && Array.isArray(apiResponse.data)) {
-      // Fallback: handle if data is directly an array
       slotsArray = apiResponse.data;
     }
   }
@@ -168,24 +166,6 @@ export default function BookingPage() {
     });
   };
 
-  const formatTime = (timeStr) => {
-    if (!timeStr) return "";
-    const [h, m] = timeStr.split(":");
-    const hour = parseInt(h, 10);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const h12 = hour % 12 || 12;
-    return `${h12}:${m} ${ampm}`;
-  };
-
-  const formatDate = (dateStr) => {
-    return new Date(dateStr + "T00:00:00").toLocaleDateString("en-KE", {
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  };
-
   return (
     <div>
       {/* Hero Banner */}
@@ -274,89 +254,25 @@ export default function BookingPage() {
           </div>
         )}
 
-        {/* Step 1: Date &amp; Time */}
+        {/* Step 1: Date &amp; Time - Using Professional DateTimePicker */}
         {step === 1 && (
           <div>
             <h2 className="text-2xl font-heading font-bold text-warmwhite mb-6">
               Choose a date and time
             </h2>
-            {slotsLoading ? (
-              <div className="flex justify-center py-12">
-                <LoadingSpinner size="lg" />
-              </div>
-            ) : availableDates.length === 0 ? (
-              <div className="card text-center py-12">
-                <p className="text-silver-400">
-                  No available slots found. Please check back later or contact
-                  us directly.
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Date picker */}
-                <div>
-                  <label className="input-label">Select Date</label>
-                  <div className="grid grid-cols-1 gap-2 max-h-[400px] overflow-y-auto pr-2">
-                    {availableDates.map((date) => (
-                      <button
-                        key={date}
-                        type="button"
-                        onClick={() => {
-                          handleChange("scheduled_at", "");
-                          setForm((prev) => ({ ...prev, _selectedDate: date }));
-                        }}
-                        className={`text-left p-3 rounded-md border transition-colors ${
-                          form._selectedDate === date
-                            ? "border-cobalt bg-cobalt/10 text-warmwhite"
-                            : "border-charcoal-600 text-silver-300 hover:border-cobalt/50"
-                        }`}
-                      >
-                        {formatDate(date)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                {/* Time slots */}
-                <div>
-                  <label className="input-label">Select Time</label>
-                  {form._selectedDate ? (
-                    <div className="grid grid-cols-2 gap-2">
-                      {(slotsByDate[form._selectedDate] || []).map((slot) => {
-                        const slotDatetime = `${form._selectedDate}T${slot.start_time}`;
-                        const isSelected = form.scheduled_at === slotDatetime;
-                        return (
-                          <button
-                            key={slot.id}
-                            type="button"
-                            onClick={() => {
-                              handleChange("scheduled_at", slotDatetime);
-                            }}
-                            className={`p-3 rounded-md border text-center transition-colors ${
-                              isSelected
-                                ? "border-cobalt bg-cobalt/10 text-warmwhite"
-                                : "border-charcoal-600 text-silver-300 hover:border-cobalt/50"
-                            }`}
-                          >
-                            <span className="text-sm font-medium">
-                              {formatTime(slot.start_time)}
-                            </span>
-                            <span className="text-xs text-silver-500 block">
-                              – {formatTime(slot.end_time)}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="card text-center py-8">
-                      <p className="text-silver-500 text-sm">
-                        Select a date to see available times
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+            <DateTimePicker
+              availableDates={availableDates}
+              slotsByDate={slotsByDate}
+              selectedDate={form._selectedDate}
+              selectedTime={form.scheduled_at}
+              onSelectDate={(date) => {
+                handleChange("scheduled_at", "");
+                setForm((prev) => ({ ...prev, _selectedDate: date }));
+              }}
+              onSelectTime={(time) => handleChange("scheduled_at", time)}
+              loading={slotsLoading}
+              className="mt-4"
+            />
             {errors.scheduled_at && (
               <p className="input-error mt-2">{errors.scheduled_at}</p>
             )}

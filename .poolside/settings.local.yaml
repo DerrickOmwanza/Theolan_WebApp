@@ -111,6 +111,7 @@ tools:
             - git ls-files
             - git cat-file *
             - mv *
+            - file *
 paths:
     allow:
         - path: C:/Users/ADMIN/Web&Standalone Applications/**

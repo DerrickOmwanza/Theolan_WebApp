@@ -17,50 +17,36 @@ const hashPassword = (password) => {
 };
 
 export async function seed(knex) {
-  // Check if users already exist
-  const existingCount = await knex('users').count('* as count');
-  if (existingCount[0].count > 0) {
-    console.log('  Users already exist, skipping seed');
-    return;
-  }
-
   const now = new Date();
 
-  // Create admin and test client accounts
-  const users = [
-    {
+  // Create admin account (upsert to handle existing users)
+  await knex('users')
+    .insert({
       id: '00000000-0000-0000-0000-000000000001',
-      phone: '+254712345679',
-      email: 'admin@theolan.co.ke',
-      name: 'Admin',
+      phone: '+254713211010',
+      email: 'vaddydjones@gmail.com',
+      name: 'OlanAdmin',
       password_hash: hashPassword('AdminPass123!'),
       role: 'admin',
-      phone_verified: true,
-      phone_verified_at: now,
-      is_active: true,
-      notification_preference: 'email',
-      created_at: now,
-      updated_at: now
-    },
-    {
-      id: '00000000-0000-0000-0000-000000000002',
-      phone: '+254712345678',
-      email: 'client@test.co.ke',
-      name: 'Test Client',
-      password_hash: hashPassword('Password123!'),
-      role: 'client',
       phone_verified: true,
       phone_verified_at: now,
       is_active: true,
       notification_preference: 'sms',
       created_at: now,
       updated_at: now
-    }
-  ];
+    })
+    .onConflict('id')
+    .merge({
+      phone: '+254713211010',
+      email: 'vaddydjones@gmail.com',
+      name: 'OlanAdmin',
+      role: 'admin',
+      phone_verified: true,
+      is_active: true,
+      notification_preference: 'sms',
+      updated_at: now
+    });
 
-  await knex('users').insert(users);
-
-  console.log(`  Seeded ${users.length} admin user`);
-  console.log('  Admin credentials: +254712345679 / AdminPass123!');
-  console.log('  Create additional accounts via the signup flow.');
+  console.log('  Admin account configured: +254713211010');
+  console.log('  Admin credentials: +254713211010 / AdminPass123!');
 }
