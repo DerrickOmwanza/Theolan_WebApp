@@ -119,7 +119,7 @@ export default function OtpPage() {
         <span className="text-warmwhite">{phone || "your phone"}</span>
       </p>
 
-      <form onSubmit={onSubmit} className="space-y-6">
+      <form onSubmit={onSubmit} autoComplete="off" className="space-y-6">
         <div className="flex gap-2 justify-center">
           {code.map((digit, index) => (
             <input
@@ -132,7 +132,10 @@ export default function OtpPage() {
               onChange={(e) => handleChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
               onPaste={index === 0 ? handlePaste : undefined}
+              autoComplete="one-time-code"
               className="w-12 h-14 text-center text-xl font-mono bg-charcoal-700 border border-silver-600 rounded-md text-warmwhite focus:border-cobalt focus:ring-1 focus:ring-cobalt"
+              name={`otp-digit-${index}`}
+              aria-label={`Digit ${index + 1} of OTP code`}
             />
           ))}
         </div>
