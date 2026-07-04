@@ -15,9 +15,11 @@ export default function OtpPage() {
   const [countdown, setCountdown] = useState(0);
   const inputsRef = useRef([]);
 
-  // Get phone from location state, fallback to sessionStorage
+  // Get phone from location state OR sessionStorage
   const phone =
-    location.state?.phone || sessionStorage.getItem("pending_otp_phone") || "";
+    (location.state && location.state.phone) ||
+    sessionStorage.getItem("pending_otp_phone") ||
+    null;
 
   // Countdown timer effect for resend cooldown
   useEffect(() => {
@@ -33,26 +35,7 @@ export default function OtpPage() {
   // Auto-focus the first input on mount
   useEffect(() => {
     inputsRef.current[0]?.focus();
-
-    // If no phone is available and we didn't come from login redirect, go to login
-    if (!phone) {
-      const fromLogin = sessionStorage.getItem("auth_redirect_from_login");
-      if (!fromLogin) {
-        // Not from login, redirect to login page
-        navigate("/auth/login", { replace: true });
-      }
-      // If from login, stay on page (will show "Sign up or log in first" message)
-    }
-  }, [phone, navigate]);
-
-  // Mark that we've visited the OTP page from login
-  useEffect(() => {
-    const fromLogin = sessionStorage.getItem("auth_redirect_from_login");
-    if (fromLogin && !location.state?.phone) {
-      // We came from login redirect but don't have the phone
-      // This means we need to stay on page but show the fallback
-    }
-  }, [location.state]);
+  }, []);
 
   const handleChange = (index, value) => {
     if (!/^\d*$/.test(value)) return;
@@ -99,7 +82,7 @@ export default function OtpPage() {
     setSubmitting(true);
     try {
       await verifyOtp(phone, otpCode);
-      // Clear all session storage after successful verification
+      // Clear session storage after successful verification
       sessionStorage.removeItem("pending_otp_phone");
       sessionStorage.removeItem("auth_redirect_from_login");
       toast.success("Phone verified! You can now log in.");
@@ -115,7 +98,7 @@ export default function OtpPage() {
   };
 
   const handleResend = useCallback(async () => {
-    // Prevent spamming if already resending or in cooldown
+    // Prevent spamming if already resending or in cooldown or no phone
     if (countdown > 0 || resending || !phone) return;
 
     setResending(true);
@@ -132,74 +115,85 @@ export default function OtpPage() {
     }
   }, [countdown, resending, phone]);
 
+  // Show page if we have a phone, OR if we came from login (even without phone yet)
+  const shouldDisplay =
+    phone || sessionStorage.getItem("auth_redirect_from_login");
+
+  if (!shouldDisplay) {
+    return null; // Don't render anything if we shouldn't be here
+  }
+
   return (
     <div className="card">
       <h2 className="text-2xl font-heading font-bold text-warmwhite mb-2">
         Verify Your Phone
       </h2>
-      <p className="text-sm text-silver-400 mb-8">
-        We sent a 6-digit code to{" "}
-        <span className="text-warmwhite">{phone || "your phone"}</span>
-      </p>
 
-      <form onSubmit={onSubmit} autoComplete="off" className="space-y-6">
-        <div className="flex gap-2 justify-center">
-          {code.map((digit, index) => (
-            <input
-              key={index}
-              ref={(el) => (inputsRef.current[index] = el)}
-              type="text"
-              inputMode="numeric"
-              maxLength={1}
-              value={digit}
-              onChange={(e) => handleChange(index, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(index, e)}
-              onPaste={index === 0 ? handlePaste : undefined}
-              autoComplete="one-time-code"
-              className="w-12 h-14 text-center text-xl font-mono bg-charcoal-700 border border-silver-600 rounded-md text-warmwhite focus:border-cobalt focus:ring-1 focus:ring-cobalt"
-              name={`otp-digit-${index}`}
-              aria-label={`Digit ${index + 1} of OTP code`}
-            />
-          ))}
-        </div>
+      {phone ? (
+        <>
+          <p className="text-sm text-silver-400 mb-8">
+            We sent a 6-digit code to{" "}
+            <span className="text-warmwhite">{phone}</span>
+          </p>
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="btn-primary w-full"
-        >
-          {submitting ? (
-            <LoadingSpinner size="sm" className="text-white" />
-          ) : (
-            "Verify Code"
-          )}
-        </button>
-      </form>
+          <form onSubmit={onSubmit} className="space-y-6">
+            <div className="flex gap-2 justify-center">
+              {code.map((digit, index) => (
+                <input
+                  key={index}
+                  ref={(el) => (inputsRef.current[index] = el)}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleChange(index, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(index, e)}
+                  onPaste={index === 0 ? handlePaste : undefined}
+                  autoComplete="one-time-code"
+                  className="w-12 h-14 text-center text-xl font-mono bg-charcoal-700 border border-silver-600 rounded-md text-warmwhite focus:border-cobalt focus:ring-1 focus:ring-cobalt"
+                  name={`otp-digit-${index}`}
+                  aria-label={`Digit ${index + 1} of OTP code`}
+                />
+              ))}
+            </div>
 
-      <p className="mt-6 text-center text-sm text-silver-400">
-        Didn&apos;t receive the code?{" "}
-        <button
-          onClick={handleResend}
-          disabled={countdown > 0 || resending || !phone}
-          className={`text-cobalt-400 hover:text-cobalt-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
-        >
-          {countdown > 0 ? (
-            <span className="flex items-center justify-center">
-              <LoadingSpinner size="xs" className="mr-1" />
-              Resend in {countdown}s
-            </span>
-          ) : resending ? (
-            <span className="flex items-center justify-center">
-              <LoadingSpinner size="xs" className="mr-1" />
-              Sending...
-            </span>
-          ) : (
-            "Resend Code"
-          )}
-        </button>
-      </p>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="btn-primary w-full"
+            >
+              {submitting ? (
+                <LoadingSpinner size="sm" className="text-white" />
+              ) : (
+                "Verify Code"
+              )}
+            </button>
+          </form>
 
-      {!phone && (
+          <p className="mt-6 text-center text-sm text-silver-400">
+            Didn&apos;t receive the code?{" "}
+            <button
+              onClick={handleResend}
+              disabled={countdown > 0 || resending || !phone}
+              className={`text-cobalt-400 hover:text-cobalt-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
+            >
+              {countdown > 0 ? (
+                <span className="flex items-center justify-center">
+                  <LoadingSpinner size="xs" className="mr-1" />
+                  Resend in {countdown}s
+                </span>
+              ) : resending ? (
+                <span className="flex items-center justify-center">
+                  <LoadingSpinner size="xs" className="mr-1" />
+                  Sending...
+                </span>
+              ) : (
+                "Resend Code"
+              )}
+            </button>
+          </p>
+        </>
+      ) : (
         <div className="mt-4 p-3 bg-charcoal-700 rounded-md">
           <p className="text-sm text-silver-400">
             No phone number provided. Please{" "}
