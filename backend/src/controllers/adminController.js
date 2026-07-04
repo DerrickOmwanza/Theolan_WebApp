@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import bcrypt from 'bcryptjs';
 import UserModel from '../models/userModel.js';
-import { asyncHandler, ValidationError, ConflictError } from '../middlewares/errorHandler.js';
+import { asyncHandler, ValidationError } from '../middlewares/errorHandler.js';
 import logger from '../middlewares/logger.js';
 
 const BCRYPT_SALT_ROUNDS = 10;
@@ -20,7 +20,7 @@ const createAdminSchema = Joi.object({
       'string.min': 'Password must be at least 8 characters',
       'string.pattern.name': 'Password must contain at least one {#name}'
     }),
-  admin_token: Joi.string().required()
+  admin_token: Joi.string().optional()
 });
 
 const validate = (schema, body) => {
@@ -39,13 +39,12 @@ const AdminController = {
   /**
    * POST /api/v1/admin/setup
    * One-time endpoint to create the first admin account.
-   * SECURITY: Use a secure admin token!
    */
   setupAdmin: asyncHandler(async (req, res) => {
-    const { phone, name, email, password, admin_token } = validate(createAdminSchema, req.body);
+    const { phone, name, email, password } = validate(createAdminSchema, req.body);
 
-    // Simple token check - allow known valid tokens
-    // Production: use DATABASE-stored admin_token
+    // Token validation - require valid token
+    const adminToken = req.body.admin_token;
     const validTokens = [
       'setup-admin-secure-token-2024',
       'admin-setup-token',
@@ -53,14 +52,14 @@ const AdminController = {
       process.env.ADMIN_SETUP_TOKEN
     ].filter(Boolean);
 
-    if (!validTokens.includes(admin_token)) {
+    if (validTokens.length > 0 && !validTokens.includes(adminToken)) {
       throw new ValidationError('Invalid admin setup token');
     }
 
     // Check if admin already exists
     const existingAdmin = await UserModel.findByPhone(phone);
     if (existingAdmin) {
-      // Update existing user to admin role (if already verified)
+      // Update existing user to admin role
       const password_hash = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
       const updateFields = {
         name,
@@ -68,14 +67,10 @@ const AdminController = {
         password_hash,
         role: 'admin',
         is_active: true,
+        phone_verified: true,
+        phone_verified_at: new Date(),
         updated_at: new Date()
       };
-
-      // Only set verification fields if not already verified
-      if (!existingAdmin.phone_verified) {
-        updateFields.phone_verified = true;
-        updateFields.phone_verified_at = new Date();
-      }
 
       await UserModel.update(existingAdmin.id, updateFields);
 
