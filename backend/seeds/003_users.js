@@ -22,7 +22,7 @@ export async function seed(knex) {
   // Create admin account (upsert to handle existing users)
   await knex('users')
     .insert({
-      id: '00000000-0000-0000-0000-000000000001',
+      id: '00000000-0000-0000-0000-000000000002',
       phone: '+254765947132',
       email: 'vaddydjones@gmail.com',
       name: 'OlanAdmin',
