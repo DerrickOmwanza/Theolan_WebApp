@@ -23,10 +23,10 @@ export async function seed(knex) {
   await knex('users')
     .insert({
       id: '00000000-0000-0000-0000-000000000001',
-      phone: '+254713211010',
+      phone: '+254765947132',
       email: 'vaddydjones@gmail.com',
       name: 'OlanAdmin',
-      password_hash: hashPassword('AdminPass123!'),
+      password_hash: hashPassword('YourSecurePassword123'),
       role: 'admin',
       phone_verified: true,
       phone_verified_at: now,
@@ -37,7 +37,7 @@ export async function seed(knex) {
     })
     .onConflict('id')
     .merge({
-      phone: '+254713211010',
+      phone: '+254765947132',
       email: 'vaddydjones@gmail.com',
       name: 'OlanAdmin',
       role: 'admin',
@@ -47,6 +47,6 @@ export async function seed(knex) {
       updated_at: now
     });
 
-  console.log('  Admin account configured: +254713211010');
-  console.log('  Admin credentials: +254713211010 / AdminPass123!');
+  console.log('  Admin account configured: +254765947132');
+  console.log('  Admin credentials: +254765947132 / YourSecurePassword123');
 }
