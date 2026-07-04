@@ -15,6 +15,7 @@ export default function OtpPage() {
   const [countdown, setCountdown] = useState(0);
   const inputsRef = useRef([]);
 
+  // Get phone from location state (persists across redirects)
   const phone = location.state?.phone || "";
 
   // Countdown timer effect for resend cooldown
@@ -28,12 +29,7 @@ export default function OtpPage() {
     };
   }, [countdown]);
 
-  useEffect(() => {
-    if (!phone) {
-      navigate("/auth/signup", { replace: true });
-    }
-  }, [phone, navigate]);
-
+  // Auto-focus the first input on mount
   useEffect(() => {
     inputsRef.current[0]?.focus();
   }, []);
@@ -84,7 +80,7 @@ export default function OtpPage() {
     try {
       await verifyOtp(phone, otpCode);
       toast.success("Phone verified! You can now log in.");
-      navigate("/auth/login");
+      navigate("/auth/login", { replace: true });
     } catch (err) {
       const msg = err.response?.data?.message || "Invalid or expired code";
       toast.error(msg);
@@ -97,7 +93,7 @@ export default function OtpPage() {
 
   const handleResend = useCallback(async () => {
     // Prevent spamming if already resending or in cooldown
-    if (countdown > 0 || resending) return;
+    if (countdown > 0 || resending || !phone) return;
 
     setResending(true);
     try {
@@ -120,7 +116,7 @@ export default function OtpPage() {
       </h2>
       <p className="text-sm text-silver-400 mb-8">
         We sent a 6-digit code to{" "}
-        <span className="text-warmwhite">{phone}</span>
+        <span className="text-warmwhite">{phone || "your phone"}</span>
       </p>
 
       <form onSubmit={onSubmit} className="space-y-6">
@@ -176,6 +172,28 @@ export default function OtpPage() {
           )}
         </button>
       </p>
+
+      {!phone && (
+        <div className="mt-4 p-3 bg-charcoal-700 rounded-md">
+          <p className="text-sm text-silver-400">
+            No phone number provided. Please{" "}
+            <Link
+              to="/auth/signup"
+              className="text-cobalt-400 hover:text-cobalt-300"
+            >
+              sign up
+            </Link>{" "}
+            or{" "}
+            <Link
+              to="/auth/login"
+              className="text-cobalt-400 hover:text-cobalt-300"
+            >
+              log in
+            </Link>{" "}
+            first.
+          </p>
+        </div>
+      )}
 
       <p className="mt-4 text-center">
         <Link
