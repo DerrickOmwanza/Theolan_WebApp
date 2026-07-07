@@ -16,6 +16,20 @@ node_modules/
 !.env.example
 
 # ============================================================
+# Admin Setup Files (sensitive - never commit)
+# ============================================================
+admin-setup*.json
+admin-*.json
+payload.json
+run-admin-setup.bat
+
+# ============================================================
+# Render Environment Files (production secrets)
+# ============================================================
+backend/.env.render
+backend/.env.backup
+
+# ============================================================
 # Build Output
 # ============================================================
 dist/
@@ -59,3 +73,6 @@ Desktop.ini
 # OpenMemory - IDE/Assistant specific rules
 # ============================================================
 .cursor/rules/openmemory.mdc
+
+# Stakpak session files
+.stakpak/session*
