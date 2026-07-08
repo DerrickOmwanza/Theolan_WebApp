@@ -1,7 +1,6 @@
 import ProductModel from '../models/productModel.js';
 import { NotFoundError, ValidationError } from '../middlewares/errorHandler.js';
 import logger from '../middlewares/logger.js';
-import { v4 as uuidv4 } from 'uuid';
 
 // ============================================================
 // Finish Multipliers (applied on top of product_rates)
