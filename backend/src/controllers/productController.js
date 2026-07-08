@@ -157,6 +157,9 @@ const ProductController = {
 
     // Handle file upload if present
     if (req.file) {
+      const tempFilePath = req.file.path;
+      let cleanupError = null;
+
       try {
         // Determine if it's a video or image based on MIME type
         const isVideo = req.file.mimetype.startsWith('video/');
@@ -164,12 +167,12 @@ const ProductController = {
         // Upload to Cloudinary
         let result;
         if (isVideo) {
-          result = await uploadVideo(req.file.path, {
+          result = await uploadVideo(tempFilePath, {
             folder: 'theolan/gallery',
             resource_type: 'video'
           });
         } else {
-          result = await uploadImage(req.file.path, {
+          result = await uploadImage(tempFilePath, {
             folder: 'theolan/gallery',
             resource_type: 'auto'
           });
@@ -182,12 +185,6 @@ const ProductController = {
         imageUrl = result.url;
         mediaType = isVideo ? 'video' : 'image';
 
-        // Clean up the temporary uploaded file
-        const fs = await import('fs');
-        if (fs.existsSync(req.file.path)) {
-          fs.unlinkSync(req.file.path);
-        }
-
         logger.info('Media uploaded to Cloudinary', {
           url: imageUrl,
           mediaType,
@@ -196,9 +193,27 @@ const ProductController = {
       } catch (error) {
         logger.error('Cloudinary upload failed', {
           error: error.message,
-          filePath: req.file?.path
+          filePath: tempFilePath
         });
-        throw new ValidationError('Failed to upload media file: ' + error.message);
+        cleanupError = error;
+      } finally {
+        // ALWAYS clean up the temporary file - both on success and failure
+        try {
+          const fs = await import('fs');
+          if (fs.existsSync(tempFilePath)) {
+            fs.unlinkSync(tempFilePath);
+          }
+        } catch (cleanupErr) {
+          logger.warn('Failed to cleanup temp file', {
+            filePath: tempFilePath,
+            error: cleanupErr.message
+          });
+        }
+      }
+
+      // Re-throw the original error if it occurred
+      if (cleanupError) {
+        throw new ValidationError('Failed to upload media file: ' + cleanupError.message);
       }
     }
 
