@@ -76,3 +76,14 @@ Desktop.ini
 
 # Stakpak session files
 .stakpak/session*
+
+# ============================================================
+# Gallery Images (large files, keep local)
+# ============================================================
+images/
+backend/uploads/gallery/
+backend/uploads/*.jpg
+backend/uploads/*.jpeg
+backend/uploads/*.png
+backend/uploads/*.mp4
+backend/uploads/*.webm
