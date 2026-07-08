@@ -27,6 +27,8 @@ export default function AdminGalleryPage() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
 
   // Form state
   const [formData, setFormData] = useState({
@@ -43,14 +45,16 @@ export default function AdminGalleryPage() {
     queryKey: ["admin-gallery", activeCategory],
     queryFn: () =>
       productApi.getGallery(
-        activeCategory !== "all" ? { category: activeCategory, limit: 100 } : { limit: 100 },
+        activeCategory !== "all"
+          ? { category: activeCategory, limit: 100 }
+          : { limit: 100 },
       ),
     enabled: !!user && user.role === "admin",
   });
 
   // Upload mutation
   const uploadMutation = useMutation({
-    mutationFn: (data) => productApi.uploadGallery(data),
+    mutationFn: (payload) => productApi.uploadGallery(payload),
     onSuccess: () => {
       queryClient.invalidateQueries(["admin-gallery"]);
       toast.success("Image uploaded successfully");
@@ -97,15 +101,50 @@ export default function AdminGalleryPage() {
       description: "",
       published: true,
     });
+    setSelectedFile(null);
+    setPreviewUrl("");
+  };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file size (50MB max)
+      if (file.size > 50 * 1024 * 1024) {
+        toast.error("File size must be less than 50MB");
+        return;
+      }
+
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.image_url.trim()) {
-      toast.error("Image URL is required");
+
+    if (!selectedFile && !formData.image_url?.trim()) {
+      toast.error("Please upload a file or provide an image URL");
       return;
     }
-    uploadMutation.mutate(formData);
+
+    if (selectedFile) {
+      // File upload via FormData
+      const uploadData = new FormData();
+      uploadData.append("image", selectedFile);
+      uploadData.append("category", formData.category);
+      if (formData.finish) uploadData.append("finish", formData.finish);
+      if (formData.project_name)
+        uploadData.append("project_name", formData.project_name);
+      if (formData.location) uploadData.append("location", formData.location);
+      if (formData.description)
+        uploadData.append("description", formData.description);
+      uploadData.append("published", formData.published);
+
+      uploadMutation.mutate(uploadData);
+    } else {
+      // URL upload via JSON
+      uploadMutation.mutate(formData);
+    }
   };
 
   const handleDelete = (id) => {
@@ -132,6 +171,7 @@ export default function AdminGalleryPage() {
       description: item.description || "",
       published: item.published,
     });
+    setPreviewUrl(item.image_url || "");
   };
 
   const handleUpdate = (e) => {
@@ -174,12 +214,12 @@ export default function AdminGalleryPage() {
             Gallery Management
           </h2>
           <p className="text-silver-400">
-            Add, edit, and manage portfolio images
+            Add, edit, and manage portfolio images and videos
           </p>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm text-silver-500">
-            {items.length} image{items.length !== 1 ? "s" : ""}
+            {items.length} item{items.length !== 1 ? "s" : ""}
           </span>
           <button
             onClick={() => {
@@ -188,7 +228,7 @@ export default function AdminGalleryPage() {
             }}
             className="btn-primary"
           >
-            {showUploadForm ? "Cancel" : "+ Add Image"}
+            {showUploadForm ? "Cancel" : "+ Add Media"}
           </button>
         </div>
       </div>
@@ -197,24 +237,56 @@ export default function AdminGalleryPage() {
       {showUploadForm && (
         <div className="card mb-8">
           <h3 className="text-lg font-semibold text-warmwhite mb-4">
-            Upload New Image
+            Upload New Image or Video
           </h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className="input-label">Image URL *</label>
+                <label className="input-label">
+                  Upload Media (recommended)
+                </label>
                 <input
-                  type="url"
-                  value={formData.image_url}
-                  onChange={(e) =>
-                    setFormData({ ...formData, image_url: e.target.value })
-                  }
-                  placeholder="https://res.cloudinary.com/..."
+                  type="file"
+                  accept="image/*,video/*"
+                  onChange={handleFileSelect}
                   className="input-field"
-                  required
                 />
+
+                {previewUrl && (
+                  <div className="mt-2">
+                    {selectedFile?.type?.startsWith("video/") ? (
+                      <video
+                        src={previewUrl}
+                        controls
+                        className="max-h-40 w-full rounded"
+                      />
+                    ) : (
+                      <img
+                        src={previewUrl}
+                        alt="Preview"
+                        className="max-h-40 w-full rounded object-cover"
+                      />
+                    )}
+                  </div>
+                )}
+
+                <div className="my-2">
+                  <label className="input-label">
+                    Or paste Cloudinary URL (optional)
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.image_url}
+                    onChange={(e) =>
+                      setFormData({ ...formData, image_url: e.target.value })
+                    }
+                    placeholder="https://res.cloudinary.com/..."
+                    className="input-field"
+                  />
+                </div>
+
                 <p className="text-xs text-silver-500 mt-1">
-                  Upload image to Cloudinary first, then paste the URL here
+                  File types: JPG, PNG, WebP, GIF, MP4, WebM | Max size: 50MB
                 </p>
               </div>
               <div>
@@ -307,7 +379,7 @@ export default function AdminGalleryPage() {
               disabled={uploadMutation.isPending}
               className="btn-primary"
             >
-              {uploadMutation.isPending ? "Uploading..." : "Upload Image"}
+              {uploadMutation.isPending ? "Uploading..." : "Upload Media"}
             </button>
           </form>
         </div>
@@ -317,12 +389,12 @@ export default function AdminGalleryPage() {
       {editingId && (
         <div className="card mb-8">
           <h3 className="text-lg font-semibold text-warmwhite mb-4">
-            Edit Image
+            Edit Media
           </h3>
           <form onSubmit={handleUpdate} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className="input-label">Image URL *</label>
+                <label className="input-label">Image URL</label>
                 <input
                   type="url"
                   value={formData.image_url}
@@ -410,7 +482,10 @@ export default function AdminGalleryPage() {
                 }
                 className="w-4 h-4"
               />
-              <label htmlFor="edit-published" className="text-sm text-silver-400">
+              <label
+                htmlFor="edit-published"
+                className="text-sm text-silver-400"
+              >
                 Published
               </label>
             </div>
@@ -457,18 +532,18 @@ export default function AdminGalleryPage() {
       {/* Gallery grid */}
       {items.length === 0 ? (
         <div className="card text-center py-12">
-          <p className="text-silver-400 mb-4">No gallery images yet</p>
-          <button onClick={() => setShowUploadForm(true)} className="btn-primary">
-            Upload Your First Image
+          <p className="text-silver-400 mb-4">No gallery media yet</p>
+          <button
+            onClick={() => setShowUploadForm(true)}
+            className="btn-primary"
+          >
+            Upload Your First Media
           </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.map((item) => (
-            <div
-              key={item.id}
-              className="card overflow-hidden group relative"
-            >
+            <div key={item.id} className="card overflow-hidden group relative">
               {/* Status badge */}
               <div className="absolute top-2 right-2 z-10 flex gap-1">
                 <span
@@ -480,11 +555,23 @@ export default function AdminGalleryPage() {
                 >
                   {item.published ? "Published" : "Draft"}
                 </span>
+                {item.media_type && item.media_type !== "image" && (
+                  <span className="px-2 py-0.5 text-xs rounded-full bg-blue-500/20 text-blue-400">
+                    {item.media_type}
+                  </span>
+                )}
               </div>
 
-              {/* Image */}
+              {/* Media */}
               <div className="aspect-video bg-charcoal-700 flex items-center justify-center overflow-hidden">
-                {item.image_url ? (
+                {item.media_type === "video" && item.image_url ? (
+                  <video
+                    src={item.image_url}
+                    controls
+                    className="w-full h-full object-cover"
+                    poster={item.image_url}
+                  />
+                ) : (
                   <img
                     src={item.image_url}
                     alt={item.project_name || "Gallery item"}
@@ -495,60 +582,109 @@ export default function AdminGalleryPage() {
                       e.target.nextSibling.style.display = "flex";
                     }}
                   />
-                ) : null}
+                )}
                 <div
                   className="hidden absolute inset-0 items-center justify-center text-silver-500 text-sm"
                   style={{ display: item.image_url ? "none" : "flex" }}
                 >
-                  Image not available
+                  No media available
                 </div>
               </div>
 
-              {/* Info */}
-              <div className="p-4">
-                <h3 className="text-warmwhite font-medium truncate">
-                  {item.project_name || "Untitled"}
-                </h3>
-                {item.location && (
-                  <p className="text-sm text-silver-500">{item.location}</p>
-                )}
-                {item.description && (
-                  <p className="text-sm text-silver-400 mt-1 line-clamp-2">
-                    {item.description}
-                  </p>
-                )}
-                <div className="flex flex-wrap gap-1 mt-2">
-                  <span className="px-2 py-0.5 bg-cobalt/10 text-cobalt-300 text-xs rounded-full capitalize">
-                    {item.category?.replace("_", " ")}
+              {/* Details overlay */}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-charcoal-900 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                <h4 className="text-warmwhite font-semibold mb-1">
+                  {item.project_name}
+                </h4>
+                <p className="text-silver-300 text-sm">
+                  {item.category?.replace("_", " ")}
+                </p>
+                {item.finish && (
+                  <span className="text-xs text-silver-400 capitalize">
+                    {item.finish}
                   </span>
-                  {item.finish && (
-                    <span className="px-2 py-0.5 bg-silver/10 text-silver-300 text-xs rounded-full capitalize">
-                      {item.finish}
-                    </span>
-                  )}
-                </div>
+                )}
+              </div>
 
-                {/* Actions */}
-                <div className="flex gap-2 mt-3 pt-3 border-t border-charcoal-600">
-                  <button
-                    onClick={() => handleEdit(item)}
-                    className="flex-1 text-xs px-2 py-1.5 bg-charcoal-600 text-silver-300 rounded hover:bg-charcoal-500 transition-colors"
+              {/* Actions */}
+              <div className="absolute top-2 right-2 z-20 flex flex-col gap-2">
+                <button
+                  onClick={() => handleTogglePublish(item)}
+                  className="p-2 bg-charcoal-700 text-silver-400 rounded-full hover:text-warmwhite transition-colors"
+                  title={item.published ? "Unpublish" : "Publish"}
+                >
+                  {item.published ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                  )}
+                </button>
+                <button
+                  onClick={() => handleEdit(item)}
+                  className="p-2 bg-charcoal-700 text-silver-400 rounded-full hover:text-warmwhite transition-colors"
+                  title="Edit"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
                   >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleTogglePublish(item)}
-                    className="flex-1 text-xs px-2 py-1.5 bg-charcoal-600 text-silver-300 rounded hover:bg-charcoal-500 transition-colors"
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5m-5 4v-4h4a2 2 0 002-2V7a2 2 0 00-2-2h-4a2 2 0 00-2 2v4h-4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => handleDelete(item.id)}
+                  className="p-2 bg-charcoal-700 text-red-400 rounded-full hover:text-red-300 transition-colors"
+                  title="Delete"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
                   >
-                    {item.published ? "Unpublish" : "Publish"}
-                  </button>
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    className="text-xs px-2 py-1.5 bg-red-500/10 text-red-400 rounded hover:bg-red-500/20 transition-colors"
-                  >
-                    Delete
-                  </button>
-                </div>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 7l-.867 12.142A2 2 0 0116.143 21H7.857a2 2 0 01-1.997-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
               </div>
             </div>
           ))}

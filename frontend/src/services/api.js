@@ -212,7 +212,15 @@ export const bookingApi = {
 export const productApi = {
   list: (params) => api.get("/products", { params }),
   getGallery: (params) => api.get("/products/gallery", { params }),
-  uploadGallery: (data) => api.post("/products/gallery", data),
+  uploadGallery: (data) => {
+    // Handle both FormData (file upload) and JSON (URL upload)
+    if (data instanceof FormData) {
+      return api.post("/products/gallery", data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    }
+    return api.post("/products/gallery", data);
+  },
   deleteGallery: (id) => api.delete(`/products/gallery/${id}`),
   updateGallery: (id, data) => api.patch(`/products/gallery/${id}`, data),
 };

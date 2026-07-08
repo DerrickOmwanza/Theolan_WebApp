@@ -11,7 +11,7 @@ const FINISH_MULTIPLIERS = {
   mill: 1.0,
   silver: 1.05,
   black: 1.15,
-  champagne: 1.10,
+  champagne: 1.1,
   bronze: 1.12
 };
 
@@ -20,7 +20,6 @@ const FINISH_MULTIPLIERS = {
 // ============================================================
 
 const QuoteService = {
-
   /**
    * Calculate an instant estimate for a product.
    *
@@ -48,7 +47,9 @@ const QuoteService = {
     const rate = await ProductModel.getCurrentRate(product_id);
     if (!rate) {
       logger.error('No active rate found for product', { productId: product_id });
-      throw new ValidationError('Pricing is not yet available for this product. Please contact us for a custom quote.');
+      throw new ValidationError(
+        'Pricing is not yet available for this product. Please contact us for a custom quote.'
+      );
     }
 
     // Step 3: Calculate area
@@ -59,9 +60,7 @@ const QuoteService = {
     const base_rate_per_sqm = parseFloat(rate.base_rate_per_sqm_kes);
 
     // Step 5: Apply double glazing multiplier
-    const glazing_multiplier = double_glazing
-      ? parseFloat(rate.double_glazing_multiplier)
-      : 1.0;
+    const glazing_multiplier = double_glazing ? parseFloat(rate.double_glazing_multiplier) : 1.0;
 
     // Step 6: Apply finish multiplier
     const finish_multiplier = FINISH_MULTIPLIERS[finish] || 1.0;
@@ -107,7 +106,8 @@ const QuoteService = {
           min: estimate_min_kes,
           max: estimate_max_kes
         },
-        disclaimer: 'This is an estimate. Final quote after site survey may vary based on exact measurements, structural requirements, and installation complexity.'
+        disclaimer:
+          'This is an estimate. Final quote after site survey may vary based on exact measurements, structural requirements, and installation complexity.'
       }
     };
   }
@@ -118,7 +118,6 @@ const QuoteService = {
 // ============================================================
 
 const ProductService = {
-
   /**
    * Get product catalogue with filters and pagination.
    *
@@ -167,7 +166,8 @@ const ProductService = {
       description: p.description,
       image_url: p.image_url,
       published: p.published,
-      uploaded_at: p.created_at
+      uploaded_at: p.created_at,
+      media_type: p.media_type || 'image'
     }));
 
     return {
@@ -186,9 +186,10 @@ const ProductService = {
    *
    * @param {Object} data - Photo data (image_url, category, etc.)
    * @param {string} adminId - Admin user UUID
+   * @param {string} mediaType - 'image' or 'video'
    * @returns {Promise<Object>} Created photo record
    */
-  uploadGalleryPhoto: async (data, adminId) => {
+  uploadGalleryPhoto: async (data, adminId, mediaType = 'image') => {
     const { image_url, category, finish, project_name, location, description, published } = data;
 
     const photo = await ProductModel.createGalleryPhoto({
@@ -199,13 +200,15 @@ const ProductService = {
       location: location || null,
       description: description || null,
       published,
-      uploaded_by: adminId
+      uploaded_by: adminId,
+      media_type: mediaType
     });
 
     logger.info('Gallery photo uploaded', {
       photoId: photo.id,
       category,
-      adminId
+      adminId,
+      mediaType
     });
 
     return {
@@ -216,7 +219,8 @@ const ProductService = {
         image_url: photo.image_url,
         category: photo.category,
         project_name: photo.project_name,
-        published: photo.published
+        published: photo.published,
+        media_type: photo.media_type
       }
     };
   },

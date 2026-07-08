@@ -1,6 +1,7 @@
 import express from 'express';
 import ProductController from '../controllers/productController.js';
 import { protect, authorize } from '../middlewares/authMiddleware.js';
+import { uploadSingleFile } from '../middlewares/uploadMiddleware.js';
 
 const router = express.Router();
 
@@ -32,8 +33,15 @@ router.get('/gallery', ProductController.getGallery);
  * @route   POST /api/v1/products/gallery
  * @desc    Upload a new gallery photo (admin only)
  * @access  Private (admin)
+ * Supports multipart/form-data with file upload OR direct image_url in body
  */
-router.post('/gallery', protect, authorize('admin'), ProductController.uploadGalleryPhoto);
+router.post(
+  '/gallery',
+  protect,
+  authorize('admin'),
+  uploadSingleFile,
+  ProductController.uploadGalleryPhoto
+);
 
 /**
  * @route   DELETE /api/v1/products/gallery/:id

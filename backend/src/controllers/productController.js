@@ -1,7 +1,8 @@
 import Joi from 'joi';
 import { QuoteService, ProductService } from '../services/productService.js';
-import { asyncHandler, ValidationError, NotFoundError } from '../middlewares/errorHandler.js';
-import { db } from '../config/database.js';
+import { asyncHandler, ValidationError } from '../middlewares/errorHandler.js';
+import { uploadImage, uploadVideo } from '../services/cloudinary.js';
+import logger from '../middlewares/logger.js';
 
 // ============================================================
 // Constants
@@ -16,50 +17,65 @@ const SORT_OPTIONS = ['price_asc', 'price_desc', 'name'];
 // ============================================================
 
 const quoteSchema = Joi.object({
-  product_id: Joi.string().uuid().required()
+  product_id: Joi.string()
+    .uuid()
+    .required()
     .messages({ 'string.guid': 'product_id must be a valid UUID' }),
-  width_meters: Joi.number().min(0.5).max(10).required()
-    .messages({
-      'number.min': 'Width must be at least 0.5 meters',
-      'number.max': 'Width cannot exceed 10 meters'
-    }),
-  height_meters: Joi.number().min(0.5).max(10).required()
-    .messages({
-      'number.min': 'Height must be at least 0.5 meters',
-      'number.max': 'Height cannot exceed 10 meters'
-    }),
-  quantity: Joi.number().integer().min(1).max(100).required()
-    .messages({
-      'number.min': 'Quantity must be at least 1',
-      'number.max': 'Quantity cannot exceed 100'
-    }),
+  width_meters: Joi.number().min(0.5).max(10).required().messages({
+    'number.min': 'Width must be at least 0.5 meters',
+    'number.max': 'Width cannot exceed 10 meters'
+  }),
+  height_meters: Joi.number().min(0.5).max(10).required().messages({
+    'number.min': 'Height must be at least 0.5 meters',
+    'number.max': 'Height cannot exceed 10 meters'
+  }),
+  quantity: Joi.number().integer().min(1).max(100).required().messages({
+    'number.min': 'Quantity must be at least 1',
+    'number.max': 'Quantity cannot exceed 100'
+  }),
   double_glazing: Joi.boolean().optional().default(false),
-  finish: Joi.string().valid(...FINISHES).required()
+  finish: Joi.string()
+    .valid(...FINISHES)
+    .required()
     .messages({ 'any.only': 'Finish must be one of: ' + FINISHES.join(', ') })
 });
 
 const productsQuerySchema = Joi.object({
-  category: Joi.string().valid(...CATEGORIES).optional(),
-  finish: Joi.string().valid(...FINISHES).optional(),
-  sort_by: Joi.string().valid(...SORT_OPTIONS).optional(),
+  category: Joi.string()
+    .valid(...CATEGORIES)
+    .optional(),
+  finish: Joi.string()
+    .valid(...FINISHES)
+    .optional(),
+  sort_by: Joi.string()
+    .valid(...SORT_OPTIONS)
+    .optional(),
   limit: Joi.number().integer().min(1).max(100).default(20),
   offset: Joi.number().integer().min(0).default(0)
 });
 
 const galleryQuerySchema = Joi.object({
-  category: Joi.string().valid(...CATEGORIES).optional(),
-  finish: Joi.string().valid(...FINISHES).optional(),
+  category: Joi.string()
+    .valid(...CATEGORIES)
+    .optional(),
+  finish: Joi.string()
+    .valid(...FINISHES)
+    .optional(),
   search: Joi.string().trim().max(200).allow('').optional(),
   limit: Joi.number().integer().min(1).max(1000).default(20),
   offset: Joi.number().integer().min(0).default(0)
 });
 
 const uploadGallerySchema = Joi.object({
-  image_url: Joi.string().uri().max(500).required()
-    .messages({ 'string.empty': 'Image URL is required', 'string.uri': 'Must be a valid URL' }),
-  category: Joi.string().valid(...CATEGORIES).required()
+  image_url: Joi.string().uri().max(500).allow('').optional(),
+  category: Joi.string()
+    .valid(...CATEGORIES)
+    .required()
     .messages({ 'any.only': 'Category must be one of: ' + CATEGORIES.join(', ') }),
-  finish: Joi.string().valid(...FINISHES).optional().allow(null),
+  finish: Joi.string()
+    .valid(...FINISHES)
+    .optional()
+    .allow(null),
   project_name: Joi.string().trim().max(255).allow('', null).optional(),
   location: Joi.string().trim().max(255).allow('', null).optional(),
   description: Joi.string().trim().max(2000).allow('', null).optional(),
@@ -93,7 +109,6 @@ const validate = (schema, data) => {
 // ============================================================
 
 const ProductController = {
-
   /**
    * POST /api/v1/quote
    * Calculate instant estimate for a product.
@@ -130,11 +145,78 @@ const ProductController = {
   /**
    * POST /api/v1/products/gallery
    * Upload a new gallery photo (admin only).
+   * Supports both file upload and direct URL.
    * @access Private (admin)
    */
   uploadGalleryPhoto: asyncHandler(async (req, res) => {
+    // Validate the form fields (image_url is now optional since file upload is allowed)
     const data = validate(uploadGallerySchema, req.body);
-    const result = await ProductService.uploadGalleryPhoto(data, req.user.id);
+
+    let imageUrl = data.image_url;
+    let mediaType = 'image';
+
+    // Handle file upload if present
+    if (req.file) {
+      try {
+        // Determine if it's a video or image based on MIME type
+        const isVideo = req.file.mimetype.startsWith('video/');
+
+        // Upload to Cloudinary
+        let result;
+        if (isVideo) {
+          result = await uploadVideo(req.file.path, {
+            folder: 'theolan/gallery',
+            resource_type: 'video'
+          });
+        } else {
+          result = await uploadImage(req.file.path, {
+            folder: 'theolan/gallery',
+            resource_type: 'auto'
+          });
+        }
+
+        if (!result.success) {
+          throw new ValidationError('Failed to upload media to Cloudinary');
+        }
+
+        imageUrl = result.url;
+        mediaType = isVideo ? 'video' : 'image';
+
+        // Clean up the temporary uploaded file
+        const fs = await import('fs');
+        if (fs.existsSync(req.file.path)) {
+          fs.unlinkSync(req.file.path);
+        }
+
+        logger.info('Media uploaded to Cloudinary', {
+          url: imageUrl,
+          mediaType,
+          fileSize: req.file.size
+        });
+      } catch (error) {
+        logger.error('Cloudinary upload failed', {
+          error: error.message,
+          filePath: req.file?.path
+        });
+        throw new ValidationError('Failed to upload media file: ' + error.message);
+      }
+    }
+
+    // At least one of image_url or file is required
+    if (!imageUrl) {
+      throw new ValidationError('Either upload a file or provide an image URL');
+    }
+
+    // Create the gallery photo record
+    const result = await ProductService.uploadGalleryPhoto(
+      {
+        ...data,
+        image_url: imageUrl
+      },
+      req.user.id,
+      mediaType
+    );
+
     res.status(201).json(result);
   }),
 
