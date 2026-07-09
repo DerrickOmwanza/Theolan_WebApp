@@ -175,6 +175,9 @@ export default function GalleryPage() {
   // Total from API response
   const total = data?.data?.pagination?.total || 0;
 
+  // Photos array from API response
+  const photos = data?.data?.data || [];
+
   // eslint-disable-next-line no-unused-vars
   const _totalPages = Math.ceil(total / LIMIT);
 
