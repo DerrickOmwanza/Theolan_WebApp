@@ -172,9 +172,8 @@ export default function GalleryPage() {
     setPage(0);
   };
 
-  // Grid display uses paginated data - properly calculated for fallback
-  const photos = data?.data?.data || [];
-  const total = data?.data?.total || 0;
+  // Total from API response
+  const total = data?.data?.pagination?.total || 0;
 
   // eslint-disable-next-line no-unused-vars
   const _totalPages = Math.ceil(total / LIMIT);
