@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import path from 'path';
 import { QuoteService, ProductService } from '../services/productService.js';
 import { asyncHandler, ValidationError } from '../middlewares/errorHandler.js';
 import { uploadImage, uploadVideo } from '../services/cloudinary.js';
@@ -161,8 +162,13 @@ const ProductController = {
       let cleanupError = null;
 
       try {
-        // Determine if it's a video or image based on MIME type
-        const isVideo = req.file.mimetype.startsWith('video/');
+        // Determine if it's a video or image based on MIME type and extension
+        const isVideoMimeType = req.file.mimetype.startsWith('video/');
+        const isVideoExt = req.file.originalname ? 
+          ['.mp4', '.webm', '.mov', '.avi', '.mkv'].includes(
+            path.extname(req.file.originalname).toLowerCase()
+          ) : false;
+        const isVideo = isVideoMimeType || isVideoExt;
 
         // Upload to Cloudinary
         let result;
