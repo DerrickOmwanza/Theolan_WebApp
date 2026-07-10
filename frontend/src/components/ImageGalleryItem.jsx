@@ -9,19 +9,37 @@ export default function ImageGalleryItem({ photo, onClick }) {
     >
       <div className="relative w-full overflow-hidden">
         {photo.image_url ? (
-          <img
-            src={photo.image_url}
-            alt={photo.project_name || photo.description || "Project photo"}
-            className="w-full h-48 sm:h-56 object-cover group-hover:scale-105 transition-transform duration-500"
-            loading="lazy"
-          />
+          photo.media_type === "video" ? (
+            <video
+              src={photo.image_url}
+              controls
+              preload="metadata"
+              className="w-full h-48 sm:h-56 object-cover group-hover:scale-105 transition-transform duration-500"
+              onError={(e) => console.error('Video failed to load:', photo.image_url)}
+            >
+              Your browser does not support the video tag.
+            </video>
+          ) : (
+            <img
+              src={photo.image_url}
+              alt={photo.project_name || photo.description || "Project photo"}
+              className="w-full h-48 sm:h-56 object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
+            />
+          )
         ) : (
           <div className="flex items-center justify-center h-48 sm:h-56 text-silver-600 bg-charcoal-700">
             No image
           </div>
         )}
+        {/* Media type badge */}
+        {photo.media_type === "video" && (
+          <div className="absolute top-3 left-3 badge-cobalt text-xs capitalize backdrop-blur-sm">
+            Video
+          </div>
+        )}
         {/* Image overlay with category */}
-        {photo.category && (
+        {photo.category && photo.media_type !== "video" && (
           <div className="absolute top-3 right-3 badge-cobalt text-xs capitalize backdrop-blur-sm">
             {photo.category.replace("_", " ")}
           </div>
