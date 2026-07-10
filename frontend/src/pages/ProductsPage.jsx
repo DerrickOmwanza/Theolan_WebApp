@@ -1,31 +1,224 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Link, useSearchParams } from "react-router-dom";
-import { productApi } from "../services/api.js";
-import LoadingSpinner from "../components/LoadingSpinner.jsx";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
+// ============================================
+// Static Product Inventory (18 items)
+// ============================================
+const LOCAL_PRODUCTS = [
+  // Balustrades (4 products)
+  {
+    id: "balustrade-horizontal-bars",
+    name: "Horizontal Bar Balustrade",
+    category: "balustrades",
+    base_price_per_sqm_kes: 8500,
+    description:
+      "Modern horizontal aluminium bar balustrade with premium powder-coated finish. Perfect for balconies and terraces with unobstructed views.",
+    image: "balustrade-horizontal-bars.jpg",
+    finish: "bronze",
+  },
+  {
+    id: "balustrade-frameless",
+    name: "Frameless Glass Balustrade",
+    category: "balustrades",
+    base_price_per_sqm_kes: 12000,
+    description:
+      "Sleek frameless tempered glass balustrade with minimal aluminium connectors. Seamless integration for modern architectural designs.",
+    image: "balustrade-frameless.jpg",
+    finish: "clear",
+  },
+  {
+    id: "balustrade-post-system",
+    name: "Post-System Balustrade",
+    category: "balustrades",
+    base_price_per_sqm_kes: 6500,
+    description:
+      "Robust post-system balustrade with elegant aluminium posts and glass infill. Cost-effective solution for commercial applications.",
+    image: "balustrade-post-system.jpg",
+    finish: "silver",
+  },
+  {
+    id: "balustrade-juliet",
+    name: "Juliet Balcony Gate",
+    category: "balustrades",
+    base_price_per_sqm_kes: 9500,
+    description:
+      "Compact Juliet balcony gate system with hidden mounting brackets. Elegant safety barrier for glass doors without visual obstruction.",
+    image: "balustrade-juliet.jpg",
+    finish: "black",
+  },
+  // Curtain Walls (3 products)
+  {
+    id: "curtain-wall-spider",
+    name: "Spider Curtain Wall System",
+    category: "curtain_walls",
+    base_price_per_sqm_kes: 14500,
+    description:
+      "Structural glazing spider curtain wall with minimal aluminium mullions. Maximum glass area for superior natural lighting in commercial buildings.",
+    image: "curtain-wall-spider.jpg",
+    finish: "silver",
+  },
+  {
+    id: "curtain-wall-stick",
+    name: "Stick Curtain Wall System",
+    category: "curtain_walls",
+    base_price_per_sqm_kes: 11000,
+    description:
+      "Traditional stick-built curtain wall system with exposed aluminium mullions. Cost-effective solution for mid-rise commercial projects.",
+    image: "curtain-wall-stick.jpg",
+    finish: "white",
+  },
+  {
+    id: "curtain-wall-structural",
+    name: "Structural Glazing Facade",
+    category: "curtain_walls",
+    base_price_per_sqm_kes: 18000,
+    description:
+      "Premium structural glazing curtain wall with integrated aluminium extrusions. Seamless facade for high-end commercial and residential towers.",
+    image: "curtain-wall-structural.jpg",
+    finish: "silver",
+  },
+  // Doors (4 products)
+  {
+    id: "door-french-double",
+    name: "French Double Door",
+    category: "doors",
+    base_price_per_sqm_kes: 14000,
+    description:
+      "Elegant French double-leaf aluminium door with full-height glass panels. Perfect for grand entrances and internal room divisions.",
+    image: "door-french-double.jpg",
+    finish: "champagne",
+  },
+  {
+    id: "door-hinged-single",
+    name: "Hinged Aluminium Door",
+    category: "doors",
+    base_price_per_sqm_kes: 7500,
+    description:
+      "Premium single-leaf hinged aluminium door with optional sidelights. Smooth operation and secure locking mechanism for residential and commercial use.",
+    image: "door-hinged-single.jpg",
+    finish: "black",
+  },
+  {
+    id: "door-sliding-2panel",
+    name: "Sliding 2-Panel Door",
+    category: "doors",
+    base_price_per_sqm_kes: 9000,
+    description:
+      "Space-saving sliding aluminium door with two panels. Ideal for narrow openings and modern interior requirements.",
+    image: "door-sliding-2panel.jpg",
+    finish: "silver",
+  },
+  {
+    id: "door-sliding-3panel",
+    name: "Sliding 3-Panel Door",
+    category: "doors",
+    base_price_per_sqm_kes: 11000,
+    description:
+      "Multi-panel aluminium sliding door system with three sliding leaves. Maximum flexibility for wide openings and large spans.",
+    image: "door-sliding-3panel.jpg",
+    finish: "bronze",
+  },
+  // Partitions (1 product)
+  {
+    id: "partition-glass-frameless",
+    name: "Frameless Glass Partition",
+    category: "partitions",
+    base_price_per_sqm_kes: 10500,
+    description:
+      "Minimalist frameless glass partition with floor-to-ceiling installation. Creates open spaces while providing privacy and noise reduction.",
+    image: "partition-glass-frameless.jpg",
+    finish: "clear",
+  },
+  // New Service Categories (6 products)
+  {
+    id: "railings-stainless-steel",
+    name: "Stainless Steel Railings",
+    category: "stainless_steel_railings",
+    base_price_per_sqm_kes: 13500,
+    description:
+      "Premium 316-grade stainless steel railings with brushed or mirror finish. Handrails and balusters for modern architectural installations.",
+    image: "railings-stainless-steel.jpg",
+    finish: "brushed",
+  },
+  {
+    id: "glass-sunroof-pergola",
+    name: "Frameless Glass Sunroof",
+    category: "frameless_glass",
+    base_price_per_sqm_kes: 16500,
+    description:
+      "Retractable frameless glass sunroof system with motorized operation. Natural light maximization with full weather protection for outdoor living spaces.",
+    image: "glass-sunroof-pergola.jpg",
+    finish: "clear",
+  },
+  {
+    id: "gypsum-ceiling-led",
+    name: "Gypsum Ceiling with LED",
+    category: "gypsum_ceilings",
+    base_price_per_sqm_kes: 6800,
+    description:
+      "Professional gypsum ceiling installation with integrated LED lighting system. Acoustic benefits and seamless aesthetic finish for commercial spaces.",
+    image: "gypsum-ceiling-led.jpg",
+    finish: "white",
+  },
+  {
+    id: "gypsum-wall-partition",
+    name: "Gypsum Wall Partition",
+    category: "gypsum_ceilings",
+    base_price_per_sqm_kes: 5500,
+    description:
+      "Smooth gypsum wall partitioning system with customizable finishes. Ideal for office spaces and room divisions with clean lines.",
+    image: "gypsum-wall-partition.jpg",
+    finish: "white",
+  },
+  {
+    id: "cabinetry-kitchen-wardrobe",
+    name: "Kitchen & Wardrobe Cabinets",
+    category: "kitchen_cabinets",
+    base_price_per_sqm_kes: 22000,
+    description:
+      "Custom aluminium kitchen and wardrobe cabinets with wood-effect powder coating. Modular design with smart storage solutions.",
+    image: "cabinetry-kitchen-wardrobe.jpg",
+    finish: "wood_effect",
+  },
+  {
+    id: "floor-tiling-porcelain",
+    name: "Floor Tiling Installation",
+    category: "floor_tiling",
+    base_price_per_sqm_kes: 9500,
+    description:
+      "Professional porcelain floor tiling with precision laying and grouting. Available for interior and exterior applications with variety of finishes.",
+    image: "floor-tiling-porcelain.jpg",
+    finish: "natural",
+  },
+];
+
+// ============================================
+// UI Constants
+// ============================================
 const CATEGORIES = [
   { value: "", label: "All Categories" },
-  { value: "aluminium_fabrications", label: "Aluminium Fabrications" },
+  { value: "balustrades", label: "Balustrades" },
+  { value: "curtain_walls", label: "Curtain Walls" },
+  { value: "doors", label: "Doors" },
+  { value: "partitions", label: "Partitions" },
   { value: "stainless_steel_railings", label: "Stainless Steel Railings & Balusters" },
   { value: "frameless_glass", label: "Frameless Glass & Sunroofs" },
   { value: "gypsum_ceilings", label: "Gypsum Walls & Ceilings" },
   { value: "kitchen_cabinets", label: "Kitchen & Wardrobe Cabinets" },
   { value: "floor_tiling", label: "Floor Tiling" },
-  { value: "windows", label: "Windows" },
-  { value: "doors", label: "Doors" },
-  { value: "curtain_walls", label: "Curtain Walls" },
-  { value: "partitions", label: "Partitions" },
-  { value: "balustrades", label: "Balustrades" },
 ];
 
 const FINISHES = [
   { value: "", label: "All Finishes" },
-  { value: "mill", label: "Mill Finish" },
-  { value: "silver", label: "Silver Anodized" },
-  { value: "black", label: "Black Anodized" },
-  { value: "champagne", label: "Champagne" },
   { value: "bronze", label: "Bronze" },
+  { value: "silver", label: "Silver" },
+  { value: "black", label: "Black" },
+  { value: "champagne", label: "Champagne" },
+  { value: "white", label: "White" },
+  { value: "clear", label: "Clear" },
+  { value: "brushed", label: "Brushed" },
+  { value: "wood_effect", label: "Wood Effect" },
+  { value: "natural", label: "Natural" },
 ];
 
 const SORT_OPTIONS = [
@@ -35,172 +228,63 @@ const SORT_OPTIONS = [
   { value: "name", label: "Name A–Z" },
 ];
 
-// New service category products (fully active with "Get Quote" functionality)
-const PLACEHOLDER_PRODUCTS = [
-  {
-    id: "aluminium-fabrications-service",
-    name: "Custom Aluminium Fabrications",
-    category: "aluminium_fabrications",
-    base_price_per_sqm_kes: 12000,
-    description: "Precision-engineered aluminium fabrication with powder-coated finishes. Custom designs, structural profiles, and architectural elements for commercial and residential projects.",
-    image: "/images/Custom_designs.webp",
-    finish: "silver",
-  },
-  {
-    id: "stainless-steel-railings-service",
-    name: "Stainless Steel Railings & Balusters",
-    category: "stainless_steel_railings",
-    base_price_per_sqm_kes: 15000,
-    description: "Premium-grade 316 stainless steel railings and balusters. Featuring modern frameless designs, glass infill options, and handcrafted finishing for balconies, stairs, and terraces.",
-    image: "/images/Balustrades.webp",
-    finish: "brushed",
-  },
-  {
-    id: "frameless-glass-service",
-    name: "Frameless Glass & Sunroofs",
-    category: "frameless_glass",
-    base_price_per_sqm_kes: 18000,
-    description: "Sleek frameless glass systems and retractable sunroofs. Maximum natural light penetration with premium tempered glass. Perfect for modern architectural integration.",
-    image: "/images/Curtain_Walls.webp",
-    finish: "clear",
-  },
-  {
-    id: "gypsum-walls-service",
-    name: "Gypsum Walls & Ceilings",
-    category: "gypsum_ceilings",
-    base_price_per_sqm_kes: 8000,
-    description: "Professional gypsum wall and ceiling installations with seamless finishes. Available in various textures and colors. Ideal for interior renovations and commercial spaces.",
-    image: "/images/Partitions.webp",
-    finish: "white",
-  },
-  {
-    id: "kitchen-cabinets-service",
-    name: "Kitchen & Wardrobe Cabinets",
-    category: "kitchen_cabinets",
-    base_price_per_sqm_kes: 25000,
-    description: "Custom kitchen cabinets and wardrobe solutions crafted from premium aluminium. Sleek finishes, smart storage solutions, and modular designs tailored to your space.",
-    image: "/images/Doors.webp",
-    finish: "wood_effect",
-  },
-  {
-    id: "floor-tiling-service",
-    name: "Floor Tiling",
-    category: "floor_tiling",
-    base_price_per_sqm_kes: 10000,
-    description: "Professional floor tiling and installation services covering ceramic, porcelain, and natural stone. Precision laying with attention to detail for interiors and exteriors.",
-    image: "/images/Windows.webp",
-    finish: "natural",
-  },
-];
-
-// Map products to specific images for visual browsing
-const getProductImage = (product) => {
-  // Map based on category and product name/type for specific images
-  const category = product.category;
-  const name = product.name?.toLowerCase() || "";
-
-  // Specific product image mappings
-  const imageMap = {
-    doors: {
-      french: "/images/doors_french_double_black.webp",
-      hinged: "/images/doors_hinged_single_bronze.webp",
-      sliding: "/images/doors_sliding_2panel_black.webp",
-      "3panel": "/images/doors_sliding_3panel_silver.webp",
-    },
-    windows: {
-      casement: "/images/windows_casement_tophung_silver.webp",
-      top: "/images/windows_casement_tophung_silver.webp",
-      sliding: "/images/windows_sliding_fixed_bronze.webp",
-      fixed: "/images/windows_fixed_picture_black.webp",
-      picture: "/images/windows_fixed_picture_black.webp",
-    },
-    balustrades: {
-      horizontal: "/images/balustrades_horizontal_champagne.webp",
-      frameless: "/images/balustrades_frameless_glass_silver.webp",
-      post: "/images/balustrades_post_system_black.webp",
-      juliet: "/images/balustrades_juliet_bronze.webp",
-    },
-    curtain_walls: {
-      spider: "/images/curtainwalls_spider_glazing_silver.webp",
-      stick: "/images/curtainwalls_stick_system_black.webp",
-      structural: "/images/curtainwalls_structural_glazing_silver.webp",
-    },
-    partitions: {
-      frameless: "/images/partitions_frameless_glass_mill.webp",
-      double: "/images/partitions_double_glazed_white.webp",
-      glazed: "/images/partitions_frameless_glass_mill.webp",
-    },
-  };
-
-  // Try to match specific product type
-  if (imageMap[category]) {
-    const categoryMap = imageMap[category];
-    for (const [key, img] of Object.entries(categoryMap)) {
-      if (name.includes(key)) return img;
-    }
-  }
-
-  // Fallback to category default
-  const defaultMap = {
-    windows: "/images/Windows.webp",
-    doors: "/images/Doors.webp",
-    curtain_walls: "/images/Curtain_Walls.webp",
-    partitions: "/images/Partitions.webp",
-    balustrades: "/images/Balustrades.webp",
-    aluminium_fabrications: "/images/Custom_designs.webp",
-    stainless_steel_railings: "/images/Balustrades.webp",
-    frameless_glass: "/images/Curtain_Walls.webp",
-    gypsum_ceilings: "/images/Partitions.webp",
-    kitchen_cabinets: "/images/Doors.webp",
-    floor_tiling: "/images/Windows.webp",
-  };
-  return defaultMap[category] || "/images/Custom_designs.webp";
-};
-
 export default function ProductsPage() {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const category = searchParams.get("category") || "";
-  const finish = searchParams.get("finish") || "";
-  const sort_by = searchParams.get("sort_by") || "";
-  const [page, setPage] = useState(0);
-  const LIMIT = 12;
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["products", category, finish, sort_by, page],
-    queryFn: () =>
-      productApi.list({
-        category: category || undefined,
-        finish: finish || undefined,
-        sort_by: sort_by || undefined,
-        limit: LIMIT,
-        offset: page * LIMIT,
-      }),
-  });
+  // Parse filters from URL
+  const filterCategory = searchParams.get("category") || "";
+  const filterFinish = searchParams.get("finish") || "";
+  const filterSort = searchParams.get("sort_by") || "";
 
+  // Pagination state - using 1-based numbering for display
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 12;
+
+  // Update filter and reset pagination
   const setFilter = (key, value) => {
     setSearchParams((prev) => {
-      if (value) prev.set(key, value);
-      else prev.delete(key);
+      if (value) {
+        prev.set(key, value);
+      } else {
+        prev.delete(key);
+      }
       return prev;
     });
-    setPage(0);
+    setCurrentPage(1); // Reset to first page on filter change
   };
 
-  const products = data?.data?.data || [];
-  const total = data?.data?.total || 0;
-  
-  // Merge real products with placeholders for immediate display
-  const allAvailableItems = [...products, ...PLACEHOLDER_PRODUCTS];
-  
-  // Filter merged array by selected category
-  let displayProducts = category
-    ? allAvailableItems.filter(p => p.category === category)
-    : allAvailableItems;
-  
-  // Apply pagination to the filtered results
-  const paginatedProducts = displayProducts.slice(page * LIMIT, (page + 1) * LIMIT);
-  const displayTotal = displayProducts.length;
-  const displayTotalPages = Math.ceil(displayTotal / LIMIT);
+  // Apply filters to LOCAL_PRODUCTS
+  let filteredProducts = [...LOCAL_PRODUCTS];
+
+  if (filterCategory) {
+    filteredProducts = filteredProducts.filter((p) => p.category === filterCategory);
+  }
+
+  if (filterFinish) {
+    filteredProducts = filteredProducts.filter((p) => p.finish === filterFinish);
+  }
+
+  // Apply sorting
+  if (filterSort === "price_asc") {
+    filteredProducts.sort((a, b) => a.base_price_per_sqm_kes - b.base_price_per_sqm_kes);
+  } else if (filterSort === "price_desc") {
+    filteredProducts.sort((a, b) => b.base_price_per_sqm_kes - a.base_price_per_sqm_kes);
+  } else if (filterSort === "name") {
+    filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  // Pagination calculations (1-based pages)
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  const displayProducts = filteredProducts.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  // Get Quote handler - navigates to contact with product name pre-filled
+  const handleGetQuote = (productName) => {
+    navigate(`/contact?product=${encodeURIComponent(productName)}`);
+  };
 
   return (
     <div>
@@ -226,7 +310,7 @@ export default function ProductsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-wrap gap-4 items-center">
             <select
-              value={category}
+              value={filterCategory}
               onChange={(e) => setFilter("category", e.target.value)}
               className="input-field w-auto min-w-[160px] text-sm"
             >
@@ -237,7 +321,7 @@ export default function ProductsPage() {
               ))}
             </select>
             <select
-              value={finish}
+              value={filterFinish}
               onChange={(e) => setFilter("finish", e.target.value)}
               className="input-field w-auto min-w-[160px] text-sm"
             >
@@ -248,7 +332,7 @@ export default function ProductsPage() {
               ))}
             </select>
             <select
-              value={sort_by}
+              value={filterSort}
               onChange={(e) => setFilter("sort_by", e.target.value)}
               className="input-field w-auto min-w-[180px] text-sm"
             >
@@ -258,11 +342,11 @@ export default function ProductsPage() {
                 </option>
               ))}
             </select>
-            {(category || finish || sort_by) && (
+            {(filterCategory || filterFinish || filterSort) && (
               <button
                 onClick={() => {
                   setSearchParams({});
-                  setPage(0);
+                  setCurrentPage(1);
                 }}
                 className="text-sm text-silver-400 hover:text-warmwhite underline"
               >
@@ -270,120 +354,110 @@ export default function ProductsPage() {
               </button>
             )}
             <span className="ml-auto text-sm text-silver-500">
-              {displayTotal} product{displayTotal !== 1 ? "s" : ""}
+              {filteredProducts.length} product{filteredProducts.length !== 1 ? "s" : ""}
             </span>
           </div>
         </div>
       </section>
 
-      {/* Products Grid - Now with Visual Images */}
+      {/* Products Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {isLoading ? (
-          <div className="flex justify-center py-20">
-            <LoadingSpinner size="lg" />
-          </div>
-        ) : error ? (
+        {displayProducts.length === 0 ? (
           <div className="card text-center py-12">
-            <p className="text-red-400">
-              Failed to load products. Please try again.
-            </p>
+            <p className="text-silver-400 mb-4">No products found matching your filters.</p>
+            <button
+              onClick={() => {
+                setSearchParams({});
+                setCurrentPage(1);
+              }}
+              className="btn-secondary"
+            >
+              Clear Filters
+            </button>
           </div>
         ) : (
           <>
-            {displayProducts.length === 0 ? (
-              <div className="card text-center py-12">
-                <p className="text-silver-400 mb-4">
-                  No products found matching your filters.
-                </p>
-                <button
-                  onClick={() => {
-                    setSearchParams({});
-                    setPage(0);
-                  }}
-                  className="btn-secondary"
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {displayProducts.map((product) => (
+                <div
+                  key={product.id}
+                  className="card group hover:border-cobalt/50 transition-all block"
                 >
-                  Clear Filters
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {paginatedProducts.map((product) => (
-                  <div key={product.id} className="card group hover:border-cobalt/50 transition-all block">
-                    {/* Product Image */}
-                    <div className="relative h-48 mb-4 overflow-hidden rounded-lg bg-charcoal-700">
-                      <img
-                        src={product.image || product.image_url || getProductImage(product)}
-                        alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
-                      />
-                    </div>
-
-                    {/* Product Info */}
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h3 className="text-lg font-heading font-semibold text-warmwhite group-hover:text-cobalt-300 transition-colors">
-                          {product.name}
-                        </h3>
-                        <p className="text-sm text-silver-500 capitalize">
-                          {product.category?.replace("_", " ")}
-                        </p>
-                      </div>
-                      {product.finish && (
-                        <span className="badge bg-charcoal-600 text-silver-300 capitalize text-xs">
-                          {product.finish}
-                        </span>
-                      )}
-                    </div>
-                    {product.description && (
-                      <p className="text-sm text-silver-400 mb-4 line-clamp-2">
-                        {product.description}
-                      </p>
-                    )}
-
-                    {/* Price & CTA */}
-                    <div className="flex items-end justify-between mt-auto pt-2 border-t border-charcoal-600">
-                      <div>
-                        <p className="text-xs text-silver-500">From</p>
-                        <p className="text-lg font-semibold text-gold-400">
-                          KES{" "}
-                          {Number(product.base_price_per_sqm_kes).toLocaleString()}
-                          <span className="text-xs text-silver-500 font-normal">
-                            /sqm
-                          </span>
-                        </p>
-                      </div>
-                      <span className="btn-primary text-xs px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        Get Quote
-                      </span>
-                    </div>
+                  {/* Product Image */}
+                  <div className="relative h-48 mb-4 overflow-hidden rounded-lg bg-charcoal-700">
+                    <img
+                      src={`/assets/products/${product.image}`}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
                   </div>
-                ))}
-              </div>
-            )}
 
-            {/* Pagination */}
-            {displayTotalPages > 1 && (
-              <div className="flex justify-center items-center gap-4 mt-10">
-                <button
-                  onClick={() => setPage((p) => Math.max(0, p - 1))}
-                  disabled={page === 0}
-                  className="btn-ghost text-sm disabled:opacity-30"
-                >
-                  ◀ Previous
-                </button>
-                <span className="text-sm text-silver-400 font-medium">
-                  Page {page + 1} of {displayTotalPages}
-                </span>
-                <button
-                  onClick={() => setPage((p) => Math.min(displayTotalPages - 1, p + 1))}
-                  disabled={page >= displayTotalPages - 1}
-                  className="btn-ghost text-sm disabled:opacity-30"
-                >
-                  Next ▶
-                </button>
-              </div>
-            )}
+                  {/* Product Info */}
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="text-lg font-heading font-semibold text-warmwhite group-hover:text-cobalt-300 transition-colors">
+                        {product.name}
+                      </h3>
+                      <p className="text-sm text-silver-500 capitalize">
+                        {product.category?.replace("_", " ")}
+                      </p>
+                    </div>
+                    {product.finish && (
+                      <span className="badge bg-charcoal-600 text-silver-300 capitalize text-xs">
+                        {product.finish}
+                      </span>
+                    )}
+                  </div>
+
+                  {product.description && (
+                    <p className="text-sm text-silver-400 mb-3 line-clamp-2">
+                      {product.description}
+                    </p>
+                  )}
+
+                  {/* Price & CTA */}
+                  <div className="flex items-end justify-between mt-auto pt-2 border-t border-charcoal-600">
+                    <div>
+                      <p className="text-xs text-silver-500">From</p>
+                      <p className="text-lg font-semibold text-gold-400">
+                        KES {Number(product.base_price_per_sqm_kes).toLocaleString()}
+                        <span className="text-xs text-silver-500 font-normal">
+                          /sqm
+                        </span>
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleGetQuote(product.name)}
+                      className="btn-primary text-xs px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      Get Quote
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination - Always visible */}
+            <div className="flex justify-center items-center gap-6 mt-12 mb-8">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="btn-ghost text-sm disabled:opacity-30"
+              >
+                ◀ Previous
+              </button>
+              <span className="text-sm text-silver-400 font-medium">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="btn-ghost text-sm disabled:opacity-30"
+              >
+                Next ▶
+              </button>
+            </div>
           </>
         )}
       </section>
