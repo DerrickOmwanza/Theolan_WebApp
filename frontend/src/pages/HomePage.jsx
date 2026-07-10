@@ -33,10 +33,40 @@ export default function HomePage() {
       image: "/images/Balustrades.webp",
     },
     {
-      title: "Custom Designs",
-      desc: "Bespoke architectural aluminium solutions",
-      cat: "windows",
+      title: "Aluminium Fabrications",
+      desc: "Custom aluminium fabrication and structural works",
+      cat: "aluminium_fabrications",
       image: "/images/Custom_designs.webp",
+    },
+    {
+      title: "Stainless Steel Railings",
+      desc: "Premium stainless steel railings and balusters",
+      cat: "stainless_steel_railings",
+      image: "/images/Balustrades.webp",
+    },
+    {
+      title: "Frameless Glass & Sunroofs",
+      desc: "Modern frameless glass systems and sunroofs",
+      cat: "frameless_glass",
+      image: "/images/Curtain_Walls.webp",
+    },
+    {
+      title: "Gypsum Walls & Ceilings",
+      desc: "Professional gypsum wall and ceiling installations",
+      cat: "gypsum_ceilings",
+      image: "/images/Partitions.webp",
+    },
+    {
+      title: "Kitchen & Wardrobe Cabinets",
+      desc: "Custom kitchen cabinets and wardrobe solutions",
+      cat: "kitchen_cabinets",
+      image: "/images/Doors.webp",
+    },
+    {
+      title: "Floor Tiling",
+      desc: "Professional floor tiling and installation services",
+      cat: "floor_tiling",
+      image: "/images/Windows.webp",
     },
   ];
 

@@ -13,6 +13,12 @@ const SERVICE_TYPES = [
   { value: "partitions", label: "Partitions", icon: "🔲" },
   { value: "balustrades", label: "Balustrades", icon: "🏗️" },
   { value: "glazing", label: "Glazing", icon: "✨" },
+  { value: "aluminium_fabrications", label: "Aluminium Fabrications", icon: "🔧" },
+  { value: "stainless_steel_railings", label: "Stainless Steel Railings", icon: "🛡️" },
+  { value: "frameless_glass", label: "Frameless Glass & Sunroofs", icon: "🌅" },
+  { value: "gypsum_ceilings", label: "Gypsum Walls & Ceilings", icon: "🏛️" },
+  { value: "kitchen_cabinets", label: "Kitchen & Wardrobe Cabinets", icon: "🍳" },
+  { value: "floor_tiling", label: "Floor Tiling", icon: "⬜" },
 ];
 
 const PROPERTY_TYPES = [

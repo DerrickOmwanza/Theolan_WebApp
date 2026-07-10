@@ -6,11 +6,11 @@ const CONTACT_INFO = [
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 116 0z" />
       </svg>
     ),
     label: 'Address',
-    value: 'Industrial Area, Nairobi, Kenya',
+    value: 'Umoja 2, Embakasi West, Nairobi (Near Umoja 2 basketball court)',
   },
   {
     icon: (
@@ -19,7 +19,7 @@ const CONTACT_INFO = [
       </svg>
     ),
     label: 'Phone',
-    value: '+254 700 000 000',
+    value: '+254 712 916504 / +254 104 687552',
   },
   {
     icon: (
@@ -28,7 +28,7 @@ const CONTACT_INFO = [
       </svg>
     ),
     label: 'Email',
-    value: 'info@olanallumint.co.ke',
+    value: 'theolanalumint25@gmail.com',
   },
   {
     icon: (
