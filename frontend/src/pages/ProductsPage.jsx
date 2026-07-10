@@ -180,6 +180,9 @@ export default function ProductsPage() {
     setPage(0);
   };
 
+  const products = data?.data?.data || [];
+  const total = data?.data?.total || 0;
+  
   // Merge real products with placeholders for new categories
   const displayProducts = products.length > 0 
     ? products 
