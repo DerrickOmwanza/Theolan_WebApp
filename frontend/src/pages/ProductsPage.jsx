@@ -281,9 +281,14 @@ export default function ProductsPage() {
     currentPage * ITEMS_PER_PAGE
   );
 
-  // Get Quote handler - navigates to contact with product name pre-filled
-  const handleGetQuote = (productName) => {
-    navigate(`/contact?product=${encodeURIComponent(productName)}`);
+  // Get Quote handler - navigates to quote calculator with product details pre-filled
+  const handleGetQuote = (product) => {
+    const params = new URLSearchParams();
+    params.set('product_name', product.name);
+    params.set('basePrice', product.base_price_per_sqm_kes);
+    params.set('category', product.category);
+    params.set('finish', product.finish || 'bronze');
+    navigate(`/quote?${params.toString()}`);
   };
 
   return (
