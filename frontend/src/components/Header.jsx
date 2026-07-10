@@ -29,15 +29,15 @@ export default function Header() {
           <Link to="/" className="flex items-center gap-3">
             <img
               src="/images/logo.png"
-              alt="The Olan Glass and Aluminium"
+              alt="The Olan Alum-int Ltd"
               className="h-16 w-auto object-contain"
             />
             <div className="hidden sm:block">
               <p className="text-warmwhite font-bold text-lg leading-tight">
-                The Olan Glass
+                The Olan Alum-int Ltd
               </p>
               <p className="text-xs text-silver-400 uppercase tracking-wider">
-                and Aluminium
+                Dream, create, live and inspire
               </p>
             </div>
           </Link>

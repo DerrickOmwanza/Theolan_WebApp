@@ -9,24 +9,67 @@ const STATS = [
 
 const VALUES = [
   {
-    title: "Precision Craftsmanship",
+    title: "Creativity",
     description:
-      "Every cut, weld, and finish meets international standards. We use computer-aided design and precision machinery to ensure millimetre accuracy.",
+      "We innovate and design unique aluminium solutions that inspire and transform spaces.",
   },
   {
-    title: "Quality Materials",
+    title: "Quality",
     description:
-      "We source premium-grade aluminium from certified suppliers, ensuring durability and corrosion resistance in Kenya&apos;s diverse climates.",
+      "We source premium-grade aluminium from certified suppliers, ensuring durability and corrosion resistance in Kenya's diverse climates.",
   },
   {
-    title: "On-Time Delivery",
+    title: "Integrity",
     description:
-      "Our project management team ensures your installation is completed on schedule, with transparent progress tracking at every stage.",
+      "We operate with honesty and transparency in all our dealings with clients and partners.",
   },
   {
-    title: "Expert Team",
+    title: "Customer Satisfaction",
     description:
-      "Our technicians are certified professionals with years of experience in architectural aluminium fabrication and installation.",
+      "Your satisfaction is our priority - we deliver beyond expectations every time.",
+  },
+  {
+    title: "Innovative",
+    description:
+      "We use computer-aided design and precision machinery to ensure millimetre accuracy.",
+  },
+  {
+    title: "Team work",
+    description:
+      "Our collaborative approach ensures seamless project execution from start to finish.",
+  },
+  {
+    title: "Sustainability",
+    description:
+      "We champion eco-friendly aluminium solutions that reduce environmental impact.",
+  },
+  {
+    title: "Excellence",
+    description:
+      "Every cut, weld, and finish meets international standards for superior quality.",
+  },
+];
+
+const TEAM = [
+  {
+    name: "Fredrick Omondi",
+    role: "Director and Founder",
+    avatar: "/images/team/fredrick.jpg", // Placeholder - will use generic avatar
+  },
+  {
+    name: "Sophy Adhiambo",
+    role: "Finance",
+    avatar: "/images/team/sophy.jpg", // Placeholder - will use generic avatar
+  },
+  {
+    name: "Everlin Ganda",
+    role: "Marketer",
+    avatar: "/images/team/everlin.jpg", // Placeholder - will use generic avatar
+  },
+  {
+    name: "Kennedy Olang",
+    role: "Team Leader",
+    avatar: "/images/team/kennedy.jpg", // Placeholder - will use generic avatar
   },
 ];
 
@@ -49,22 +92,22 @@ export default function AboutPage() {
           <div className="mb-4 flex items-center gap-4">
             <img
               src="/images/logo.png"
-              alt="The Olan Glass and Aluminium"
+              alt="The Olan Alum-int Ltd"
               className="h-16 w-auto object-contain"
             />
             <div>
               <p className="text-warmwhite font-bold text-xl leading-tight">
-                The Olan Glass
+                The Olan Alum-int Ltd
               </p>
               <p className="text-xs text-gold-400 uppercase tracking-wider">
-                and Aluminium
+                Dream, create, live and inspire
               </p>
             </div>
           </div>
           <p className="text-silver-300 max-w-2xl">
-            Umoja 2, Nairobi-based aluminium fabrication company, delivering
-            precision-crafted windows, doors, curtain walls, and architectural
-            glazing systems.
+            Founded in 2018, based in Umoja 2, Embakasi West (Nairobi), Kenya.
+            We provide premium aluminium and architectural glazing solutions with
+            a focus on quality, innovation, and customer satisfaction.
           </p>
         </div>
       </section>
@@ -150,6 +193,35 @@ export default function AboutPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Our Team */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <h2 className="text-3xl font-heading font-bold text-warmwhite text-center mb-12">
+          Our Team
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+          {TEAM.map((member) => (
+            <div
+              key={member.name}
+              className="text-center card hover:border-cobalt/50 transition-colors"
+            >
+              <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-charcoal-700 flex items-center justify-center overflow-hidden">
+                <svg
+                  className="w-12 h-12 text-silver-500"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-heading font-semibold text-warmwhite mb-1">
+                {member.name}
+              </h3>
+              <p className="text-sm text-cobalt-300">{member.role}</p>
+            </div>
+          ))}
         </div>
       </section>
 

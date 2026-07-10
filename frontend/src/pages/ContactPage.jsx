@@ -37,7 +37,7 @@ const CONTACT_INFO = [
       </svg>
     ),
     label: 'Working Hours',
-    value: 'Mon–Fri: 8am–5pm, Sat: 9am–1pm',
+    value: 'Mon - Fri: 8:00 AM - 5:00 PM, Sat: 8:30 AM - 1:00 PM',
   },
 ];
 

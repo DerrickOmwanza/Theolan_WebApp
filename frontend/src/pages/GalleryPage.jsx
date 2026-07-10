@@ -8,13 +8,17 @@ import ImageGalleryItem from "../components/ImageGalleryItem.jsx";
 
 const CATEGORIES = [
   { value: "", label: "All Categories" },
+  { value: "aluminium_fabrications", label: "Aluminium Fabrications" },
   { value: "windows", label: "Windows" },
   { value: "doors", label: "Doors" },
   { value: "curtain_walls", label: "Curtain Walls" },
   { value: "partitions", label: "Partitions" },
   { value: "balustrades", label: "Balustrades" },
-  { value: "shower_enclosures", label: "Shower Enclosures" },
-  { value: "office_fitout", label: "Office Fit-outs" },
+  { value: "stainless_steel_railings", label: "Stainless Steel Railings & Balusters" },
+  { value: "frameless_glass", label: "Frameless Glass & Sunroofs" },
+  { value: "gypsum_ceilings", label: "Gypsum Walls & Ceilings" },
+  { value: "kitchen_cabinets", label: "Kitchen & Wardrobe Cabinets" },
+  { value: "floor_tiling", label: "Floor Tiling" },
 ];
 
 // Need to add back FINISHES that was removed
