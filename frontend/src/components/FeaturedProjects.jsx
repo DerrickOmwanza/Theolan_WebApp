@@ -33,6 +33,11 @@ export default function FeaturedProjects() {
     return null;
   }
 
+  // Smart video detection helper
+  const isVideo = (photo) => 
+    photo.media_type === "video" || 
+    (photo.image_url && /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(photo.image_url));
+
   return (
     <section className="py-12 bg-gradient-to-b from-charcoal-900 to-charcoal-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -54,14 +59,31 @@ export default function FeaturedProjects() {
             >
               <div className="relative w-full overflow-hidden">
                 {photo.image_url ? (
-                  <img
-                    src={photo.image_url}
-                    alt={photo.project_name || "Project photo"}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
-                  />
+                  isVideo(photo) ? (
+                    <video
+                      src={photo.image_url}
+                      controls
+                      preload="metadata"
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+                    >
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : (
+                    <img
+                      src={photo.image_url}
+                      alt={photo.project_name || "Project photo"}
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                  )
                 ) : null}
-                {photo.category && (
+                {/* Video badge */}
+                {isVideo(photo) && (
+                  <div className="absolute top-3 left-3 badge-cobalt text-xs capitalize backdrop-blur-sm">
+                    Video
+                  </div>
+                )}
+                {photo.category && !isVideo(photo) && (
                   <div className="absolute top-3 right-3 badge-cobalt text-xs capitalize backdrop-blur-sm">
                     {photo.category.replace("_", " ")}
                   </div>
