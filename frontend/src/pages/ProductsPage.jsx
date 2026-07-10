@@ -13,7 +13,7 @@ const LOCAL_PRODUCTS = [
     base_price_per_sqm_kes: 8500,
     description:
       "Modern horizontal aluminium bar balustrade with premium powder-coated finish. Perfect for balconies and terraces with unobstructed views.",
-    image: "/media/product_page/balustrade-horizontal-bars.png",
+    image: "/media/product_page/balustrade-horizontal-bars.webp",
     finish: "bronze",
   },
   {
@@ -23,7 +23,7 @@ const LOCAL_PRODUCTS = [
     base_price_per_sqm_kes: 12000,
     description:
       "Sleek frameless tempered glass balustrade with minimal aluminium connectors. Seamless integration for modern architectural designs.",
-    image: "/media/product_page/balustrade-frameless.png",
+    image: "/media/product_page/balustrade-frameless.webp",
     finish: "clear",
   },
   {
@@ -33,7 +33,7 @@ const LOCAL_PRODUCTS = [
     base_price_per_sqm_kes: 6500,
     description:
       "Robust post-system balustrade with elegant aluminium posts and glass infill. Cost-effective solution for commercial applications.",
-    image: "/media/product_page/balustrade-post-system.png",
+    image: "/media/product_page/balustrade-post-system.webp",
     finish: "silver",
   },
   {
@@ -43,7 +43,7 @@ const LOCAL_PRODUCTS = [
     base_price_per_sqm_kes: 9500,
     description:
       "Compact Juliet balcony gate system with hidden mounting brackets. Elegant safety barrier for glass doors without visual obstruction.",
-    image: "/media/product_page/balustrade-juliet.png",
+    image: "/media/product_page/balustrade-juliet.webp",
     finish: "black",
   },
   // Curtain Walls (3 products)
@@ -54,7 +54,7 @@ const LOCAL_PRODUCTS = [
     base_price_per_sqm_kes: 14500,
     description:
       "Structural glazing spider curtain wall with minimal aluminium mullions. Maximum glass area for superior natural lighting in commercial buildings.",
-    image: "/media/product_page/curtain-wall-spider.png",
+    image: "/media/product_page/curtain-wall-spider.webp",
     finish: "silver",
   },
   {
@@ -64,7 +64,7 @@ const LOCAL_PRODUCTS = [
     base_price_per_sqm_kes: 11000,
     description:
       "Traditional stick-built curtain wall system with exposed aluminium mullions. Cost-effective solution for mid-rise commercial projects.",
-    image: "/media/product_page/curtain-wall-stick.png",
+    image: "/media/product_page/curtain-wall-stick.webp",
     finish: "white",
   },
   {
@@ -74,7 +74,7 @@ const LOCAL_PRODUCTS = [
     base_price_per_sqm_kes: 18000,
     description:
       "Premium structural glazing curtain wall with integrated aluminium extrusions. Seamless facade for high-end commercial and residential towers.",
-    image: "/media/product_page/curtain-wall-structural.png",
+    image: "/media/product_page/curtain-wall-structural.webp",
     finish: "silver",
   },
   // Doors (4 products)
@@ -85,7 +85,7 @@ const LOCAL_PRODUCTS = [
     base_price_per_sqm_kes: 14000,
     description:
       "Elegant French double-leaf aluminium door with full-height glass panels. Perfect for grand entrances and internal room divisions.",
-    image: "/media/product_page/door-french-double.png",
+    image: "/media/product_page/door-french-double.webp",
     finish: "champagne",
   },
   {
@@ -95,7 +95,7 @@ const LOCAL_PRODUCTS = [
     base_price_per_sqm_kes: 7500,
     description:
       "Premium single-leaf hinged aluminium door with optional sidelights. Smooth operation and secure locking mechanism for residential and commercial use.",
-    image: "/media/product_page/door-hinged-single.png",
+    image: "/media/product_page/door-hinged-single.webp",
     finish: "black",
   },
   {
@@ -105,7 +105,7 @@ const LOCAL_PRODUCTS = [
     base_price_per_sqm_kes: 9000,
     description:
       "Space-saving sliding aluminium door with two panels. Ideal for narrow openings and modern interior requirements.",
-    image: "/media/product_page/door-sliding-2panel.png",
+    image: "/media/product_page/door-sliding-2panel.webp",
     finish: "silver",
   },
   {
@@ -115,7 +115,7 @@ const LOCAL_PRODUCTS = [
     base_price_per_sqm_kes: 11000,
     description:
       "Multi-panel aluminium sliding door system with three sliding leaves. Maximum flexibility for wide openings and large spans.",
-    image: "/media/product_page/door-sliding-3panel.png",
+    image: "/media/product_page/door-sliding-3panel.webp",
     finish: "bronze",
   },
   // Partitions (1 product)
@@ -126,7 +126,7 @@ const LOCAL_PRODUCTS = [
     base_price_per_sqm_kes: 10500,
     description:
       "Minimalist frameless glass partition with floor-to-ceiling installation. Creates open spaces while providing privacy and noise reduction.",
-    image: "/media/product_page/partition-glass-frameless.png",
+    image: "/media/product_page/partition-glass-frameless.webp",
     finish: "clear",
   },
   // New Service Categories (6 products)
@@ -137,7 +137,7 @@ const LOCAL_PRODUCTS = [
     base_price_per_sqm_kes: 13500,
     description:
       "Premium 316-grade stainless steel railings with brushed or mirror finish. Handrails and balusters for modern architectural installations.",
-    image: "/media/product_page/railings-stainless-steel.png",
+    image: "/media/product_page/railings-stainless-steel.webp",
     finish: "brushed",
   },
   {
@@ -147,7 +147,7 @@ const LOCAL_PRODUCTS = [
     base_price_per_sqm_kes: 16500,
     description:
       "Retractable frameless glass sunroof system with motorized operation. Natural light maximization with full weather protection for outdoor living spaces.",
-    image: "/media/product_page/glass-sunroof-pergola.png",
+    image: "/media/product_page/glass-sunroof-pergola.webp",
     finish: "clear",
   },
   {
@@ -157,7 +157,7 @@ const LOCAL_PRODUCTS = [
     base_price_per_sqm_kes: 6800,
     description:
       "Professional gypsum ceiling installation with integrated LED lighting system. Acoustic benefits and seamless aesthetic finish for commercial spaces.",
-    image: "/media/product_page/gypsum-ceiling-led.png",
+    image: "/media/product_page/gypsum-ceiling-led.webp",
     finish: "white",
   },
   {
@@ -167,7 +167,7 @@ const LOCAL_PRODUCTS = [
     base_price_per_sqm_kes: 5500,
     description:
       "Smooth gypsum wall partitioning system with customizable finishes. Ideal for office spaces and room divisions with clean lines.",
-    image: "/media/product_page/gypsum-wall-partition.png",
+    image: "/media/product_page/gypsum-wall-partition.webp",
     finish: "white",
   },
   {
@@ -177,7 +177,7 @@ const LOCAL_PRODUCTS = [
     base_price_per_sqm_kes: 22000,
     description:
       "Custom aluminium kitchen and wardrobe cabinets with wood-effect powder coating. Modular design with smart storage solutions.",
-    image: "/media/product_page/cabinetry-kitchen-wardrobe.png",
+    image: "/media/product_page/cabinetry-kitchen-wardrobe.webp",
     finish: "wood_effect",
   },
   {
@@ -187,7 +187,7 @@ const LOCAL_PRODUCTS = [
     base_price_per_sqm_kes: 9500,
     description:
       "Professional porcelain floor tiling with precision laying and grouting. Available for interior and exterior applications with variety of finishes.",
-    image: "/media/product_page/floor-tiling-porcelain.png",
+    image: "/media/product_page/floor-tiling-porcelain.webp",
     finish: "natural",
   },
 ];
