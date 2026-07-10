@@ -9,7 +9,19 @@ import logger from '../middlewares/logger.js';
 // Constants
 // ============================================================
 
-const CATEGORIES = ['windows', 'doors', 'curtain_walls', 'partitions', 'balustrades'];
+const CATEGORIES = [
+  'windows', 
+  'doors', 
+  'curtain_walls', 
+  'partitions', 
+  'balustrades',
+  'aluminium_fabrications',
+  'stainless_steel_railings',
+  'frameless_glass',
+  'gypsum_ceilings',
+  'kitchen_cabinets',
+  'floor_tiling'
+];
 const FINISHES = ['mill', 'silver', 'black', 'champagne', 'bronze'];
 const SORT_OPTIONS = ['price_asc', 'price_desc', 'name'];
 
