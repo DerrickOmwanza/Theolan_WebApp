@@ -243,16 +243,79 @@ export default function GalleryPage() {
       {/* Featured Projects */}
       <FeaturedProjects />
 
-      {/* Filters */}
+      {/* Filters - Mobile Optimized */}
       <section className="border-b border-charcoal-600 bg-charcoal-800 sticky top-16 z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-wrap gap-4 items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3">
+          {/* Mobile: Compact filter bar with drawer */}
+          <div className="flex sm:hidden items-center gap-2">
+            <input
+              id="search-projects"
+              name="search"
+              type="text"
+              placeholder="Search projects..."
+              value={search}
+              onChange={(e) => setFilter("search", e.target.value)}
+              className="input-field flex-1 text-sm h-9"
+            />
+            <button
+              onClick={() => document.getElementById('filter-drawer')?.classList.toggle('hidden')}
+              className="btn-ghost text-sm h-9 px-3 flex-shrink-0"
+            >
+              Filters
+            </button>
+            {(category || finish || search) && (
+              <button
+                onClick={() => {
+                  setSearchParams({});
+                  setPage(0);
+                }}
+                className="text-xs text-silver-400 hover:text-warmwhite underline flex-shrink-0"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          
+          {/* Mobile: Expandable filter drawer */}
+          <div id="filter-drawer" className="hidden sm:hidden mt-2 pb-2 border-t border-charcoal-600 pt-2">
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              <select
+                id="category-filter"
+                name="category"
+                value={category}
+                onChange={(e) => setFilter("category", e.target.value)}
+                className="input-field text-sm h-9"
+              >
+                {CATEGORIES.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+              <select
+                id="finish-filter"
+                name="finish"
+                value={finish}
+                onChange={(e) => setFilter("finish", e.target.value)}
+                className="input-field text-sm h-9"
+              >
+                {FINISHES.map((f) => (
+                  <option key={f.value} value={f.value}>
+                    {f.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Desktop/Tablet: Full width filter bar */}
+          <div className="hidden sm:flex flex-wrap gap-3 items-center">
             <select
               id="category-filter"
               name="category"
               value={category}
               onChange={(e) => setFilter("category", e.target.value)}
-              className="input-field w-auto min-w-[160px] text-sm"
+              className="input-field w-auto min-w-[140px] text-sm h-9"
             >
               {CATEGORIES.map((c) => (
                 <option key={c.value} value={c.value}>
@@ -265,7 +328,7 @@ export default function GalleryPage() {
               name="finish"
               value={finish}
               onChange={(e) => setFilter("finish", e.target.value)}
-              className="input-field w-auto min-w-[160px] text-sm"
+              className="input-field w-auto min-w-[140px] text-sm h-9"
             >
               {FINISHES.map((f) => (
                 <option key={f.value} value={f.value}>
@@ -280,7 +343,7 @@ export default function GalleryPage() {
               placeholder="Search projects..."
               value={search}
               onChange={(e) => setFilter("search", e.target.value)}
-              className="input-field w-auto min-w-[200px] text-sm"
+              className="input-field w-auto min-w-[200px] text-sm h-9"
             />
             {(category || finish || search) && (
               <button
@@ -397,12 +460,28 @@ export default function GalleryPage() {
             onClick={(e) => e.stopPropagation()}
           >
             {allPhotos[lightboxIndex].image_url ? (
-              <img
-                src={allPhotos[lightboxIndex].image_url}
-                alt={allPhotos[lightboxIndex].project_name || "Project photo"}
-                className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
-                loading="eager"
-              />
+              (() => {
+                const lightboxIsVideo = allPhotos[lightboxIndex].media_type === "video" ||
+                  /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(allPhotos[lightboxIndex].image_url);
+                
+                return lightboxIsVideo ? (
+                  <video
+                    src={allPhotos[lightboxIndex].image_url}
+                    controls
+                    className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+                    onError={(e) => console.error('Lightbox video failed:', allPhotos[lightboxIndex].image_url)}
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                ) : (
+                  <img
+                    src={allPhotos[lightboxIndex].image_url}
+                    alt={allPhotos[lightboxIndex].project_name || "Project photo"}
+                    className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+                    loading="eager"
+                  />
+                );
+              })()
             ) : (
               <div className="text-silver-500 text-center py-20">
                 No image available
