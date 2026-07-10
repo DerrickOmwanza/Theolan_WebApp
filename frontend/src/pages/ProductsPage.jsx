@@ -35,6 +35,58 @@ const SORT_OPTIONS = [
   { value: "name", label: "Name A–Z" },
 ];
 
+// Placeholder products for new service categories (displayed when no products exist)
+const PLACEHOLDER_PRODUCTS = [
+  {
+    id: "placeholder-aluminium_fabrications",
+    name: "Aluminium Fabrications",
+    category: "aluminium_fabrications",
+    base_price_per_sqm_kes: 0,
+    description: "Custom aluminium fabrication and structural works - Coming Soon!",
+    image: "/images/Custom_designs.webp",
+  },
+  {
+    id: "placeholder-stainless_steel_railings",
+    name: "Stainless Steel Railings",
+    category: "stainless_steel_railings",
+    base_price_per_sqm_kes: 0,
+    description: "Premium stainless steel railings and balusters - Coming Soon!",
+    image: "/images/Balustrades.webp",
+  },
+  {
+    id: "placeholder-frameless_glass",
+    name: "Frameless Glass & Sunroofs",
+    category: "frameless_glass",
+    base_price_per_sqm_kes: 0,
+    description: "Modern frameless glass systems and sunroofs - Coming Soon!",
+    image: "/images/Curtain_Walls.webp",
+  },
+  {
+    id: "placeholder-gypsum_ceilings",
+    name: "Gypsum Walls & Ceilings",
+    category: "gypsum_ceilings",
+    base_price_per_sqm_kes: 0,
+    description: "Professional gypsum wall and ceiling installations - Coming Soon!",
+    image: "/images/Partitions.webp",
+  },
+  {
+    id: "placeholder-kitchen_cabinets",
+    name: "Kitchen & Wardrobe Cabinets",
+    category: "kitchen_cabinets",
+    base_price_per_sqm_kes: 0,
+    description: "Custom kitchen cabinets and wardrobe solutions - Coming Soon!",
+    image: "/images/Doors.webp",
+  },
+  {
+    id: "placeholder-floor_tiling",
+    name: "Floor Tiling",
+    category: "floor_tiling",
+    base_price_per_sqm_kes: 0,
+    description: "Professional floor tiling and installation services - Coming Soon!",
+    image: "/images/Windows.webp",
+  },
+];
+
 // Map products to specific images for visual browsing
 const getProductImage = (product) => {
   // Map based on category and product name/type for specific images
@@ -219,19 +271,59 @@ export default function ProductsPage() {
             </p>
           </div>
         ) : products.length === 0 ? (
-          <div className="card text-center py-12">
-            <p className="text-silver-400 mb-4">
-              No products found matching your filters.
-            </p>
-            <button
-              onClick={() => {
-                setSearchParams({});
-                setPage(0);
-              }}
-              className="btn-secondary"
-            >
-              Clear Filters
-            </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Show placeholders for new categories if category filter matches */}
+            {category && PLACEHOLDER_PRODUCTS.some(p => p.category === category) ? (
+              PLACEHOLDER_PRODUCTS.filter(p => p.category === category).map((placeholder) => (
+                <div key={placeholder.id} className="card opacity-60">
+                  <div className="relative h-48 mb-4 overflow-hidden rounded-lg bg-charcoal-700">
+                    <img
+                      src={placeholder.image}
+                      alt={placeholder.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/90 to-transparent" />
+                  </div>
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="text-lg font-heading font-semibold text-warmwhite">
+                        {placeholder.name}
+                      </h3>
+                      <p className="text-sm text-silver-500 capitalize">
+                        {placeholder.category?.replace("_", " ")}
+                      </p>
+                    </div>
+                    <span className="badge-charcoal text-xs">Soon</span>
+                  </div>
+                  <p className="text-sm text-silver-400 mb-4 italic">
+                    {placeholder.description}
+                  </p>
+                  <div className="flex items-end justify-between mt-auto pt-2 border-t border-charcoal-600">
+                    <div>
+                      <p className="text-xs text-silver-500">Pricing</p>
+                      <p className="text-lg font-semibold text-silver-500">
+                        Contact for Quote
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full card text-center py-12">
+                <p className="text-silver-400 mb-4">
+                  No products found matching your filters.
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchParams({});
+                    setPage(0);
+                  }}
+                  className="btn-secondary"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <>
