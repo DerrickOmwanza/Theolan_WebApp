@@ -130,11 +130,33 @@ const OrderModel = {
   getRevenueByCategory: async () => {
     // orders table has product_summary, not product_category
     // We'll parse the category from product_summary or return placeholder
-    return await db('orders')
-      .select("CASE WHEN product_summary ILIKE '%window%' THEN 'windows' WHEN product_summary ILIKE '%door%' THEN 'doors' WHEN product_summary ILIKE '%curtain%' THEN 'curtain_walls' WHEN product_summary ILIKE '%partition%' THEN 'partitions' WHEN product_summary ILIKE '%balustrade%' THEN 'balustrades' ELSE 'other' END as category")
+    const result = await db('orders')
+      .select(
+        db.raw(`
+          CASE 
+            WHEN product_summary ILIKE '%window%' THEN 'windows'
+            WHEN product_summary ILIKE '%door%' THEN 'doors'
+            WHEN product_summary ILIKE '%curtain%' THEN 'curtain_walls'
+            WHEN product_summary ILIKE '%partition%' THEN 'partitions'
+            WHEN product_summary ILIKE '%balustrade%' THEN 'balustrades'
+            ELSE 'other'
+          END as category
+        `)
+      )
       .sum('total_price_kes as total')
-      .groupBy('category')
+      .groupByRaw(`
+        CASE 
+          WHEN product_summary ILIKE '%window%' THEN 'windows'
+          WHEN product_summary ILIKE '%door%' THEN 'doors'
+          WHEN product_summary ILIKE '%curtain%' THEN 'curtain_walls'
+          WHEN product_summary ILIKE '%partition%' THEN 'partitions'
+          WHEN product_summary ILIKE '%balustrade%' THEN 'balustrades'
+          ELSE 'other'
+        END
+      `)
       .orderBy('total', 'desc');
+    
+    return result;
   },
 
   getRevenueByTechnician: async () => {
