@@ -180,9 +180,14 @@ export default function ProductsPage() {
     setPage(0);
   };
 
-  const products = data?.data?.data || [];
-  const total = data?.data?.total || 0;
-  const totalPages = Math.ceil(total / LIMIT);
+  // Merge real products with placeholders for new categories
+  const displayProducts = products.length > 0 
+    ? products 
+    : (category && PLACEHOLDER_PRODUCTS.some(p => p.category === category) 
+        ? PLACEHOLDER_PRODUCTS.filter(p => p.category === category)
+        : []);
+  const displayTotal = products.length > 0 ? total : displayProducts.length;
+  const displayTotalPages = Math.ceil(displayTotal / LIMIT);
 
   return (
     <div>
@@ -252,7 +257,7 @@ export default function ProductsPage() {
               </button>
             )}
             <span className="ml-auto text-sm text-silver-500">
-              {total} product{total !== 1 ? "s" : ""}
+              {displayTotal} product{displayTotal !== 1 ? "s" : ""}
             </span>
           </div>
         </div>
@@ -270,46 +275,10 @@ export default function ProductsPage() {
               Failed to load products. Please try again.
             </p>
           </div>
-        ) : products.length === 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Show placeholders for new categories if category filter matches */}
-            {category && PLACEHOLDER_PRODUCTS.some(p => p.category === category) ? (
-              PLACEHOLDER_PRODUCTS.filter(p => p.category === category).map((placeholder) => (
-                <div key={placeholder.id} className="card opacity-60">
-                  <div className="relative h-48 mb-4 overflow-hidden rounded-lg bg-charcoal-700">
-                    <img
-                      src={placeholder.image}
-                      alt={placeholder.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/90 to-transparent" />
-                  </div>
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="text-lg font-heading font-semibold text-warmwhite">
-                        {placeholder.name}
-                      </h3>
-                      <p className="text-sm text-silver-500 capitalize">
-                        {placeholder.category?.replace("_", " ")}
-                      </p>
-                    </div>
-                    <span className="badge-charcoal text-xs">Soon</span>
-                  </div>
-                  <p className="text-sm text-silver-400 mb-4 italic">
-                    {placeholder.description}
-                  </p>
-                  <div className="flex items-end justify-between mt-auto pt-2 border-t border-charcoal-600">
-                    <div>
-                      <p className="text-xs text-silver-500">Pricing</p>
-                      <p className="text-lg font-semibold text-silver-500">
-                        Contact for Quote
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="col-span-full card text-center py-12">
+        ) : (
+          <>
+            {displayProducts.length === 0 ? (
+              <div className="card text-center py-12">
                 <p className="text-silver-400 mb-4">
                   No products found matching your filters.
                 </p>
@@ -323,92 +292,97 @@ export default function ProductsPage() {
                   Clear Filters
                 </button>
               </div>
-            )}
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product) => (
-                <Link
-                  key={product.id}
-                  to={`/quote?product_id=${product.id}`}
-                  className="card group hover:border-cobalt/50 transition-all block"
-                >
-                  {/* Product Image */}
-                  <div className="relative h-48 mb-4 overflow-hidden rounded-lg bg-charcoal-700">
-                    <img
-                      src={product.image_url || getProductImage(product)}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      loading="lazy"
-                    />
-                  </div>
-
-                  {/* Product Info */}
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="text-lg font-heading font-semibold text-warmwhite group-hover:text-cobalt-300 transition-colors">
-                        {product.name}
-                      </h3>
-                      <p className="text-sm text-silver-500 capitalize">
-                        {product.category?.replace("_", " ")}
-                      </p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {displayProducts.map((product) => (
+                  <div key={product.id} className="card group hover:border-cobalt/50 transition-all block">
+                    {/* Product Image */}
+                    <div className="relative h-48 mb-4 overflow-hidden rounded-lg bg-charcoal-700">
+                      <img
+                        src={product.image || product.image_url || getProductImage(product)}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                      {product.category && PLACEHOLDER_PRODUCTS.some(p => p.category === product.category) && (
+                        <div className="absolute top-2 right-2 badge-charcoal text-xs">
+                          Coming Soon
+                        </div>
+                      )}
                     </div>
-                    {product.finish && (
-                      <span className="badge bg-charcoal-600 text-silver-300 capitalize text-xs">
-                        {product.finish}
-                      </span>
-                    )}
-                  </div>
-                  {product.description && (
-                    <p className="text-sm text-silver-400 mb-4 line-clamp-2">
-                      {product.description}
-                    </p>
-                  )}
 
-                  {/* Price & CTA */}
-                  <div className="flex items-end justify-between mt-auto pt-2 border-t border-charcoal-600">
-                    <div>
-                      <p className="text-xs text-silver-500">From</p>
-                      <p className="text-lg font-semibold text-gold-400">
-                        KES{" "}
-                        {Number(
-                          product.base_price_per_sqm_kes,
-                        ).toLocaleString()}
-                        <span className="text-xs text-silver-500 font-normal">
-                          /sqm
+                    {/* Product Info */}
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="text-lg font-heading font-semibold text-warmwhite group-hover:text-cobalt-300 transition-colors">
+                          {product.name}
+                        </h3>
+                        <p className="text-sm text-silver-500 capitalize">
+                          {product.category?.replace("_", " ")}
+                        </p>
+                      </div>
+                      {product.finish && (
+                        <span className="badge bg-charcoal-600 text-silver-300 capitalize text-xs">
+                          {product.finish}
                         </span>
-                      </p>
+                      )}
                     </div>
-                    <span className="btn-primary text-xs px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Get Quote
-                    </span>
+                    {product.description && (
+                      <p className="text-sm text-silver-400 mb-4 line-clamp-2">
+                        {product.description}
+                      </p>
+                    )}
+
+                    {/* Price & CTA */}
+                    <div className="flex items-end justify-between mt-auto pt-2 border-t border-charcoal-600">
+                      <div>
+                        <p className="text-xs text-silver-500">
+                          {product.base_price_per_sqm_kes > 0 ? "From" : "Pricing"}
+                        </p>
+                        <p className={`text-lg font-semibold ${product.base_price_per_sqm_kes > 0 ? "text-gold-400" : "text-silver-500"}`}>
+                          {product.base_price_per_sqm_kes > 0 
+                            ? `KES ${Number(product.base_price_per_sqm_kes).toLocaleString()}`
+                            : "Contact for Quote"
+                          }
+                          {product.base_price_per_sqm_kes > 0 && (
+                            <span className="text-xs text-silver-500 font-normal">/sqm</span>
+                          )}
+                        </p>
+                      </div>
+                      {product.base_price_per_sqm_kes > 0 ? (
+                        <span className="btn-primary text-xs px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          Get Quote
+                        </span>
+                      ) : (
+                        <Link to="/contact" className="btn-secondary text-xs px-4 py-2">
+                          Inquire
+                        </Link>
+                      )}
+                    </div>
                   </div>
-                </Link>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
 
             {/* Pagination */}
-            {totalPages > 1 && (
+            {displayTotalPages > 1 && (
               <div className="flex justify-center items-center gap-4 mt-10">
                 <button
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
                   disabled={page === 0}
                   className="btn-ghost text-sm disabled:opacity-30"
                 >
-                  Previous
+                  ◀ Previous
                 </button>
-                <span className="text-sm text-silver-400">
-                  Page {page + 1} of {totalPages}
+                <span className="text-sm text-silver-400 font-medium">
+                  Page {page + 1} of {displayTotalPages}
                 </span>
                 <button
-                  onClick={() =>
-                    setPage((p) => Math.min(totalPages - 1, p + 1))
-                  }
-                  disabled={page >= totalPages - 1}
+                  onClick={() => setPage((p) => Math.min(displayTotalPages - 1, p + 1))}
+                  disabled={page >= displayTotalPages - 1}
                   className="btn-ghost text-sm disabled:opacity-30"
                 >
-                  Next
+                  Next ▶
                 </button>
               </div>
             )}
