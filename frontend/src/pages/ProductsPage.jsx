@@ -89,6 +89,12 @@ const getProductImage = (product) => {
     curtain_walls: "/images/Curtain_Walls.webp",
     partitions: "/images/Partitions.webp",
     balustrades: "/images/Balustrades.webp",
+    aluminium_fabrications: "/images/Custom_designs.webp",
+    stainless_steel_railings: "/images/Balustrades.webp",
+    frameless_glass: "/images/Curtain_Walls.webp",
+    gypsum_ceilings: "/images/Partitions.webp",
+    kitchen_cabinets: "/images/Doors.webp",
+    floor_tiling: "/images/Windows.webp",
   };
   return defaultMap[category] || "/images/Custom_designs.webp";
 };
