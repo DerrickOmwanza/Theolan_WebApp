@@ -100,6 +100,8 @@ export default function QuotePage() {
             <div className="md:col-span-2">
               <label className="input-label">Product *</label>
               <select
+                id="quote-product"
+                name="product_id"
                 value={form.product_id}
                 onChange={(e) => handleChange('product_id', e.target.value)}
                 className={`input-field ${errors.product_id ? 'border-red-500' : ''}`}
@@ -122,6 +124,8 @@ export default function QuotePage() {
             <div>
               <label className="input-label">Width (meters) *</label>
               <input
+                id="quote-width"
+                name="width_meters"
                 type="number"
                 step="0.1"
                 min="0.5"
@@ -138,6 +142,8 @@ export default function QuotePage() {
             <div>
               <label className="input-label">Height (meters) *</label>
               <input
+                id="quote-height"
+                name="height_meters"
                 type="number"
                 step="0.1"
                 min="0.5"
@@ -154,6 +160,8 @@ export default function QuotePage() {
             <div>
               <label className="input-label">Quantity *</label>
               <input
+                id="quote-quantity"
+                name="quantity"
                 type="number"
                 min="1"
                 max="100"
@@ -168,6 +176,8 @@ export default function QuotePage() {
             <div>
               <label className="input-label">Finish *</label>
               <select
+                id="quote-finish"
+                name="finish"
                 value={form.finish}
                 onChange={(e) => handleChange('finish', e.target.value)}
                 className={`input-field ${errors.finish ? 'border-red-500' : ''}`}
@@ -183,6 +193,8 @@ export default function QuotePage() {
             <div className="md:col-span-2">
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
+                  id="quote-double-glazing"
+                  name="double_glazing"
                   type="checkbox"
                   checked={form.double_glazing}
                   onChange={(e) => handleChange('double_glazing', e.target.checked)}

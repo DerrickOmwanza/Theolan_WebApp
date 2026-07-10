@@ -153,6 +153,8 @@ export default function ContactPage() {
                   <div>
                     <label className="input-label">Name *</label>
                     <input
+                      id="contact-name"
+                      name="name"
                       type="text"
                       value={form.name}
                       onChange={(e) => handleChange('name', e.target.value)}
@@ -164,6 +166,8 @@ export default function ContactPage() {
                   <div>
                     <label className="input-label">Email *</label>
                     <input
+                      id="contact-email"
+                      name="email"
                       type="email"
                       value={form.email}
                       onChange={(e) => handleChange('email', e.target.value)}
@@ -177,6 +181,8 @@ export default function ContactPage() {
                   <div>
                     <label className="input-label">Phone</label>
                     <input
+                      id="contact-phone"
+                      name="phone"
                       type="tel"
                       value={form.phone}
                       onChange={(e) => handleChange('phone', e.target.value)}
@@ -187,6 +193,8 @@ export default function ContactPage() {
                   <div>
                     <label className="input-label">Subject</label>
                     <select
+                      id="contact-subject"
+                      name="subject"
                       value={form.subject}
                       onChange={(e) => handleChange('subject', e.target.value)}
                       className="input-field"
@@ -203,6 +211,8 @@ export default function ContactPage() {
                 <div>
                   <label className="input-label">Message *</label>
                   <textarea
+                    id="contact-message"
+                    name="message"
                     value={form.message}
                     onChange={(e) => handleChange('message', e.target.value)}
                     className={`input-field min-h-[120px] ${errors.message ? 'border-red-500' : ''}`}

@@ -248,6 +248,8 @@ export default function GalleryPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-wrap gap-4 items-center">
             <select
+              id="category-filter"
+              name="category"
               value={category}
               onChange={(e) => setFilter("category", e.target.value)}
               className="input-field w-auto min-w-[160px] text-sm"
@@ -259,6 +261,8 @@ export default function GalleryPage() {
               ))}
             </select>
             <select
+              id="finish-filter"
+              name="finish"
               value={finish}
               onChange={(e) => setFilter("finish", e.target.value)}
               className="input-field w-auto min-w-[160px] text-sm"
@@ -270,6 +274,8 @@ export default function GalleryPage() {
               ))}
             </select>
             <input
+              id="search-projects"
+              name="search"
               type="text"
               placeholder="Search projects..."
               value={search}

@@ -308,6 +308,8 @@ export default function BookingPage() {
               <div>
                 <label className="input-label">Location / Address *</label>
                 <input
+                  id="booking-location"
+                  name="location"
                   type="text"
                   value={form.location}
                   onChange={(e) => handleChange("location", e.target.value)}
@@ -342,6 +344,8 @@ export default function BookingPage() {
                   Additional Notes (optional)
                 </label>
                 <textarea
+                  id="booking-notes"
+                  name="notes"
                   value={form.notes}
                   onChange={(e) => handleChange("notes", e.target.value)}
                   className="input-field min-h-[100px]"
