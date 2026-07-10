@@ -187,10 +187,12 @@ export default function ProductsPage() {
   const allAvailableItems = [...products, ...PLACEHOLDER_PRODUCTS];
   
   // Filter merged array by selected category
-  const displayProducts = category
+  let displayProducts = category
     ? allAvailableItems.filter(p => p.category === category)
     : allAvailableItems;
   
+  // Apply pagination to the filtered results
+  const paginatedProducts = displayProducts.slice(page * LIMIT, (page + 1) * LIMIT);
   const displayTotal = displayProducts.length;
   const displayTotalPages = Math.ceil(displayTotal / LIMIT);
 
@@ -299,7 +301,7 @@ export default function ProductsPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {displayProducts.map((product) => (
+                {paginatedProducts.map((product) => (
                   <div key={product.id} className="card group hover:border-cobalt/50 transition-all block">
                     {/* Product Image */}
                     <div className="relative h-48 mb-4 overflow-hidden rounded-lg bg-charcoal-700">
