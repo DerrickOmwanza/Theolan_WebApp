@@ -2,6 +2,12 @@
 // Fixed height for consistent grid display
 
 export default function ImageGalleryItem({ photo, onClick }) {
+  // Smart video detection: check both media_type AND URL extension
+  const isVideoType = photo.media_type === "video";
+  const isVideoUrl = photo.image_url && 
+    /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(photo.image_url);
+  const isVideo = isVideoType || isVideoUrl;
+
   return (
     <div
       className="rounded-xl overflow-hidden bg-charcoal-800 border border-charcoal-700 hover:border-cobalt/50 transition-all duration-300 cursor-pointer group"
@@ -9,7 +15,7 @@ export default function ImageGalleryItem({ photo, onClick }) {
     >
       <div className="relative w-full overflow-hidden">
         {photo.image_url ? (
-          photo.media_type === "video" ? (
+          isVideo ? (
             <video
               src={photo.image_url}
               controls
@@ -33,13 +39,13 @@ export default function ImageGalleryItem({ photo, onClick }) {
           </div>
         )}
         {/* Media type badge */}
-        {photo.media_type === "video" && (
+        {isVideo && (
           <div className="absolute top-3 left-3 badge-cobalt text-xs capitalize backdrop-blur-sm">
             Video
           </div>
         )}
         {/* Image overlay with category */}
-        {photo.category && photo.media_type !== "video" && (
+        {photo.category && !isVideo && (
           <div className="absolute top-3 right-3 badge-cobalt text-xs capitalize backdrop-blur-sm">
             {photo.category.replace("_", " ")}
           </div>

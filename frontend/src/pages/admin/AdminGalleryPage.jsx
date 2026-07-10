@@ -564,25 +564,43 @@ export default function AdminGalleryPage() {
 
               {/* Media */}
               <div className="aspect-video bg-charcoal-700 flex items-center justify-center overflow-hidden">
-                {item.media_type === "video" && item.image_url ? (
-                  <video
-                    src={item.image_url}
-                    controls
-                    className="w-full h-full object-cover"
-                    poster={item.image_url}
-                  />
-                ) : (
-                  <img
-                    src={item.image_url}
-                    alt={item.project_name || "Gallery item"}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                    loading="lazy"
-                    onError={(e) => {
-                      e.target.style.display = "none";
-                      e.target.nextSibling.style.display = "flex";
-                    }}
-                  />
-                )}
+                {(() => {
+                  const isVideoType = item.media_type === "video";
+                  const isVideoUrl = item.image_url && 
+                    /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(item.image_url);
+                  
+                  if (isVideoType || isVideoUrl) {
+                    return (
+                      <video
+                        src={item.image_url}
+                        controls
+                        className="w-full h-full object-cover"
+                        poster={item.image_url.replace(/\/upload\//, '/upload/w_400,h_300,c_fill/')}
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                          if (e.target.nextSibling) {
+                            e.target.nextSibling.style.display = "flex";
+                          }
+                        }}
+                      />
+                    );
+                  }
+                  
+                  return (
+                    <img
+                      src={item.image_url}
+                      alt={item.project_name || "Gallery item"}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                        if (e.target.nextSibling) {
+                          e.target.nextSibling.style.display = "flex";
+                        }
+                      }}
+                    />
+                  );
+                })()}
                 <div
                   className="hidden absolute inset-0 items-center justify-center text-silver-500 text-sm"
                   style={{ display: item.image_url ? "none" : "flex" }}
