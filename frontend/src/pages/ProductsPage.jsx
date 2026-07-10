@@ -183,13 +183,15 @@ export default function ProductsPage() {
   const products = data?.data?.data || [];
   const total = data?.data?.total || 0;
   
-  // Merge real products with placeholders for new categories
-  const displayProducts = products.length > 0 
-    ? products 
-    : (category && PLACEHOLDER_PRODUCTS.some(p => p.category === category) 
-        ? PLACEHOLDER_PRODUCTS.filter(p => p.category === category)
-        : []);
-  const displayTotal = products.length > 0 ? total : displayProducts.length;
+  // Merge real products with placeholders for immediate display
+  const allAvailableItems = [...products, ...PLACEHOLDER_PRODUCTS];
+  
+  // Filter merged array by selected category
+  const displayProducts = category
+    ? allAvailableItems.filter(p => p.category === category)
+    : allAvailableItems;
+  
+  const displayTotal = displayProducts.length;
   const displayTotalPages = Math.ceil(displayTotal / LIMIT);
 
   return (
@@ -307,7 +309,7 @@ export default function ProductsPage() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"
                       />
-                      {product.category && PLACEHOLDER_PRODUCTS.some(p => p.category === product.category) && (
+                      {product.id?.toString().startsWith("placeholder-") && (
                         <div className="absolute top-2 right-2 badge-charcoal text-xs">
                           Coming Soon
                         </div>
@@ -352,14 +354,14 @@ export default function ProductsPage() {
                           )}
                         </p>
                       </div>
-                      {product.base_price_per_sqm_kes > 0 ? (
-                        <span className="btn-primary text-xs px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          Get Quote
-                        </span>
-                      ) : (
+                      {product.id?.toString().startsWith("placeholder-") ? (
                         <Link to="/contact" className="btn-secondary text-xs px-4 py-2">
                           Inquire
                         </Link>
+                      ) : (
+                        <span className="btn-primary text-xs px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          Get Quote
+                        </span>
                       )}
                     </div>
                   </div>
