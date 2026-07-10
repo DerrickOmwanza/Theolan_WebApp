@@ -35,55 +35,61 @@ const SORT_OPTIONS = [
   { value: "name", label: "Name A–Z" },
 ];
 
-// Placeholder products for new service categories (displayed when no products exist)
+// New service category products (fully active with "Get Quote" functionality)
 const PLACEHOLDER_PRODUCTS = [
   {
-    id: "placeholder-aluminium_fabrications",
-    name: "Aluminium Fabrications",
+    id: "aluminium-fabrications-service",
+    name: "Custom Aluminium Fabrications",
     category: "aluminium_fabrications",
-    base_price_per_sqm_kes: 0,
-    description: "Custom aluminium fabrication and structural works - Coming Soon!",
+    base_price_per_sqm_kes: 12000,
+    description: "Precision-engineered aluminium fabrication with powder-coated finishes. Custom designs, structural profiles, and architectural elements for commercial and residential projects.",
     image: "/images/Custom_designs.webp",
+    finish: "silver",
   },
   {
-    id: "placeholder-stainless_steel_railings",
-    name: "Stainless Steel Railings",
+    id: "stainless-steel-railings-service",
+    name: "Stainless Steel Railings & Balusters",
     category: "stainless_steel_railings",
-    base_price_per_sqm_kes: 0,
-    description: "Premium stainless steel railings and balusters - Coming Soon!",
+    base_price_per_sqm_kes: 15000,
+    description: "Premium-grade 316 stainless steel railings and balusters. Featuring modern frameless designs, glass infill options, and handcrafted finishing for balconies, stairs, and terraces.",
     image: "/images/Balustrades.webp",
+    finish: "brushed",
   },
   {
-    id: "placeholder-frameless_glass",
+    id: "frameless-glass-service",
     name: "Frameless Glass & Sunroofs",
     category: "frameless_glass",
-    base_price_per_sqm_kes: 0,
-    description: "Modern frameless glass systems and sunroofs - Coming Soon!",
+    base_price_per_sqm_kes: 18000,
+    description: "Sleek frameless glass systems and retractable sunroofs. Maximum natural light penetration with premium tempered glass. Perfect for modern architectural integration.",
     image: "/images/Curtain_Walls.webp",
+    finish: "clear",
   },
   {
-    id: "placeholder-gypsum_ceilings",
+    id: "gypsum-walls-service",
     name: "Gypsum Walls & Ceilings",
     category: "gypsum_ceilings",
-    base_price_per_sqm_kes: 0,
-    description: "Professional gypsum wall and ceiling installations - Coming Soon!",
+    base_price_per_sqm_kes: 8000,
+    description: "Professional gypsum wall and ceiling installations with seamless finishes. Available in various textures and colors. Ideal for interior renovations and commercial spaces.",
     image: "/images/Partitions.webp",
+    finish: "white",
   },
   {
-    id: "placeholder-kitchen_cabinets",
+    id: "kitchen-cabinets-service",
     name: "Kitchen & Wardrobe Cabinets",
     category: "kitchen_cabinets",
-    base_price_per_sqm_kes: 0,
-    description: "Custom kitchen cabinets and wardrobe solutions - Coming Soon!",
+    base_price_per_sqm_kes: 25000,
+    description: "Custom kitchen cabinets and wardrobe solutions crafted from premium aluminium. Sleek finishes, smart storage solutions, and modular designs tailored to your space.",
     image: "/images/Doors.webp",
+    finish: "wood_effect",
   },
   {
-    id: "placeholder-floor_tiling",
+    id: "floor-tiling-service",
     name: "Floor Tiling",
     category: "floor_tiling",
-    base_price_per_sqm_kes: 0,
-    description: "Professional floor tiling and installation services - Coming Soon!",
+    base_price_per_sqm_kes: 10000,
+    description: "Professional floor tiling and installation services covering ceramic, porcelain, and natural stone. Precision laying with attention to detail for interiors and exteriors.",
     image: "/images/Windows.webp",
+    finish: "natural",
   },
 ];
 
@@ -311,11 +317,6 @@ export default function ProductsPage() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"
                       />
-                      {product.id?.toString().startsWith("placeholder-") && (
-                        <div className="absolute top-2 right-2 badge-charcoal text-xs">
-                          Coming Soon
-                        </div>
-                      )}
                     </div>
 
                     {/* Product Info */}
@@ -343,28 +344,18 @@ export default function ProductsPage() {
                     {/* Price & CTA */}
                     <div className="flex items-end justify-between mt-auto pt-2 border-t border-charcoal-600">
                       <div>
-                        <p className="text-xs text-silver-500">
-                          {product.base_price_per_sqm_kes > 0 ? "From" : "Pricing"}
-                        </p>
-                        <p className={`text-lg font-semibold ${product.base_price_per_sqm_kes > 0 ? "text-gold-400" : "text-silver-500"}`}>
-                          {product.base_price_per_sqm_kes > 0 
-                            ? `KES ${Number(product.base_price_per_sqm_kes).toLocaleString()}`
-                            : "Contact for Quote"
-                          }
-                          {product.base_price_per_sqm_kes > 0 && (
-                            <span className="text-xs text-silver-500 font-normal">/sqm</span>
-                          )}
+                        <p className="text-xs text-silver-500">From</p>
+                        <p className="text-lg font-semibold text-gold-400">
+                          KES{" "}
+                          {Number(product.base_price_per_sqm_kes).toLocaleString()}
+                          <span className="text-xs text-silver-500 font-normal">
+                            /sqm
+                          </span>
                         </p>
                       </div>
-                      {product.id?.toString().startsWith("placeholder-") ? (
-                        <Link to="/contact" className="btn-secondary text-xs px-4 py-2">
-                          Inquire
-                        </Link>
-                      ) : (
-                        <span className="btn-primary text-xs px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          Get Quote
-                        </span>
-                      )}
+                      <span className="btn-primary text-xs px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        Get Quote
+                      </span>
                     </div>
                   </div>
                 ))}
