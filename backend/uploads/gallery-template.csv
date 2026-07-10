@@ -1,0 +1,28 @@
+
+# ==============================================
+# THEOLAN ALUMINIUM - GALLERY IMAGE TEMPLATE
+# ==============================================
+# 
+# INSTRUCTIONS:
+# 1. Save this file as: uploads/gallery-images.csv
+# 2. Edit each row with your image information
+# 3. Make sure image files are in: backend/uploads/gallery/
+# 4. Set "uploadToCloudinary" to YES (images will be uploaded via admin dashboard)
+#
+# COLUMNS:
+# - fileName: Exact filename of your image (must match file in uploads/galler/)
+# - category: One of: windows, doors, curtain_walls, partitions, balustrades
+# - finish: One of: mill, silver, black, champagne, bronze
+# - projectName: Name of the project/client
+# - location: Location of the project (City, County)
+# - description: Brief description of the work done
+# - uploadToCloudinary: Set to YES
+#
+# ==============================================
+#
+fileName,category,finish,projectName,location,description,uploadToCloudinary (YES/NO)
+image-1.jpg,windows,mill,Project Name 1,City,Description for project 1,YES
+image-2.jpg,doors,silver,Project Name 2,City,Description for project 2,YES
+image-3.jpg,curtain_walls,black,Project Name 3,City,Description for project 3,YES
+image-4.jpg,partitions,champagne,Project Name 4,City,Description for project 4,YES
+image-5.jpg,balustrades,bronze,Project Name 5,City,Description for project 5,YES
