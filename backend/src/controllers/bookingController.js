@@ -134,7 +134,8 @@ const BookingController = {
    */
   updateBooking: asyncHandler(async (req, res) => {
     const updates = validate(updateBookingSchema, req.body);
-    const result = await BookingService.updateBooking(req.params.id, req.user.id, updates);
+    const isAdminAction = req.user?.role === 'admin';
+    const result = await BookingService.updateBooking(req.params.id, req.user.id, updates, isAdminAction);
     res.status(200).json(result);
   }),
 

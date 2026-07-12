@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { bookingApi } from "../../services/api.js";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import LoadingSpinner from "../../components/LoadingSpinner.jsx";
+import toast from "react-hot-toast";
 
 function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString("en-KE", {
@@ -30,7 +31,9 @@ export default function AdminBookingsPage() {
   const { user } = useAuth();
   const [activeStatus, setActiveStatus] = useState("all");
   const [page, setPage] = useState(1);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(null);
   const limit = 20;
+  const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-bookings", activeStatus, page],
@@ -41,6 +44,18 @@ export default function AdminBookingsPage() {
         offset: (page - 1) * limit,
       }),
     enabled: !!user && user.role === "admin",
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: ({ id }) => bookingApi.update(id, { status: "cancelled" }),
+    onSuccess: () => {
+      toast.success("Booking cancelled successfully");
+      queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
+      setShowConfirmDialog(null);
+    },
+    onError: () => {
+      toast.error("Failed to cancel booking. Please try again.");
+    },
   });
 
   if (!user || user.role !== "admin") {
@@ -62,6 +77,14 @@ export default function AdminBookingsPage() {
   const bookings = data?.data?.data || [];
   const total = data?.data?.total || 0;
   const totalPages = Math.ceil(total / limit);
+
+  const handleCancel = (booking) => {
+    setShowConfirmDialog(booking.id);
+  };
+
+  const confirmCancel = (bookingId) => {
+    cancelMutation.mutate({ id: bookingId });
+  };
 
   return (
     <div>
@@ -119,49 +142,80 @@ export default function AdminBookingsPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {bookings.map((booking) => (
-            <div key={booking.id} className="card">
-              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-warmwhite font-medium">
-                      {booking.reference_number}
-                    </span>
-                    <span className={`badge badge-${booking.status}`}>
-                      {statusLabels[booking.status] || booking.status}
-                    </span>
+          {bookings.map((booking) => {
+            const canCancel = booking.status === "scheduled";
+
+            return (
+              <div key={booking.id} className="card">
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-warmwhite font-medium">
+                        {booking.reference_number}
+                      </span>
+                      <span className={`badge badge-${booking.status}`}>
+                        {statusLabels[booking.status] || booking.status}
+                      </span>
+                    </div>
+                    <p className="text-sm text-silver-300 mb-1 capitalize">
+                      {booking.service_type?.replace("_", " ")}
+                    </p>
+                    <p className="text-sm text-silver-500 mb-1 truncate">
+                      {booking.location}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-silver-500">
+                      <span>{formatDate(booking.scheduled_at)}</span>
+                      <span>{formatTime(booking.scheduled_at)}</span>
+                      {booking.technician_name && (
+                        <span>Tech: {booking.technician_name}</span>
+                      )}
+                    </div>
                   </div>
-                  <p className="text-sm text-silver-300 mb-1 capitalize">
-                    {booking.service_type?.replace("_", " ")}
-                  </p>
-                  <p className="text-sm text-silver-500 mb-1 truncate">
-                    {booking.location}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-silver-500">
-                    <span>{formatDate(booking.scheduled_at)}</span>
-                    <span>{formatTime(booking.scheduled_at)}</span>
-                    {booking.technician_name && (
-                      <span>Tech: {booking.technician_name}</span>
+                  <div className="flex-shrink-0">
+                    {canCancel && (
+                      <button
+                        onClick={() => handleCancel(booking)}
+                        disabled={cancelMutation.isPending}
+                        className="btn-ghost text-red-400 hover:text-red-300"
+                      >
+                        Cancel Booking
+                      </button>
                     )}
                   </div>
                 </div>
-                <div className="lg:text-right flex-shrink-0">
-                  {booking.client_name && (
-                    <>
-                      <p className="text-sm text-warmwhite">
-                        {booking.client_name}
-                      </p>
-                      {booking.client_phone && (
-                        <p className="text-sm text-silver-500">
-                          {booking.client_phone}
-                        </p>
-                      )}
-                    </>
-                  )}
-                </div>
               </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/60" onClick={() => setShowConfirmDialog(null)} />
+          <div className="bg-charcoal-700 border border-charcoal-600 rounded-lg p-6 w-full max-w-md mx-auto">
+            <h3 className="text-lg font-heading font-bold text-warmwhite mb-4">
+              Cancel Booking
+            </h3>
+            <p className="text-silver-400 mb-6">
+              Are you sure you want to cancel this booking? This action will restore the time slot and send a confirmation SMS to the client.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowConfirmDialog(null)}
+                className="btn-secondary"
+              >
+                Keep Booking
+              </button>
+              <button
+                onClick={() => confirmCancel(showConfirmDialog)}
+                disabled={cancelMutation.isPending}
+                className="btn-ghost bg-red-500 hover:bg-red-600 text-white"
+              >
+                {cancelMutation.isPending ? "Cancelling..." : "Yes, Cancel"}
+              </button>
             </div>
-          ))}
+          </div>
         </div>
       )}
 

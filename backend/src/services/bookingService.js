@@ -242,30 +242,41 @@ const BookingService = {
 
   /**
    * Cancel or reschedule a booking.
-   * Only the booking owner can cancel. Restores the time slot.
+   * Only the booking owner can cancel (or an admin). Restores the time slot.
    *
    * @param {string} bookingId - Booking UUID
    * @param {string} clientId - Authenticated user's UUID
    * @param {Object} updates - { status, reason }
+   * @param {boolean} isAdminAction - Whether this is an admin-initiated action
    * @returns {Promise<Object>} Updated booking
    */
-  updateBooking: async (bookingId, clientId, { status, reason, scheduled_at }) => {
+  updateBooking: async (bookingId, clientId, { status, reason, scheduled_at }, isAdminAction = false) => {
     const booking = await BookingModel.findById(bookingId);
     if (!booking) {
       throw new NotFoundError('Booking not found');
     }
 
-    // Clients can only modify their own bookings
-    if (booking.client_id !== clientId) {
+    // Clients can only modify their own bookings (admins can modify any)
+    if (booking.client_id !== clientId && !isAdminAction) {
       throw new AuthorizationError('You can only modify your own bookings');
     }
 
-    // Prevent modifying already completed/cancelled bookings
+    // Prevent modifying already completed bookings
     if (booking.status === 'completed') {
       throw new ValidationError('Cannot modify a completed booking');
     }
     if (booking.status === 'cancelled' && status !== 'scheduled') {
       throw new ValidationError('Booking is already cancelled');
+    }
+
+    // Enforce 48-hour cancellation cutoff for clients only
+    if (status === 'cancelled' && !isAdminAction) {
+      const scheduledTime = new Date(booking.scheduled_at);
+      const now = new Date();
+      const hoursRemaining = (scheduledTime - now) / (1000 * 60 * 60);
+      if (hoursRemaining < 48) {
+        throw new ValidationError('Bookings can only be cancelled at least 48 hours before the scheduled visit. Please contact us directly for urgent changes.');
+      }
     }
 
     const updates = { status };
