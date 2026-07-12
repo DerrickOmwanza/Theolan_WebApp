@@ -108,7 +108,7 @@ export const sendBookingConfirmation = (booking, clientPhone, technicianName) =>
   if (technicianName) {
     message += ` Technician: ${technicianName}.`;
   }
-  message += ' Reply CONFIRM or CANCEL. Call 0700-000-000 for support.';
+  message += ' Reply CONFIRM or CANCEL. Call 0712916504 for support.';
 
   return sendSMS(clientPhone, message);
 };
@@ -150,7 +150,7 @@ export const sendBookingReschedule = (referenceNumber, newDateTime, clientPhone)
     hour12: true
   });
 
-  const message = `Theolan Aluminium: Your booking ${referenceNumber} has been rescheduled to ${formattedDate} at ${formattedTime}. Reply CONFIRM or call 0700-000-000.`;
+  const message = `Theolan Aluminium: Your booking ${referenceNumber} has been rescheduled to ${formattedDate} at ${formattedTime}. Reply CONFIRM or call 0712916504.`;
 
   return sendSMS(clientPhone, message);
 };
