@@ -10,9 +10,7 @@ import * as Sentry from '@sentry/node';
 export function initSentry() {
   if (process.env.NODE_ENV === 'production') {
     Sentry.init({
-      dsn:
-        process.env.SENTRY_DSN ||
-        'https://a87103538948c6578e2daa6e6cf2dc24@o4509310465802240.ingest.us.sentry.io/4509366690824192',
+      dsn: process.env.SENTRY_DSN,
       environment: process.env.NODE_ENV || 'development',
       release: process.env.APP_VERSION || '1.0.0',
 
