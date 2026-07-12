@@ -41,6 +41,8 @@ export default function Footer() {
                 { to: "/gallery", label: "Gallery" },
                 { to: "/booking", label: "Book a Visit" },
                 { to: "/quote", label: "Get Quote" },
+                { to: "/privacy-policy", label: "Privacy Policy" },
+                { to: "/terms-of-service", label: "Terms of Service" },
               ].map((link) => (
                 <li key={link.to}>
                   <Link

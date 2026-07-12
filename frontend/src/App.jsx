@@ -27,6 +27,8 @@ import QuotePage from "./pages/QuotePage.jsx";
 import BookingPage from "./pages/BookingPage.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage.jsx";
+import TermsOfServicePage from "./pages/TermsOfServicePage.jsx";
 
 // Client Pages
 import OrdersPage from "./pages/OrdersPage.jsx";
@@ -69,6 +71,8 @@ export default function App() {
         <Route path="/booking" element={<BookingPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms-of-service" element={<TermsOfServicePage />} />
       </Route>
 
       {/* ============================== */}

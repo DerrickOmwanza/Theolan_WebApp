@@ -156,7 +156,15 @@ export default function SignupPage() {
             htmlFor="accept_sms_consent"
             className="text-xs text-silver-400"
           >
-            I agree to receive SMS notifications about my bookings and orders
+            I agree to receive SMS notifications about my bookings and orders.{" "}
+            <Link
+              to="/privacy-policy"
+              target="_blank"
+              className="text-cobalt underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Privacy Policy
+            </Link>
           </label>
         </div>
         {errors.accept_sms_consent && (
