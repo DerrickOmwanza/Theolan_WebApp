@@ -1,0 +1,16 @@
+
+> olanallumint-frontend@1.0.0 test
+> node node_modules/vitest/vitest.mjs --run
+
+
+ RUN  v4.1.9 C:/Users/ADMIN/Web&Standalone Applications/OlanAlumint.web/frontend
+
+ Γ£ô src/__tests__/e2e.test.jsx (18 tests) 137ms
+ Γ£ô src/__tests__/queryHooks.test.jsx (8 tests) 195ms
+ Γ£ô src/__tests__/AuthContext.test.jsx (2 tests) 205ms
+
+ Test Files  3 passed (3)
+      Tests  28 passed (28)
+   Start at  00:58:14
+   Duration  11.64s (transform 768ms, setup 1.73s, import 6.63s, tests 538ms, environment 16.25s)
+

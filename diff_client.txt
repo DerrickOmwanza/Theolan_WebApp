@@ -1,0 +1,20 @@
+diff --git a/frontend/src/layouts/ClientLayout.jsx b/frontend/src/layouts/ClientLayout.jsx
+index beb6064..49e979c 100644
+--- a/frontend/src/layouts/ClientLayout.jsx
++++ b/frontend/src/layouts/ClientLayout.jsx
+@@ -1,6 +1,7 @@
+ import { Outlet, NavLink, Link } from "react-router-dom";
+ import { useState } from "react";
+ import { useAuth } from "../contexts/AuthContext.jsx";
++import WhatsAppButton from "../components/WhatsAppButton.jsx";
+ 
+ const sidebarLinks = [
+   {
+@@ -256,6 +257,7 @@ export default function ClientLayout() {
+         <main className="flex-1 p-4 lg:p-8">
+           <Outlet />
+         </main>
++        <WhatsAppButton />
+       </div>
+     </div>
+   );
