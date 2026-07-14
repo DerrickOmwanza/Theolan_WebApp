@@ -6,67 +6,61 @@ export default function HomePage() {
       title: "Windows",
       desc: "Fixed, sliding, casement, and top-hung aluminium windows",
       cat: "windows",
-      image: "/images/Windows.webp",
+      image: "/media/product_page/windows_fixed_picture_black.webp",
     },
     {
       title: "Doors",
       desc: "Sliding, French, and hinged aluminium doors",
       cat: "doors",
-      image: "/images/Doors.webp",
+      image: "/media/product_page/door-hinged-single.png",
     },
     {
       title: "Curtain Walls",
       desc: "Structural glazing and stick curtain wall systems",
       cat: "curtain_walls",
-      image: "/images/Curtain_Walls.webp",
-    },
-    {
-      title: "Partitions",
-      desc: "Single and double-glazed office partitions",
-      cat: "partitions",
-      image: "/images/Partitions.webp",
+      image: "/media/product_page/curtain-wall-structural.png",
     },
     {
       title: "Balustrades",
       desc: "Frameless glass and post-system balustrades",
       cat: "balustrades",
-      image: "/images/Balustrades.webp",
+      image: "/media/product_page/balustrade-frameless.png",
+    },
+    {
+      title: "Partitions",
+      desc: "Single and double-glazed office partitions",
+      cat: "partitions",
+      image: "/media/product_page/partition-glass-frameless.png",
     },
     {
       title: "Aluminium Fabrications",
       desc: "Custom aluminium fabrication and structural works",
       cat: "aluminium_fabrications",
-      image: "/images/Custom_designs.webp",
+      image: "/media/product_page/cabinetry-kitchen-wardrobe.png",
     },
     {
       title: "Stainless Steel Railings",
       desc: "Premium stainless steel railings and balusters",
       cat: "stainless_steel_railings",
-      image: "/images/Balustrades.webp",
-    },
-    {
-      title: "Frameless Glass & Sunroofs",
-      desc: "Modern frameless glass systems and sunroofs",
-      cat: "frameless_glass",
-      image: "/images/Curtain_Walls.webp",
-    },
-    {
-      title: "Gypsum Walls & Ceilings",
-      desc: "Professional gypsum wall and ceiling installations",
-      cat: "gypsum_ceilings",
-      image: "/images/Partitions.webp",
-    },
-    {
-      title: "Kitchen & Wardrobe Cabinets",
-      desc: "Custom kitchen cabinets and wardrobe solutions",
-      cat: "kitchen_cabinets",
-      image: "/images/Doors.webp",
+      image: "/media/product_page/railings-stainless-steel.png",
     },
     {
       title: "Floor Tiling",
       desc: "Professional floor tiling and installation services",
       cat: "floor_tiling",
-      image: "/images/Windows.webp",
+      image: "/media/product_page/floor-tiling-porcelain.png",
+    },
+    {
+      title: "Gypsum Walls & Ceilings",
+      desc: "Professional gypsum wall and ceiling installations",
+      cat: "gypsum_ceilings",
+      image: "/media/product_page/gypsum-ceiling-led.png",
+    },
+    {
+      title: "Kitchen & Wardrobe Cabinets",
+      desc: "Custom kitchen cabinets and wardrobe solutions",
+      cat: "kitchen_cabinets",
+      image: "/media/product_page/cabinetry-kitchen-wardrobe.png",
     },
   ];
 
@@ -167,52 +161,54 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Products Carousel Section */}
+      {/* Continuous Carousel - Cards slide from right to left */}
       <section className="py-20 bg-charcoal-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-heading font-bold text-warmwhite text-center mb-12">
             Our Products
           </h2>
 
-          {/* Continuous Carousel - Cards slide from right to left */}
+          {/* Infinite Marquee Carousel - Right to Left */}
           <div className="relative h-[320px] sm:h-[380px] overflow-hidden rounded-xl">
-            <div className="relative h-full flex items-center">
-              {/* Left blur fade for smooth entry */}
-              <div className="absolute left-0 top-0 bottom-0 w-12 z-10 bg-gradient-to-r from-charcoal-900 to-transparent pointer-events-none" />
+            {/* Left blur fade for smooth entry */}
+            <div className="absolute left-0 top-0 bottom-0 w-12 z-10 bg-gradient-to-r from-charcoal-900 to-transparent pointer-events-none" />
 
-              {/* Carousel wrapper */}
-              <div className="carousel-container flex items-center h-full py-4">
-                {/* Duplicate products for infinite loop */}
-                {[...products, ...products].map((product, index) => (
-                  <Link
-                    key={`${product.cat}-${index}`}
-                    to={`/products?category=${product.cat}`}
-                    className="product-card flex-shrink-0 w-72 sm:w-80 lg:w-96 h-full mx-3 group"
-                  >
-                    <div className="relative h-full overflow-hidden rounded-xl bg-charcoal-700">
-                      <img
-                        src={product.image}
-                        alt={product.title}
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/95 via-charcoal-800/60 to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-6 text-warmwhite">
-                        <h3 className="text-2xl sm:text-3xl font-heading font-bold mb-2 group-hover:text-cobalt-300 transition-colors">
-                          {product.title}
-                        </h3>
-                        <p className="text-sm sm:text-base text-silver-300">
-                          {product.desc}
-                        </p>
-                      </div>
+            {/* Carousel wrapper */}
+            <div className="carousel-container flex items-center h-full py-4 group">
+              {/* Products list duplicated for seamless infinite loop */}
+              {[...products, ...products].map((product, index) => (
+                <Link
+                  key={`${product.cat}-${index}`}
+                  to={`/products?category=${product.cat}`}
+                  className="product-card flex-shrink-0 w-72 sm:w-80 lg:w-96 h-full mx-3 group"
+                >
+                  <div className="group relative overflow-hidden rounded-xl bg-black shadow-lg transition-transform duration-700 ease-in-out group-hover:shadow-xl">
+                    <img
+                      src={product.image}
+                      alt={product.title}
+                      className="w-full h-full object-cover transition-all duration-700 ease-in-out
+                                 opacity-85 filter brightness-90 contrast-95
+                                 group-hover:opacity-100 group-hover:brightness-105 
+                                 group-hover:contrast-100 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    {/* Dark gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/95 via-charcoal-800/60 to-transparent opacity-100 group-hover:opacity-80 transition-opacity duration-300" />
+                    <div className="absolute bottom-0 left-0 right-0 p-6 text-warmwhite pointer-events-none group-hover:pointer-events-auto">
+                      <h3 className="text-2xl sm:text-3xl font-heading font-bold mb-2 transition-colors duration-300 group-hover:text-cobalt-300">
+                        {product.title}
+                      </h3>
+                      <p className="text-sm sm:text-base text-silver-300">
+                        {product.desc}
+                      </p>
                     </div>
-                  </Link>
-                ))}
-              </div>
-
-              {/* Right blur fade */}
-              <div className="absolute right-0 top-0 bottom-0 w-12 z-10 bg-gradient-to-l from-charcoal-900 to-transparent pointer-events-none" />
+                  </div>
+                </Link>
+              ))}
             </div>
+
+            {/* Right blur fade */}
+            <div className="absolute right-0 top-0 bottom-0 w-12 z-10 bg-gradient-to-l from-charcoal-900 to-transparent pointer-events-none" />
           </div>
         </div>
       </section>

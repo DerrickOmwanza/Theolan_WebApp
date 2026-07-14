@@ -16,6 +16,7 @@ import { productRoutes } from './routes/products.js';
 import { orderRoutes } from './routes/orders.js';
 import { paymentRoutes } from './routes/payments.js';
 import analyticsRoutes from './routes/analytics.js';
+import settingsRoutes from './routes/settings.js';
 import { profileRoutes } from './routes/profile.js';
 import adminRoutes from './routes/admin.js';
 
@@ -222,6 +223,9 @@ app.use('/api/v1/admin', adminRoutes);
 
 // Analytics routes (admin only)
 app.use('/api/v1/admin/analytics', analyticsRoutes);
+
+// Settings routes (admin only)
+app.use('/api/v1/admin/settings', settingsRoutes);
 
 // ============================================================
 // 404 & ERROR HANDLING

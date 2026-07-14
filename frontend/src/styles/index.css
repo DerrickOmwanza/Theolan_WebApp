@@ -271,6 +271,16 @@
       transform: translateX(0);
     }
   }
+
+  /* Premium infinite marquee animation for product carousel */
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
 }
 
 /* Continuous Products Carousel - Right to Left */

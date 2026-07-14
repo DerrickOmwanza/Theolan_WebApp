@@ -265,4 +265,13 @@ export const analyticsApi = {
   getDashboard: () => api.get("/admin/analytics/dashboard"),
 };
 
+// ============================================================
+// API Methods — Settings (Admin)
+// ============================================================
+
+export const settingsApi = {
+  get: () => api.get("/admin/settings"),
+  update: (data) => api.put("/admin/settings", data),
+};
+
 export default api;

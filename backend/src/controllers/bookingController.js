@@ -1,6 +1,7 @@
 import Joi from 'joi';
 import BookingService from '../services/bookingService.js';
-import { asyncHandler, ValidationError } from '../middlewares/errorHandler.js';
+import { asyncHandler } from '../middlewares/errorHandler.js';
+import { validate } from '../utils/validate.js';
 
 // ============================================================
 // Validation Schemas
@@ -63,21 +64,6 @@ const listBookingsQuerySchema = Joi.object({
   limit: Joi.number().integer().min(1).max(100).default(20),
   offset: Joi.number().integer().min(0).default(0)
 });
-
-/**
- * Validate request data against a Joi schema.
- */
-const validate = (schema, data) => {
-  const { error, value } = schema.validate(data, { abortEarly: false, stripUnknown: true });
-  if (error) {
-    const details = error.details.map((d) => ({
-      field: d.context?.key,
-      issue: d.message
-    }));
-    throw new ValidationError(error.details[0].message, details);
-  }
-  return value;
-};
 
 // ============================================================
 // Booking Controller
