@@ -18,6 +18,7 @@ import { paymentRoutes } from './routes/payments.js';
 import analyticsRoutes from './routes/analytics.js';
 import settingsRoutes from './routes/settings.js';
 import { profileRoutes } from './routes/profile.js';
+import { contactRoutes } from './routes/contact.js';
 import adminRoutes from './routes/admin.js';
 
 // Initialize Sentry for error tracking
@@ -217,6 +218,9 @@ app.use('/api/v1/payments', paymentRoutes);
 
 // Profile/User settings routes
 app.use('/api/v1/profile', profileRoutes);
+
+// Contact routes
+app.use('/api/v1/contact', contactRoutes);
 
 // Admin setup routes (one-time use only)
 app.use('/api/v1/admin', adminRoutes);

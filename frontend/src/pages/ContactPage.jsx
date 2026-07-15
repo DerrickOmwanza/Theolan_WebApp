@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { contactApi } from '../services/api.js';
 
 const CONTACT_INFO = [
   {
@@ -44,7 +45,7 @@ const CONTACT_INFO = [
 const FAQS = [
   {
     q: 'How long does a typical installation take?',
-    a: 'Most residential installations (windows/doors) take 1–3 days. Commercial curtain wall projects typically take 2–6 weeks depending on scale.',
+    a: 'Most residential installations (windows/doors) take 1-3 days. Commercial curtain wall projects typically take 2-6 weeks depending on scale.',
   },
   {
     q: 'Do you offer free site visits?',
@@ -69,6 +70,8 @@ export default function ContactPage() {
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState(null);
 
   const handleChange = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -83,12 +86,28 @@ export default function ContactPage() {
     return errs;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-    // In production, this would POST to an API endpoint
-    setSubmitted(true);
+
+    setIsLoading(true);
+    setApiError(null);
+
+    try {
+      await contactApi.create({
+        name: form.name,
+        email: form.email,
+        phone: form.phone || null,
+        subject: form.subject || 'Other',
+        message: form.message
+      });
+      setSubmitted(true);
+    } catch (err) {
+      setApiError(err.response?.data?.message || 'Failed to send message. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -142,13 +161,18 @@ export default function ContactPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <h3 className="text-xl font-heading font-semibold text-warmwhite mb-2">Message Sent!</h3>
-                <p className="text-silver-400 mb-4">Thank you for reaching out. We&apos;ll get back to you within 24 hours.</p>
+                <p className="text-silver-400 mb-4">Thank you for reaching out. We'll get back to you within 24 hours.</p>
                 <button onClick={() => { setSubmitted(false); setForm({ name: '', email: '', phone: '', subject: '', message: '' }); }} className="btn-secondary">
                   Send Another Message
                 </button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="card space-y-5">
+                {apiError && (
+                  <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+                    <p className="text-red-400 text-sm">{apiError}</p>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
                     <label className="input-label">Name *</label>
@@ -160,6 +184,7 @@ export default function ContactPage() {
                       onChange={(e) => handleChange('name', e.target.value)}
                       className={`input-field ${errors.name ? 'border-red-500' : ''}`}
                       placeholder="Your full name"
+                      disabled={isLoading}
                     />
                     {errors.name && <p className="input-error">{errors.name}</p>}
                   </div>
@@ -173,6 +198,7 @@ export default function ContactPage() {
                       onChange={(e) => handleChange('email', e.target.value)}
                       className={`input-field ${errors.email ? 'border-red-500' : ''}`}
                       placeholder="your@email.com"
+                      disabled={isLoading}
                     />
                     {errors.email && <p className="input-error">{errors.email}</p>}
                   </div>
@@ -188,6 +214,7 @@ export default function ContactPage() {
                       onChange={(e) => handleChange('phone', e.target.value)}
                       className="input-field"
                       placeholder="+254 7XX XXX XXX"
+                      disabled={isLoading}
                     />
                   </div>
                   <div>
@@ -198,6 +225,7 @@ export default function ContactPage() {
                       value={form.subject}
                       onChange={(e) => handleChange('subject', e.target.value)}
                       className="input-field"
+                      disabled={isLoading}
                     >
                       <option value="">Select a topic</option>
                       <option value="quote">Request a Quote</option>
@@ -218,10 +246,13 @@ export default function ContactPage() {
                     className={`input-field min-h-[120px] ${errors.message ? 'border-red-500' : ''}`}
                     placeholder="Tell us about your project or question..."
                     rows={4}
+                    disabled={isLoading}
                   />
                   {errors.message && <p className="input-error">{errors.message}</p>}
                 </div>
-                <button type="submit" className="btn-primary w-full sm:w-auto">Send Message</button>
+                <button type="submit" className="btn-primary w-full sm:w-auto" disabled={isLoading}>
+                  {isLoading ? 'Sending...' : 'Send Message'}
+                </button>
               </form>
             )}
           </div>
