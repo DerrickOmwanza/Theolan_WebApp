@@ -8,6 +8,7 @@ import {
 import * as Sentry from "@sentry/react";
 import {
   authApi,
+  profileApi,
   getAccessToken,
   getRefreshToken,
   getStoredUser,
@@ -96,6 +97,27 @@ export function AuthProvider({ children }) {
     return response.data;
   }, []);
 
+  const updateProfile = useCallback(async (updates) => {
+    const response = await profileApi.update(updates);
+    const updatedUser = response.data?.data;
+
+    if (updatedUser) {
+      setUser(updatedUser);
+      setUserState(updatedUser);
+
+      // Update Sentry user context in production
+      if (import.meta.env.PROD) {
+        Sentry.setUser({
+          id: updatedUser.id,
+          phone: updatedUser.phone,
+          role: updatedUser.role
+        });
+      }
+    }
+
+    return response.data;
+  }, []);
+
   const isAuthenticated = !!user && !!getAccessToken();
 
   const value = {
@@ -108,6 +130,7 @@ export function AuthProvider({ children }) {
     logout,
     forgotPassword,
     resetPassword,
+    updateProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

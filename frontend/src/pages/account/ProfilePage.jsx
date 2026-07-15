@@ -5,7 +5,7 @@ import { useAuth } from "../../contexts/AuthContext.jsx";
 import { profileSchema } from "../../utils/validation.js";
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
 
   const {
     register,
@@ -19,9 +19,16 @@ export default function ProfilePage() {
     },
   });
 
-  const onSubmit = async (_data) => {
-    // TODO: Implement profile update API endpoint in backend (Week 5+)
-    toast.success("Profile updated successfully");
+  const onSubmit = async (data) => {
+    try {
+      await updateProfile(data);
+      toast.success("Profile updated successfully");
+    } catch (err) {
+      const message = err.response?.data?.error?.message ||
+                      err.response?.data?.message ||
+                      "Failed to update profile";
+      toast.error(message);
+    }
   };
 
   return (
