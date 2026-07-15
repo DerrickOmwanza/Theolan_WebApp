@@ -14,11 +14,11 @@ export async function up(knex) {
     table.string('subject', 255).notNullable();
     table.text('message').notNullable();
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
-
-    // Indexes for common queries
-    table.raw('CREATE INDEX idx_contact_messages_email ON contact_messages(email)');
-    table.raw('CREATE INDEX idx_contact_messages_created_at ON contact_messages(created_at DESC)');
   });
+
+  // Indexes for common queries
+  await knex.raw('CREATE INDEX idx_contact_messages_email ON contact_messages(email)');
+  await knex.raw('CREATE INDEX idx_contact_messages_created_at ON contact_messages(created_at DESC)');
 }
 
 export async function down(knex) {
