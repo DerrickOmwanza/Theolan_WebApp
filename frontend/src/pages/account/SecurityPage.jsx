@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { changePasswordSchema } from "../../utils/validation.js";
 import LoadingSpinner from "../../components/LoadingSpinner.jsx";
 import { profileApi } from "../../services/api.js";
 
 export default function SecurityPage() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
 
@@ -37,7 +37,8 @@ export default function SecurityPage() {
       });
       toast.success("Password changed successfully. Please log in again.");
       reset();
-      // Force logout - refresh tokens are revoked server-side
+      // Clear localStorage and user state (matches the logout pattern)
+      await logout();
       navigate("/auth/login", { replace: true });
     } catch (err) {
       const message = err.response?.data?.error?.message ||
