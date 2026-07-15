@@ -274,4 +274,13 @@ export const settingsApi = {
   update: (data) => api.put("/admin/settings", data),
 };
 
+// ============================================================
+// API Methods — Profile & Security
+// ============================================================
+
+export const profileApi = {
+  update: (data) => api.patch("/profile/me", data),
+  changePassword: (data) => api.post("/profile/change-password", data),
+};
+
 export default api;

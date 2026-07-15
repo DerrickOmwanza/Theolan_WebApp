@@ -1,13 +1,16 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { changePasswordSchema } from "../../utils/validation.js";
 import LoadingSpinner from "../../components/LoadingSpinner.jsx";
+import { profileApi } from "../../services/api.js";
 
 export default function SecurityPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
 
   const {
@@ -24,14 +27,23 @@ export default function SecurityPage() {
     },
   });
 
-  const onSubmit = async (_data) => {
+  const onSubmit = async (data) => {
     setSubmitting(true);
     try {
-      // TODO: Implement change password API endpoint in backend (Week 5+)
-      toast.success("Password changed successfully");
+      await profileApi.changePassword({
+        current_password: data.current_password,
+        new_password: data.new_password,
+        confirm_password: data.confirm_password,
+      });
+      toast.success("Password changed successfully. Please log in again.");
       reset();
+      // Force logout - refresh tokens are revoked server-side
+      navigate("/auth/login", { replace: true });
     } catch (err) {
-      toast.error("Failed to change password");
+      const message = err.response?.data?.error?.message ||
+                      err.response?.data?.message ||
+                      "Failed to change password";
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
