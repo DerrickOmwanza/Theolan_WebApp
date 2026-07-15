@@ -8,10 +8,10 @@ const updateProfileSchema = Joi.object({
     'string.empty': 'Name is required',
     'string.min': 'Name must be at least 2 characters'
   }),
-  email: Joi.string().email().trim().max(255).required().messages({
+  email: Joi.string().email().trim().max(255).allow(null, '').optional().messages({
     'string.email': 'Must be a valid email'
   }),
-  notification_preference: Joi.string().valid('sms', 'email').required().messages({
+  notification_preference: Joi.string().valid('sms', 'email').optional().messages({
     'any.only': 'Notification preference must be sms or email'
   })
 });
