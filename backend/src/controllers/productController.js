@@ -22,7 +22,7 @@ const CATEGORIES = [
   'kitchen_cabinets',
   'floor_tiling'
 ];
-const FINISHES = ['mill', 'silver', 'black', 'champagne', 'bronze'];
+const FINISHES = ['mill', 'silver', 'black', 'champagne', 'bronze', 'clear', 'brushed', 'white', 'wood_effect', 'natural'];
 const SORT_OPTIONS = ['price_asc', 'price_desc', 'name'];
 
 // ============================================================

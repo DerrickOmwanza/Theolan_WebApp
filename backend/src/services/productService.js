@@ -11,7 +11,12 @@ const FINISH_MULTIPLIERS = {
   silver: 1.05,
   black: 1.15,
   champagne: 1.1,
-  bronze: 1.12
+  bronze: 1.12,
+  clear: 1.0,
+  brushed: 1.05,
+  white: 1.02,
+  wood_effect: 1.10,
+  natural: 1.0
 };
 
 // ============================================================
@@ -99,6 +104,7 @@ const QuoteService = {
         finish: finish,
         double_glazing: double_glazing,
         subtotal_kes: subtotal_kes,
+        estimate_kes: subtotal_kes,
         estimate_min_kes: estimate_min_kes,
         estimate_max_kes: estimate_max_kes,
         estimate_range_kes: {
