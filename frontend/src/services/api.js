@@ -214,9 +214,14 @@ export const productApi = {
   getGallery: (params) => api.get("/products/gallery", { params }),
   uploadGallery: (data) => {
     // Handle both FormData (file upload) and JSON (URL upload)
-    // Do NOT set Content-Type for FormData - let axios set it with the correct boundary
+    // For FormData: clear Content-Type so axios can auto-set multipart/form-data with boundary
+    // For JSON: use default Content-Type: application/json
     if (data instanceof FormData) {
-      return api.post("/products/gallery", data);
+      // Set Content-Type to undefined to prevent the default 'application/json'
+      // This allows axios to automatically set the correct multipart/form-data with boundary
+      return api.post("/products/gallery", data, {
+        headers: { "Content-Type": undefined }
+      });
     }
     return api.post("/products/gallery", data);
   },
