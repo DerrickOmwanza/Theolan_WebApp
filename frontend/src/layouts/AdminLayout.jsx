@@ -33,6 +33,11 @@ const adminSidebarLinks = [
     label: "Gallery",
     icon: "M4 16l4.5-4.5L12 16l7-7M4 16h16M4 16a2 2 0 112-2h12a2 2 0 112 2v6a2 2 0 11-2 2H6a2 2 0 11-2-2v-6z",
   },
+  {
+    to: "/admin/products",
+    label: "Products",
+    icon: "M3 7h18M3 11h18M3 15h18M3 19h18M9 7v10M15 7v10",
+  },
 ];
 
 export default function AdminLayout() {

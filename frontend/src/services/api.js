@@ -227,6 +227,21 @@ export const productApi = {
   },
   deleteGallery: (id) => api.delete(`/products/gallery/${id}`),
   updateGallery: (id, data) => api.patch(`/products/gallery/${id}`, data),
+  // Admin product CRUD
+  getAllProducts: () => api.get("/products/admin"),
+  createProduct: (data) => {
+    if (data instanceof FormData) {
+      return api.post("/products", data, { headers: { "Content-Type": undefined } });
+    }
+    return api.post("/products", data);
+  },
+  updateProduct: (id, data) => {
+    if (data instanceof FormData) {
+      return api.patch(`/products/${id}`, data, { headers: { "Content-Type": undefined } });
+    }
+    return api.patch(`/products/${id}`, data);
+  },
+  deleteProduct: (id) => api.delete(`/products/${id}`),
 };
 
 // ============================================================
