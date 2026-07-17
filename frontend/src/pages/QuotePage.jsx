@@ -90,11 +90,13 @@ export default function QuotePage() {
     queryFn: () => productApi.list({ limit: 100 }),
   });
   
-  // Combine API products with local products
-  const apiProducts = productsData?.data?.data || [];
-  const localProductsById = {};
-  LOCAL_PRODUCTS.forEach(p => { localProductsById[p.id] = p; });
-  const products = [...apiProducts, ...Object.values(localProductsById).filter(p => !apiProducts.find(ap => ap.id === p.id))];
+  // Combine API products with local products (memoized to prevent useMemo dependency issues)
+  const products = useMemo(() => {
+    const apiProducts = productsData?.data?.data || [];
+    const localProductsById = {};
+    LOCAL_PRODUCTS.forEach(p => { localProductsById[p.id] = p; });
+    return [...apiProducts, ...Object.values(localProductsById).filter(p => !apiProducts.find(ap => ap.id === p.id))];
+  }, [productsData]);
 
   // Auto-populate form from URL params on mount
   useEffect(() => {
@@ -143,10 +145,13 @@ export default function QuotePage() {
 
     const product = products.find(p => p.id === product_id) || 
                    LOCAL_PRODUCTS.find(p => p.id === product_id);
-    const basePrice = product?.base_price_per_sqm_kes || 0;
+    const basePrice = product?.base_price_per_sqm_kes || product?.base_price || 0;
     const finishRecord = FINISHES.find(f => f.value === finish);
     const finishMultiplier = finishRecord?.multiplier || 1.0;
-    const glazingMultiplier = double_glazing ? 1.35 : 1.0;
+    // Use real double_glazing_multiplier from product_rates if available (API), or fall back to 1.35 (LOCAL_PRODUCTS)
+    const glazingMultiplier = double_glazing 
+      ? (product?.double_glazing_multiplier || 1.35) 
+      : 1.0;
     const area = Number(width_meters) * Number(height_meters);
     const total = area * basePrice * Number(quantity) * finishMultiplier * glazingMultiplier;
 

@@ -132,15 +132,26 @@ const ProductService = {
   getProducts: async (options) => {
     const { data, total } = await ProductModel.findProducts(options);
 
-    const products = data.map((p) => ({
-      id: p.id,
-      name: p.name,
-      category: p.category,
-      finish: p.finish,
-      description: p.description,
-      base_price_per_sqm_kes: parseFloat(p.base_price_per_sqm_kes),
-      image_url: p.image_url
-    }));
+    // Fetch current rates for all products to include double_glazing_multiplier
+    const rates = await ProductModel.getAllCurrentRates();
+    const ratesMap = {};
+    if (rates.rows) {
+      rates.rows.forEach(r => { ratesMap[r.product_id] = r; });
+    }
+
+    const products = data.map((p) => {
+      const rate = ratesMap[p.id];
+      return {
+        id: p.id,
+        name: p.name,
+        category: p.category,
+        finish: p.finish,
+        description: p.description,
+        base_price_per_sqm_kes: parseFloat(p.base_price_per_sqm_kes),
+        double_glazing_multiplier: rate ? parseFloat(rate.double_glazing_multiplier) : 1.35,
+        image_url: p.image_url
+      };
+    });
 
     return {
       success: true,
