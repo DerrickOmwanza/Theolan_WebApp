@@ -2,7 +2,7 @@ import Joi from 'joi';
 import path from 'path';
 import { QuoteService, ProductService } from '../services/productService.js';
 import { asyncHandler, ValidationError } from '../middlewares/errorHandler.js';
-import { uploadImage, uploadVideo } from '../services/cloudinary.js';
+import { uploadImage } from '../services/cloudinary.js';
 import logger from '../middlewares/logger.js';
 
 // ============================================================
@@ -99,6 +99,38 @@ const updateGallerySchema = Joi.object({
   project_name: Joi.string().trim().max(255).allow('', null).optional(),
   location: Joi.string().trim().max(255).allow('', null).optional(),
   description: Joi.string().trim().max(2000).allow('', null).optional(),
+  published: Joi.boolean().optional()
+});
+
+const createProductSchema = Joi.object({
+  name: Joi.string().trim().max(255).required(),
+  category: Joi.string()
+    .valid(...CATEGORIES)
+    .required()
+    .messages({ 'any.only': 'Category must be one of: ' + CATEGORIES.join(', ') }),
+  finish: Joi.string()
+    .valid(...FINISHES)
+    .required()
+    .messages({ 'any.only': 'Finish must be one of: ' + FINISHES.join(', ') }),
+  description: Joi.string().trim().max(2000).allow('', null).optional(),
+  base_price_per_sqm_kes: Joi.number().positive().required(),
+  image_url: Joi.string().uri().max(500).allow('').optional(),
+  published: Joi.boolean().optional().default(true)
+});
+
+const updateProductSchema = Joi.object({
+  name: Joi.string().trim().max(255).optional(),
+  category: Joi.string()
+    .valid(...CATEGORIES)
+    .optional()
+    .messages({ 'any.only': 'Category must be one of: ' + CATEGORIES.join(', ') }),
+  finish: Joi.string()
+    .valid(...FINISHES)
+    .optional()
+    .messages({ 'any.only': 'Finish must be one of: ' + FINISHES.join(', ') }),
+  description: Joi.string().trim().max(2000).allow('', null).optional(),
+  base_price_per_sqm_kes: Joi.number().positive().optional(),
+  image_url: Joi.string().uri().max(500).allow('').optional(),
   published: Joi.boolean().optional()
 });
 
@@ -271,6 +303,173 @@ const ProductController = {
   updateGalleryPhoto: asyncHandler(async (req, res) => {
     const data = validate(updateGallerySchema, req.body);
     const result = await ProductService.updateGalleryPhoto(req.params.id, data);
+    res.status(200).json(result);
+  }),
+
+  // ============================================================
+  // Product CRUD (Admin)
+  // ============================================================
+
+  /**
+   * POST /api/v1/products
+   * Create a new product (admin only).
+   * Supports both file upload and direct image_url.
+   * @access Private (admin)
+   */
+  createProduct: asyncHandler(async (req, res) => {
+    const data = validate(createProductSchema, req.body);
+
+    let imageUrl = data.image_url;
+
+    // Handle file upload if present
+    if (req.file) {
+      const tempFilePath = req.file.path;
+      let uploadError = null;
+
+      try {
+        const result = await uploadImage(tempFilePath, {
+          folder: 'theolan/products',
+          resource_type: 'auto'
+        });
+
+        if (!result.success) {
+          throw new ValidationError('Failed to upload image to Cloudinary');
+        }
+
+        imageUrl = result.url;
+
+        logger.info('Product image uploaded to Cloudinary', {
+          url: imageUrl,
+          productId: data.name,
+          fileSize: req.file.size
+        });
+      } catch (error) {
+        uploadError = error;
+      } finally {
+        // Cleanup temp file
+        try {
+          const fs = await import('fs');
+          if (fs.existsSync(tempFilePath)) {
+            fs.unlinkSync(tempFilePath);
+          }
+        } catch (cleanupErr) {
+          logger.warn('Failed to cleanup temp file', {
+            filePath: tempFilePath,
+            error: cleanupErr.message
+          });
+        }
+      }
+
+      if (uploadError) {
+        throw uploadError;
+      }
+    }
+
+    // Create product
+    const product = await ProductService.createProduct({
+      ...data,
+      image_url: imageUrl
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Product created successfully',
+      data: product
+    });
+  }),
+
+  /**
+   * GET /api/v1/products/admin
+   * List all products (including unpublished) for admin view.
+   * @access Private (admin)
+   */
+  getAllProducts: asyncHandler(async (req, res) => {
+    const result = await ProductService.getAllProducts();
+    res.status(200).json(result);
+  }),
+
+  /**
+   * PATCH /api/v1/products/:id
+   * Update a product (admin only).
+   * Supports both file upload and direct image_url.
+   * @access Private (admin)
+   */
+  updateProduct: asyncHandler(async (req, res) => {
+    const data = validate(updateProductSchema, req.body);
+
+    let imageUrl = data.image_url;
+
+    // Handle file upload if present (replaces existing image)
+    if (req.file) {
+      const tempFilePath = req.file.path;
+      let uploadError = null;
+
+      try {
+        const result = await uploadImage(tempFilePath, {
+          folder: 'theolan/products',
+          resource_type: 'auto'
+        });
+
+        if (!result.success) {
+          throw new ValidationError('Failed to upload image to Cloudinary');
+        }
+
+        imageUrl = result.url;
+
+        logger.info('Product image updated in Cloudinary', {
+          url: imageUrl,
+          updateId: req.params.id,
+          fileSize: req.file.size
+        });
+      } catch (error) {
+        uploadError = error;
+      } finally {
+        // Cleanup temp file
+        try {
+          const fs = await import('fs');
+          if (fs.existsSync(tempFilePath)) {
+            fs.unlinkSync(tempFilePath);
+          }
+        } catch (cleanupErr) {
+          logger.warn('Failed to cleanup temp file', {
+            filePath: tempFilePath,
+            error: cleanupErr.message
+          });
+        }
+      }
+
+      if (uploadError) {
+        throw uploadError;
+      }
+    }
+
+    // Build update object (only include fields that are present)
+    const updateData = {};
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.category !== undefined) updateData.category = data.category;
+    if (data.finish !== undefined) updateData.finish = data.finish;
+    if (data.description !== undefined) updateData.description = data.description;
+    if (data.base_price_per_sqm_kes !== undefined) updateData.base_price_per_sqm_kes = data.base_price_per_sqm_kes;
+    if (data.published !== undefined) updateData.published = data.published;
+    if (imageUrl !== undefined) updateData.image_url = imageUrl;
+
+    const product = await ProductService.updateProduct(req.params.id, updateData);
+    res.status(200).json({
+      success: true,
+      message: 'Product updated successfully',
+      data: product
+    });
+  }),
+
+  /**
+   * DELETE /api/v1/products/:id
+   * Delete a product (admin only).
+   * Also deletes Cloudinary image if present.
+   * Note: product_rates row is auto-deleted via FK CASCADE.
+   * @access Private (admin)
+   */
+  deleteProduct: asyncHandler(async (req, res) => {
+    const result = await ProductService.deleteProduct(req.params.id);
     res.status(200).json(result);
   })
 };

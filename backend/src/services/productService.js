@@ -333,6 +333,135 @@ const ProductService = {
         published: updated.published
       }
     };
+  },
+
+  // ============================================================
+  // Product CRUD (Admin)
+  // ============================================================
+
+  /**
+   * Create a new product.
+   *
+   * @param {Object} data - Product data
+   * @returns {Promise<Object>} Created product
+   */
+  createProduct: async (data) => {
+    const [product] = await ProductModel.createProduct(data);
+    logger.info('Product created', { productId: product.id, name: product.name });
+    return product;
+  },
+
+  /**
+   * Get ALL products (including unpublished) for admin view.
+   *
+   * @returns {Promise<Object>} All products
+   */
+  getAllProducts: async () => {
+    const data = await ProductModel.findAllProducts();
+    const products = data.map((p) => ({
+      id: p.id,
+      name: p.name,
+      category: p.category,
+      finish: p.finish,
+      description: p.description,
+      base_price_per_sqm_kes: parseFloat(p.base_price_per_sqm_kes),
+      image_url: p.image_url,
+      published: p.published,
+      created_at: p.created_at,
+      updated_at: p.updated_at
+    }));
+    return {
+      success: true,
+      data: products,
+      count: products.length
+    };
+  },
+
+  /**
+   * Update a product (partial update allowed).
+   *
+   * @param {string} productId - Product UUID
+   * @param {Object} updates - Fields to update
+   * @returns {Promise<Object>} Updated product
+   */
+  updateProduct: async (productId, updates) => {
+    const [product] = await ProductModel.updateProduct(productId, updates);
+    if (!product) {
+      throw new NotFoundError('Product not found');
+    }
+    logger.info('Product updated', { productId });
+    return product;
+  },
+
+  /**
+   * Delete a product (admin only).
+   * Also deletes Cloudinary image if present.
+   * product_rates row is auto-deleted via FK CASCADE.
+   *
+   * @param {string} productId - Product UUID
+   * @returns {Promise<Object>} Success response
+   */
+  deleteProduct: async (productId) => {
+    // Dynamic import to avoid circular deps
+    const { deleteImage } = await import('./cloudinary.js');
+
+    // Fetch the product record BEFORE deletion to get image_url
+    const product = await ProductModel.findProductById(productId);
+    if (!product) {
+      throw new NotFoundError('Product not found');
+    }
+
+    // Delete from database (model returns deleted record)
+    // product_rates row is auto-deleted via ON DELETE CASCADE FK
+    await ProductModel.deleteProduct(productId);
+
+    // Handle Cloudinary cleanup for product image (non-blocking)
+    if (product.image_url) {
+      const isCloudinaryUrl = product.image_url.startsWith('http') && product.image_url.includes('cloudinary');
+
+      if (isCloudinaryUrl) {
+        try {
+          const urlParts = product.image_url.split('/');
+          const uploadIndex = urlParts.findIndex((part, i) => 
+            i > 0 && urlParts[i-1] === 'upload'
+          );
+          
+          if (uploadIndex !== -1 && uploadIndex < urlParts.length - 1) {
+            const publicIdWithExtension = urlParts.slice(uploadIndex + 1).join('/');
+            const dotIndex = publicIdWithExtension.lastIndexOf('.');
+            const publicId = dotIndex > -1 ? publicIdWithExtension.substring(0, dotIndex) : publicIdWithExtension;
+
+            // Non-blocking Cloudinary deletion
+            deleteImage(publicId).catch((err) => {
+              logger.warn('Cloudinary delete failed for product image (non-blocking)', {
+                productId,
+                publicId,
+                error: err.message
+              });
+            });
+
+            logger.info('Scheduled Cloudinary deletion for product image', { productId, publicId });
+          }
+        } catch (err) {
+          logger.warn('Failed to extract/execute Cloudinary delete for product', {
+            productId,
+            image_url: product.image_url,
+            error: err.message
+          });
+        }
+      }
+    }
+
+    logger.info('Product deleted', { productId });
+
+    return {
+      success: true,
+      message: 'Product deleted successfully',
+      data: {
+        id: productId,
+        name: product.name
+      }
+    };
   }
 };
 

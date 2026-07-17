@@ -187,6 +187,60 @@ const ProductModel = {
       .update(updates)
       .returning('*');
     return photo;
+  },
+
+  // ============================================================
+  // Product CRUD (Admin)
+  // ============================================================
+
+  /**
+   * Create a new product.
+   * @param {Object} data - Product data
+   * @returns {Promise<Array>} - Returns array with created record
+   */
+  createProduct: async (data) => {
+    return db('products').insert(data).returning('*');
+  },
+
+  /**
+   * Find ALL products (including unpublished) for admin view.
+   * @returns {Promise<Array>} - All product records
+   */
+  findAllProducts: async () => {
+    return db('products').select('*').orderBy('category').orderBy('name');
+  },
+
+  /**
+   * Find a product by ID (any published status).
+   * @param {string} id - Product UUID
+   * @returns {Promise<Object|null>}
+   */
+  findProductById: async (id) => {
+    return db('products').where({ id }).first();
+  },
+
+  /**
+   * Update a product (partial update).
+   * @param {string} id - Product UUID
+   * @param {Object} updates - Fields to update
+   * @returns {Promise<Array>} - Returns array with updated record
+   */
+  updateProduct: async (id, updates) => {
+    return db('products')
+      .where({ id })
+      .update({ ...updates, updated_at: db.fn.now() })
+      .returning('*');
+  },
+
+  /**
+   * Delete a product.
+   * Note: product_rates row will be auto-deleted via ON DELETE CASCADE FK.
+   * @param {string} id - Product UUID
+   * @returns {Promise<void>}
+   */
+  deleteProduct: async (id) => {
+    await db('products').where({ id }).del();
+    // product_rates deleted automatically via FK CASCADE
   }
 };
 
