@@ -79,8 +79,10 @@ Desktop.ini
 
 # ============================================================
 # Gallery Images (large files, keep local)
+# Note: images/ at repo root is for gallery uploads only
+# frontend/public/images/ is for web-accessible assets (hero images, logos)
 # ============================================================
-images/
+/images/
 backend/uploads/gallery/
 backend/uploads/*.jpg
 backend/uploads/*.jpeg
