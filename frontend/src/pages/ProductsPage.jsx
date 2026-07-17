@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { productApi } from "../services/api.js";
@@ -112,6 +112,38 @@ export default function ProductsPage() {
     params.set("category", product.category);
     params.set("finish", product.finish || "bronze");
     navigate(`/quote?${params.toString()}`);
+  };
+
+  // Modal state for full product details
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const openModal = (product) => {
+    setSelectedProduct(product);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setSelectedProduct(null);
+  };
+
+  // Handle escape key for modal
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape" && modalOpen) {
+        closeModal();
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [modalOpen]);
+
+  // Handle click outside modal
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      closeModal();
+    }
   };
 
   if (isLoading) {
@@ -341,9 +373,19 @@ export default function ProductsPage() {
                     </div>
 
                     {product.description && (
-                      <p className="text-sm text-silver-400 mb-3 line-clamp-2">
-                        {product.description}
-                      </p>
+                      <>
+                        <p className="text-sm text-silver-400 mb-2 line-clamp-2">
+                          {product.description}
+                        </p>
+                        {product.description.length > 120 && (
+                          <button
+                            onClick={() => openModal(product)}
+                            className="text-xs text-cobalt-400 hover:text-cobalt-300 underline"
+                          >
+                            Read More
+                          </button>
+                        )}
+                      </>
                     )}
 
                     {/* Price & CTA */}
@@ -392,6 +434,102 @@ export default function ProductsPage() {
           </>
         )}
       </section>
+
+      {/* Product Details Modal */}
+      {selectedProduct && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={handleBackdropClick}
+        >
+          <div
+            className="bg-charcoal-800 rounded-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b border-charcoal-600">
+              <h3 className="text-lg font-heading font-semibold text-warmwhite">
+                {selectedProduct.name}
+              </h3>
+              <button
+                onClick={closeModal}
+                className="text-silver-400 hover:text-warmwhite transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-4">
+              {/* Product Image */}
+              <div className="relative h-48 mb-4 rounded-lg overflow-hidden bg-charcoal-700">
+                <img
+                  src={selectedProduct.image || PLACEHOLDER_IMAGE}
+                  alt={selectedProduct.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              {/* Product Details */}
+              <div className="mb-4">
+                <div className="flex flex-wrap gap-2 mb-2">
+                  <span className="badge bg-charcoal-600 text-silver-300 capitalize text-xs">
+                    {selectedProduct.category?.replace("_", " ")}
+                  </span>
+                  {selectedProduct.finish && (
+                    <span className="badge bg-charcoal-600 text-silver-300 capitalize text-xs">
+                      {selectedProduct.finish}
+                    </span>
+                  )}
+                  {selectedProduct.published === false && (
+                    <span className="badge bg-red-900/30 text-red-300 capitalize text-xs">
+                      Unpublished
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Description */}
+              {selectedProduct.description && (
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-silver-300 mb-2">Description</h4>
+                  <p className="text-sm text-warmwhite leading-relaxed">
+                    {selectedProduct.description}
+                  </p>
+                </div>
+              )}
+
+              {/* Price */}
+              <div className="mb-6">
+                <p className="text-xs text-silver-500 mb-1">Price per m²</p>
+                <p className="text-2xl font-semibold text-gold-400">
+                  KES {Number(selectedProduct.base_price_per_sqm_kes).toLocaleString()}
+                </p>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex gap-3 p-4 border-t border-charcoal-600">
+              <button
+                onClick={closeModal}
+                className="flex-1 btn-secondary"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  closeModal();
+                  handleGetQuote(selectedProduct);
+                }}
+                className="flex-1 btn-primary"
+              >
+                Get Quote
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
