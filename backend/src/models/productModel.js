@@ -241,6 +241,49 @@ const ProductModel = {
   deleteProduct: async (id) => {
     await db('products').where({ id }).del();
     // product_rates deleted automatically via FK CASCADE
+  },
+
+  // ============================================================
+  // Product Rates (Admin)
+  // ============================================================
+
+  /**
+   * Create a product rate for a newly created product.
+   * Called automatically after product creation to ensure quotability.
+   * @param {string} productId - Product UUID
+   * @param {number} baseRate - base_rate_per_sqm_kes
+   * @param {number} doubleGlazingMultiplier - Default 1.35
+   * @param {number} finishMultiplier - Default 1.0
+   * @returns {Promise<Object>} Created rate record
+   */
+  createProductRate: async (productId, baseRate, doubleGlazingMultiplier = 1.35, finishMultiplier = 1.0) => {
+    const [rate] = await db('product_rates').insert({
+      product_id: productId,
+      base_rate_per_sqm_kes: baseRate,
+      double_glazing_multiplier: doubleGlazingMultiplier,
+      finish_multiplier: finishMultiplier,
+      effective_from: db.fn.now()
+    }).returning('*');
+    return rate;
+  },
+
+  /**
+   * Update a product's rate (when price changes).
+   * Creates a new rate row with new effective_from date.
+   * @param {string} productId - Product UUID
+   * @param {number} baseRate - New base_rate_per_sqm_kes
+   * @returns {Promise<Object>} Created rate record
+   */
+  createProductRateVersion: async (productId, baseRate) => {
+    const [rate] = await db('product_rates').insert({
+      product_id: productId,
+      base_rate_per_sqm_kes: baseRate,
+      double_glazing_multiplier: 1.35,
+      finish_multiplier: 1.0,
+      effective_from: db.fn.now()
+    }).returning('*');
+    logger.info('New product rate created (versioned)', { productId, baseRate });
+    return rate;
   }
 };
 

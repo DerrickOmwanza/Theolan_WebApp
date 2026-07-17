@@ -340,15 +340,31 @@ const ProductService = {
   // ============================================================
 
   /**
-   * Create a new product.
+   * Create a new product AND its initial product_rates row.
+   * Both must be created atomically for the product to be quotable.
    *
-   * @param {Object} data - Product data
-   * @returns {Promise<Object>} Created product
+   * @param {Object} data - Product data (name, category, finish, etc.)
+   * @returns {Promise<Object>} Object with product and rate
    */
   createProduct: async (data) => {
+    // Start transaction-like behavior via chained operations
     const [product] = await ProductModel.createProduct(data);
-    logger.info('Product created', { productId: product.id, name: product.name });
-    return product;
+    
+    // Create initial rate row with sensible defaults
+    const rate = await ProductModel.createProductRate(
+      product.id,
+      data.base_price_per_sqm_kes,
+      1.35,  // default double_glazing_multiplier
+      1.0    // default finish_multiplier
+    );
+    
+    logger.info('Product created with initial rate', { 
+      productId: product.id, 
+      name: product.name,
+      baseRate: rate.base_rate_per_sqm_kes 
+    });
+    
+    return { product, rate };
   },
 
   /**
@@ -379,6 +395,7 @@ const ProductService = {
 
   /**
    * Update a product (partial update allowed).
+   * If base_price_per_sqm_kes changes, a new product_rates version is created.
    *
    * @param {string} productId - Product UUID
    * @param {Object} updates - Fields to update
@@ -389,7 +406,13 @@ const ProductService = {
     if (!product) {
       throw new NotFoundError('Product not found');
     }
-    logger.info('Product updated', { productId });
+    
+    // If base_price_per_sqm_kes changed, create new rate version
+    if (updates.base_price_per_sqm_kes !== undefined) {
+      await ProductModel.createProductRateVersion(productId, updates.base_price_per_sqm_kes);
+    }
+    
+    logger.info('Product updated', { productId, updatedFields: Object.keys(updates) });
     return product;
   },
 

@@ -2,7 +2,7 @@ import Joi from 'joi';
 import path from 'path';
 import { QuoteService, ProductService } from '../services/productService.js';
 import { asyncHandler, ValidationError } from '../middlewares/errorHandler.js';
-import { uploadImage } from '../services/cloudinary.js';
+import { uploadImage, uploadVideo } from '../services/cloudinary.js';
 import logger from '../middlewares/logger.js';
 
 // ============================================================
@@ -14,13 +14,7 @@ const CATEGORIES = [
   'doors', 
   'curtain_walls', 
   'partitions', 
-  'balustrades',
-  'aluminium_fabrications',
-  'stainless_steel_railings',
-  'frameless_glass',
-  'gypsum_ceilings',
-  'kitchen_cabinets',
-  'floor_tiling'
+  'balustrades'
 ];
 const FINISHES = ['mill', 'silver', 'black', 'champagne', 'bronze', 'clear', 'brushed', 'white', 'wood_effect', 'natural'];
 const SORT_OPTIONS = ['price_asc', 'price_desc', 'name'];
@@ -365,8 +359,8 @@ const ProductController = {
       }
     }
 
-    // Create product
-    const product = await ProductService.createProduct({
+    // Create product with initial rates
+    const { product, rate } = await ProductService.createProduct({
       ...data,
       image_url: imageUrl
     });
@@ -374,7 +368,16 @@ const ProductController = {
     res.status(201).json({
       success: true,
       message: 'Product created successfully',
-      data: product
+      data: {
+        product,
+        rate: {
+          id: rate.id,
+          base_rate_per_sqm_kes: parseFloat(rate.base_rate_per_sqm_kes),
+          double_glazing_multiplier: parseFloat(rate.double_glazing_multiplier),
+          finish_multiplier: parseFloat(rate.finish_multiplier),
+          effective_from: rate.effective_from
+        }
+      }
     });
   }),
 
