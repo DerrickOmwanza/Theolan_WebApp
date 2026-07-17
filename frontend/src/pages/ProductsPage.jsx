@@ -377,7 +377,7 @@ export default function ProductsPage() {
                         <p className="text-sm text-silver-400 mb-2 line-clamp-2">
                           {product.description}
                         </p>
-                        {product.description.endsWith("...") && (
+                        {product.description.length > 90 && (
                           <button
                             onClick={() => openModal(product)}
                             className="text-xs text-cobalt-400 hover:text-cobalt-300 underline"
