@@ -1,7 +1,8 @@
 import Joi from 'joi';
 import path from 'path';
 import { QuoteService, ProductService } from '../services/productService.js';
-import { asyncHandler, ValidationError } from '../middlewares/errorHandler.js';
+import ProductModel from '../models/productModel.js';
+import { asyncHandler, ValidationError, NotFoundError } from '../middlewares/errorHandler.js';
 import { uploadImage, uploadVideo } from '../services/cloudinary.js';
 import logger from '../middlewares/logger.js';
 
@@ -14,7 +15,12 @@ const CATEGORIES = [
   'doors', 
   'curtain_walls', 
   'partitions', 
-  'balustrades'
+  'balustrades',
+  'stainless_steel_railings',
+  'frameless_glass',
+  'gypsum_ceilings',
+  'kitchen_cabinets',
+  'floor_tiling'
 ];
 const FINISHES = ['mill', 'silver', 'black', 'champagne', 'bronze', 'clear', 'brushed', 'white', 'wood_effect', 'natural'];
 const SORT_OPTIONS = ['price_asc', 'price_desc', 'name'];
@@ -395,12 +401,21 @@ const ProductController = {
    * PATCH /api/v1/products/:id
    * Update a product (admin only).
    * Supports both file upload and direct image_url.
+   * Deletes old Cloudinary image when replacing with new one.
    * @access Private (admin)
    */
   updateProduct: asyncHandler(async (req, res) => {
+    // Fetch existing product to get old image_url for cleanup
+    const existingProduct = await ProductModel.findProductById(req.params.id);
+    if (!existingProduct) {
+      throw new NotFoundError('Product not found');
+    }
+    const oldImageUrl = existingProduct.image_url;
+
     const data = validate(updateProductSchema, req.body);
 
     let imageUrl = data.image_url;
+    let newImageUrl = null;
 
     // Handle file upload if present (replaces existing image)
     if (req.file) {
@@ -418,8 +433,9 @@ const ProductController = {
         }
 
         imageUrl = result.url;
+        newImageUrl = result.url;
 
-        logger.info('Product image updated in Cloudinary', {
+        logger.info('Product image uploaded to Cloudinary', {
           url: imageUrl,
           updateId: req.params.id,
           fileSize: req.file.size
@@ -457,6 +473,47 @@ const ProductController = {
     if (imageUrl !== undefined) updateData.image_url = imageUrl;
 
     const product = await ProductService.updateProduct(req.params.id, updateData);
+    
+    // Clean up old Cloudinary image if a new one was uploaded
+    if (newImageUrl && oldImageUrl) {
+      const isCloudinaryUrl = oldImageUrl.startsWith('http') && oldImageUrl.includes('cloudinary');
+      if (isCloudinaryUrl) {
+        try {
+          const urlParts = oldImageUrl.split('/');
+          const uploadIndex = urlParts.findIndex((part, i) => 
+            i > 0 && urlParts[i-1] === 'upload'
+          );
+          
+          if (uploadIndex !== -1 && uploadIndex < urlParts.length - 1) {
+            const publicIdWithExtension = urlParts.slice(uploadIndex + 1).join('/');
+            const dotIndex = publicIdWithExtension.lastIndexOf('.');
+            const publicId = dotIndex > -1 ? publicIdWithExtension.substring(0, dotIndex) : publicIdWithExtension;
+            
+            // Non-blocking Cloudinary deletion
+            const { deleteImage } = await import('./cloudinary.js');
+            deleteImage(publicId).catch(err => {
+              logger.warn('Cloudinary delete failed for old product image (non-blocking)', {
+                productId: req.params.id,
+                oldPublicId: publicId,
+                error: err.message
+              });
+            });
+            
+            logger.info('Deleting old product image from Cloudinary', {
+              productId: req.params.id,
+              oldPublicId: publicId
+            });
+          }
+        } catch (err) {
+          logger.warn('Failed to extract/execute Cloudinary delete for old image', {
+            productId: req.params.id,
+            oldImageUrl,
+            error: err.message
+          });
+        }
+      }
+    }
+    
     res.status(200).json({
       success: true,
       message: 'Product updated successfully',

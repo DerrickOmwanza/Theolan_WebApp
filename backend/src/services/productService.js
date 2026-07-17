@@ -395,7 +395,7 @@ const ProductService = {
 
   /**
    * Update a product (partial update allowed).
-   * If base_price_per_sqm_kes changes, a new product_rates version is created.
+   * If base_price_per_sqm_kes changes, updates product_rates in place.
    *
    * @param {string} productId - Product UUID
    * @param {Object} updates - Fields to update
@@ -407,9 +407,9 @@ const ProductService = {
       throw new NotFoundError('Product not found');
     }
     
-    // If base_price_per_sqm_kes changed, create new rate version
+    // If base_price_per_sqm_kes changed, update product_rates in place
     if (updates.base_price_per_sqm_kes !== undefined) {
-      await ProductModel.createProductRateVersion(productId, updates.base_price_per_sqm_kes);
+      await ProductModel.updateProductRate(productId, updates.base_price_per_sqm_kes);
     }
     
     logger.info('Product updated', { productId, updatedFields: Object.keys(updates) });

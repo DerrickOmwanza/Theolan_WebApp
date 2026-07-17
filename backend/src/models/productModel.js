@@ -268,21 +268,17 @@ const ProductModel = {
   },
 
   /**
-   * Update a product's rate (when price changes).
-   * Creates a new rate row with new effective_from date.
+   * Update a product's rate in place.
+   * Used when product price changes.
    * @param {string} productId - Product UUID
    * @param {number} baseRate - New base_rate_per_sqm_kes
-   * @returns {Promise<Object>} Created rate record
+   * @returns {Promise<Object>} Updated rate record
    */
-  createProductRateVersion: async (productId, baseRate) => {
-    const [rate] = await db('product_rates').insert({
-      product_id: productId,
-      base_rate_per_sqm_kes: baseRate,
-      double_glazing_multiplier: 1.35,
-      finish_multiplier: 1.0,
-      effective_from: db.fn.now()
-    }).returning('*');
-    logger.info('New product rate created (versioned)', { productId, baseRate });
+  updateProductRate: async (productId, baseRate) => {
+    const [rate] = await db('product_rates')
+      .where({ product_id: productId })
+      .update({ base_rate_per_sqm_kes: baseRate })
+      .returning('*');
     return rate;
   }
 };
