@@ -12,9 +12,6 @@ import LoadingSpinner from "../../components/LoadingSpinner.jsx";
 const DEFAULT_VALUES = {
   mpesa_shortcode: "",
   mpesa_callback_url: "",
-  email_template_quotation: "Your quotation {reference} is ready",
-  email_template_order_status: "Order {reference} status updated to {status}",
-  email_template_payment_received: "Payment received for order {reference}",
 };
 
 // ============================================================
@@ -57,12 +54,6 @@ export default function SettingsPage() {
     callback_url: DEFAULT_VALUES.mpesa_callback_url,
   });
 
-  const [emailTemplates, setEmailTemplates] = useState({
-    quotation: DEFAULT_VALUES.email_template_quotation,
-    order_status: DEFAULT_VALUES.email_template_order_status,
-    payment_received: DEFAULT_VALUES.email_template_payment_received,
-  });
-
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -73,22 +64,12 @@ export default function SettingsPage() {
         shortcode: getSettingValue('mpesa_shortcode'),
         callback_url: getSettingValue('mpesa_callback_url'),
       });
-      setEmailTemplates({
-        quotation: getSettingValue('email_template_quotation'),
-        order_status: getSettingValue('email_template_order_status'),
-        payment_received: getSettingValue('email_template_payment_received'),
-      });
     }
   }, [settingsData]);
 
   const handleMpesaChange = (e) => {
     const { name, value } = e.target;
     setMpesaConfig((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleTemplateChange = (e) => {
-    const { name, value } = e.target;
-    setEmailTemplates((prev) => ({ ...prev, [name]: value }));
   };
 
   // Mutation for saving settings
@@ -113,13 +94,9 @@ export default function SettingsPage() {
     setIsSaving(true);
     
     // Prepare batch update from form state
-    // Use empty string for blank values (not null) to allow clearing templates
     const updates = {
       mpesa_shortcode: mpesaConfig.shortcode || "",
       mpesa_callback_url: mpesaConfig.callback_url || "",
-      email_template_quotation: emailTemplates.quotation || "",
-      email_template_order_status: emailTemplates.order_status || "",
-      email_template_payment_received: emailTemplates.payment_received || "",
     };
     
     updateSettingsMutation.mutate(updates);
@@ -195,58 +172,6 @@ export default function SettingsPage() {
             <span className="text-yellow-400 font-medium">
               Configured via server environment (SAFARICOM_PASSKEY)
             </span>
-          </p>
-        </div>
-      </SettingsSection>
-
-      {/* Email Templates */}
-      <SettingsSection title="Email Templates">
-        <div>
-          <label htmlFor="quotation" className="input-label">
-            Quotation Template
-          </label>
-          <input
-            id="quotation"
-            type="text"
-            name="quotation"
-            value={emailTemplates.quotation}
-            onChange={handleTemplateChange}
-            className="input-field"
-          />
-          <p className="text-xs text-silver-500 mt-1">
-            Available placeholders: {"{reference}"}
-          </p>
-        </div>
-        <div>
-          <label htmlFor="order_status" className="input-label">
-            Order Status Template
-          </label>
-          <input
-            id="order_status"
-            type="text"
-            name="order_status"
-            value={emailTemplates.order_status}
-            onChange={handleTemplateChange}
-            className="input-field"
-          />
-          <p className="text-xs text-silver-500 mt-1">
-            Available placeholders: {"{reference}", "{status}"}
-          </p>
-        </div>
-        <div>
-          <label htmlFor="payment_received" className="input-label">
-            Payment Received Template
-          </label>
-          <input
-            id="payment_received"
-            type="text"
-            name="payment_received"
-            value={emailTemplates.payment_received}
-            onChange={handleTemplateChange}
-            className="input-field"
-          />
-          <p className="text-xs text-silver-500 mt-1">
-            Available placeholders: {"{reference}"}
           </p>
         </div>
       </SettingsSection>

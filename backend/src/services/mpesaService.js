@@ -1,5 +1,6 @@
 import axios from 'axios';
 import logger from '../middlewares/logger.js';
+import SettingsModel from '../models/settingsModel.js';
 
 /**
  * M-Pesa Service
@@ -14,14 +15,42 @@ import logger from '../middlewares/logger.js';
 
 const CONSUMER_KEY = process.env.SAFARICOM_CONSUMER_KEY;
 const CONSUMER_SECRET = process.env.SAFARICOM_CONSUMER_SECRET;
-const SHORTCODE = process.env.SAFARICOM_SHORTCODE;
 const PASSKEY = process.env.SAFARICOM_PASSKEY;
-const CALLBACK_URL = process.env.SAFARICOM_CALLBACK_URL;
 const IS_SANDBOX = process.env.SAFARICOM_ENV !== 'production';
 
 const BASE_URL = IS_SANDBOX
   ? 'https://sandbox.safaricom.co.ke'
   : 'https://api.safaricom.co.ke';
+
+// Cache for settings values (valid for restart lifetime)
+let cachedShortcode = null;
+let cachedCallbackUrl = null;
+
+/**
+ * Get shortcode from settings table or fall back to env var.
+ * Settings table takes precedence over environment variables.
+ */
+const getShortcode = async () => {
+  if (cachedShortcode !== null) {
+    return cachedShortcode;
+  }
+  const dbShortcode = await SettingsModel.get('mpesa_shortcode');
+  cachedShortcode = dbShortcode || process.env.SAFARICOM_SHORTCODE;
+  return cachedShortcode;
+};
+
+/**
+ * Get callback URL from settings table or fall back to env var.
+ * Settings table takes precedence over environment variables.
+ */
+const getCallbackUrl = async () => {
+  if (cachedCallbackUrl !== null) {
+    return cachedCallbackUrl;
+  }
+  const dbCallbackUrl = await SettingsModel.get('mpesa_callback_url');
+  cachedCallbackUrl = dbCallbackUrl || process.env.SAFARICOM_CALLBACK_URL;
+  return cachedCallbackUrl;
+};
 
 // Cache for OAuth token (valid for 1 hour)
 let cachedToken = null;
@@ -60,8 +89,8 @@ const getAccessToken = async () => {
  * Generate the M-Pesa STK Push password.
  * Format: base64(SHORTCODE + PASSKEY + TIMESTAMP)
  */
-const generatePassword = (timestamp) => {
-  const str = `${SHORTCODE}${PASSKEY}${timestamp}`;
+const generatePassword = (shortcode, timestamp) => {
+  const str = `${shortcode}${PASSKEY}${timestamp}`;
   return Buffer.from(str).toString('base64');
 };
 
@@ -104,22 +133,23 @@ export const initiateSTKPush = async (phoneNumber, amount, accountReference, des
   }
 
   const accessToken = await getAccessToken();
+  const [shortcode, callbackUrl] = await Promise.all([getShortcode(), getCallbackUrl()]);
   const timestamp = formatTimestamp();
-  const password = generatePassword(timestamp);
+  const password = generatePassword(shortcode, timestamp);
 
   // Format phone: remove + prefix, must be 254XXXXXXXXX
   const phone = phoneNumber.replace(/^\+/, '');
 
   const payload = {
-    BusinessShortCode: SHORTCODE,
+    BusinessShortCode: shortcode,
     Password: password,
     Timestamp: timestamp,
     TransactionType: 'CustomerPayBillOnline',
     Amount: Math.round(amount),
     PartyA: phone,
-    PartyB: SHORTCODE,
+    PartyB: shortcode,
     PhoneNumber: phone,
-    CallBackURL: CALLBACK_URL,
+    CallBackURL: callbackUrl,
     AccountReference: accountReference,
     TransactionDesc: description || 'Payment for order'
   };
@@ -224,11 +254,12 @@ export const querySTKPushStatus = async (checkoutRequestId) => {
   }
 
   const accessToken = await getAccessToken();
+  const [shortcode, callbackUrl] = await Promise.all([getShortcode(), getCallbackUrl()]);
   const timestamp = formatTimestamp();
-  const password = generatePassword(timestamp);
+  const password = generatePassword(shortcode, timestamp);
 
   const payload = {
-    BusinessShortCode: SHORTCODE,
+    BusinessShortCode: shortcode,
     Password: password,
     Timestamp: timestamp,
     CheckoutRequestID: checkoutRequestId

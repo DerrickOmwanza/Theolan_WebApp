@@ -9,10 +9,7 @@ import { validate } from '../utils/validate.js';
 
 const SETTABLE_KEYS = [
   'mpesa_shortcode',
-  'mpesa_callback_url',
-  'email_template_quotation',
-  'email_template_order_status',
-  'email_template_payment_received'
+  'mpesa_callback_url'
 ];
 
 const settingsUpdateSchema = Joi.object({
@@ -38,28 +35,7 @@ const settingsUpdateSchema = Joi.object({
       }
     })
     .optional()
-    .messages({ 'string.uri': 'Must be a valid URL' }),
-  
-  email_template_quotation: Joi.string()
-    .trim()
-    .max(200)
-    .allow('')
-    .optional()
-    .messages({ 'string.max': 'Template must be at most 200 characters' }),
-  
-  email_template_order_status: Joi.string()
-    .trim()
-    .max(200)
-    .allow('')
-    .optional()
-    .messages({ 'string.max': 'Template must be at most 200 characters' }),
-  
-  email_template_payment_received: Joi.string()
-    .trim()
-    .max(200)
-    .allow('')
-    .optional()
-    .messages({ 'string.max': 'Template must be at most 200 characters' })
+    .messages({ 'string.uri': 'Must be a valid URL' })
 })
   .custom((obj, helpers) => {
     const keys = Object.keys(obj);
