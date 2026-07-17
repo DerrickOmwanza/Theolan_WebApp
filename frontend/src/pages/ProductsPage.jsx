@@ -17,6 +17,7 @@ const CATEGORIES = [
   { value: "gypsum_ceilings", label: "Gypsum Walls & Ceilings" },
   { value: "kitchen_cabinets", label: "Kitchen & Wardrobe Cabinets" },
   { value: "floor_tiling", label: "Floor Tiling" },
+  { value: "windows", label: "Windows" },
 ];
 
 const FINISHES = [
@@ -38,6 +39,8 @@ const SORT_OPTIONS = [
   { value: "price_desc", label: "Price: High → Low" },
   { value: "name", label: "Name A-Z" },
 ];
+
+const PLACEHOLDER_IMAGE = "/placeholder.svg";
 
 export default function ProductsPage() {
   const navigate = useNavigate();
@@ -82,22 +85,15 @@ export default function ProductsPage() {
   // Extract data and map image_url to image for UI compatibility
   const products = (productsData?.data?.data || []).map(p => ({
     ...p,
-    image: p.image_url || p.image,
+    image: p.image_url || p.image || null,
   }));
 
-  const totalProducts = productsData?.data?.total || 0;
+  const totalProducts = productsData?.data?.pagination?.total || 0;
   const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
-
-  // Client-side pagination (in case API doesn't return total)
-  let displayProducts = products;
-  if (totalProducts === 0 && products.length < ITEMS_PER_PAGE) {
-    // If API returns empty or pagination doesn't match, use client-side
-    // This handles edge cases where API pagination might differ
-  }
 
   // Update URL when page changes
   const currentPage = filterPage;
-  const totalPagesComputed = Math.max(totalPages, Math.ceil((displayProducts.length || 0) / ITEMS_PER_PAGE));
+  const totalPagesComputed = Math.max(totalPages, Math.ceil((products.length || 0) / ITEMS_PER_PAGE));
 
   // Handle page navigation
   const goToPage = (page) => {
@@ -219,8 +215,6 @@ export default function ProductsPage() {
     );
   }
 
-  const countDisplay = displayProducts.length;
-
   return (
     <div>
       {/* Hero Banner */}
@@ -288,7 +282,7 @@ export default function ProductsPage() {
               </button>
             )}
             <span className="ml-auto text-sm text-silver-500">
-              {totalProducts > 0 ? countDisplay + " of " + totalProducts + " products" : "No products"}
+              {totalProducts > 0 ? products.length + " of " + totalProducts + " products" : "No products"}
             </span>
           </div>
         </div>
@@ -296,7 +290,7 @@ export default function ProductsPage() {
 
       {/* Products Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {displayProducts.length === 0 ? (
+        {products.length === 0 ? (
           <div className="card text-center py-12">
             <p className="text-silver-400 mb-4">No products found matching your filters.</p>
             <button
@@ -311,9 +305,8 @@ export default function ProductsPage() {
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {displayProducts.map((product) => {
-                // Use image (mapped from image_url) or fall back to image_url
-                const productImage = product.image || product.image_url || "/placeholder.webp";
+              {products.map((product) => {
+                const productImage = product.image || PLACEHOLDER_IMAGE;
                 
                 return (
                   <div
