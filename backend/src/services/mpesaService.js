@@ -22,39 +22,29 @@ const BASE_URL = IS_SANDBOX
   ? 'https://sandbox.safaricom.co.ke'
   : 'https://api.safaricom.co.ke';
 
-// Cache for settings values (valid for restart lifetime)
-let cachedShortcode = null;
-let cachedCallbackUrl = null;
+// Cache for OAuth token (valid for 1 hour)
+let cachedToken = null;
+let tokenExpiry = 0;
 
 /**
  * Get shortcode from settings table or fall back to env var.
  * Settings table takes precedence over environment variables.
+ * Reads fresh each time - M-Pesa operations are not high-frequency.
  */
 const getShortcode = async () => {
-  if (cachedShortcode !== null) {
-    return cachedShortcode;
-  }
   const dbShortcode = await SettingsModel.get('mpesa_shortcode');
-  cachedShortcode = dbShortcode || process.env.SAFARICOM_SHORTCODE;
-  return cachedShortcode;
+  return dbShortcode || process.env.SAFARICOM_SHORTCODE;
 };
 
 /**
  * Get callback URL from settings table or fall back to env var.
  * Settings table takes precedence over environment variables.
+ * Reads fresh each time - M-Pesa operations are not high-frequency.
  */
 const getCallbackUrl = async () => {
-  if (cachedCallbackUrl !== null) {
-    return cachedCallbackUrl;
-  }
   const dbCallbackUrl = await SettingsModel.get('mpesa_callback_url');
-  cachedCallbackUrl = dbCallbackUrl || process.env.SAFARICOM_CALLBACK_URL;
-  return cachedCallbackUrl;
+  return dbCallbackUrl || process.env.SAFARICOM_CALLBACK_URL;
 };
-
-// Cache for OAuth token (valid for 1 hour)
-let cachedToken = null;
-let tokenExpiry = 0;
 
 /**
  * Get OAuth access token from Safaricom.
