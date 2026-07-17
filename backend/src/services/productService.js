@@ -237,9 +237,56 @@ const ProductService = {
    * @returns {Promise<Object>} Success response
    */
   deleteGalleryPhoto: async (photoId) => {
-    const deleted = await ProductModel.deleteGalleryPhoto(photoId);
-    if (!deleted) {
+    // Import Cloudinary delete function (dynamic import to avoid circular deps)
+    const { deleteImage } = await import('./cloudinary.js');
+
+    // Fetch the photo record BEFORE deletion to get image_url
+    const photo = await ProductModel.findGalleryPhotoById(photoId);
+    if (!photo) {
       throw new NotFoundError('Gallery photo not found');
+    }
+
+    // Delete from database (model now returns the deleted record)
+    await ProductModel.deleteGalleryPhoto(photoId);
+
+    // Extract public_id from image_url for Cloudinary deletion (non-blocking)
+    // image_url could be a Cloudinary URL or a local path like /media/...
+    if (photo.image_url) {
+      const isCloudinaryUrl = photo.image_url.startsWith('http') && photo.image_url.includes('cloudinary');
+
+      if (isCloudinaryUrl) {
+        // Extract public_id from Cloudinary URL
+        // Format: https://res.cloudinary.com/<cloud_name>/image/upload/<path>/<public_id>.<format>
+        try {
+          const urlParts = photo.image_url.split('/');
+          const uploadIndex = urlParts.findIndex((part, i) => 
+            i > 0 && urlParts[i-1] === 'upload'
+          );
+          
+          if (uploadIndex !== -1 && uploadIndex < urlParts.length - 1) {
+            // Get everything after 'upload' and before extension
+            const publicIdWithExtension = urlParts.slice(uploadIndex + 1).join('/');
+            // Remove file extension
+            const dotIndex = publicIdWithExtension.lastIndexOf('.');
+            const publicId = dotIndex > -1 ? publicIdWithExtension.substring(0, dotIndex) : publicIdWithExtension;
+
+            // Non-blocking Cloudinary deletion
+            deleteImage(publicId).catch((err) => {
+              logger.warn('Cloudinary delete failed for gallery photo (non-blocking)', {
+                photoId,
+                publicId,
+                error: err.message
+              });
+            });
+
+            logger.info('Scheduled Cloudinary deletion for gallery photo', { photoId, publicId });
+          }
+        } catch (err) {
+          logger.warn('Failed to extract/execute Cloudinary delete', { photoId, error: err.message });
+        }
+      } else {
+        logger.info('Gallery photo has non-Cloudinary image, skipping remote delete', { photoId, image_url: photo.image_url });
+      }
     }
 
     logger.info('Gallery photo deleted', { photoId });

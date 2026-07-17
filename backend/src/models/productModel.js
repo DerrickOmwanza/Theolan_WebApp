@@ -172,9 +172,13 @@ const ProductModel = {
     return photo;
   },
 
+  findGalleryPhotoById: async (id) => {
+    return db('gallery_photos').where({ id }).first();
+  },
+
   deleteGalleryPhoto: async (id) => {
-    const deleted = await db('gallery_photos').where({ id }).del();
-    return deleted > 0;
+    const [photo] = await db('gallery_photos').where({ id }).del().returning('*');
+    return photo;  // Returns the photo record or undefined
   },
 
   updateGalleryPhoto: async (id, updates) => {
