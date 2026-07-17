@@ -7,7 +7,7 @@ import { validate } from '../utils/validate.js';
 // Validation Schemas
 // ============================================================
 
-const SERVICE_TYPES = ['windows', 'doors', 'curtain_wall', 'partitions', 'balustrades', 'glazing'];
+const SERVICE_TYPES = ['windows', 'doors', 'curtain_wall', 'partitions', 'balustrades', 'glazing', 'aluminium_fabrications', 'stainless_steel_railings', 'frameless_glass', 'gypsum_ceilings', 'kitchen_cabinets', 'floor_tiling'];
 const PROPERTY_TYPES = ['residential', 'commercial', 'industrial'];
 const CONTACT_METHODS = ['sms', 'whatsapp', 'email'];
 const BOOKING_STATUSES = ['scheduled', 'completed', 'cancelled', 'no_show'];
