@@ -1,0 +1,50 @@
+-- Update product descriptions with rich, detailed copy
+-- Run with: psql -f backend/scripts/update_products_data.sql
+
+UPDATE products SET description = 'Crafted from powder-coated aluminium in a matte black finish, this railing system offers exceptional resistance to corrosion and weathering. The horizontal bar design with minimal posts ensures structural integrity while maintaining a sleek, contemporary aesthetic. Ideal for terraces and balconies, it combines durability with modern architectural appeal.' WHERE name = 'Aluminium Railing — Horizontal Bars';
+
+UPDATE products SET description = 'This frameless balustrade system uses thick, toughened laminated glass panels secured by a heavy-duty aluminium base channel. The design eliminates visible hardware, providing a seamless panoramic view while meeting stringent safety standards. Its robust construction ensures long-term performance in both coastal and urban environments.' WHERE name = 'Glass Balustrade — Frameless';
+
+UPDATE products SET description = 'Featuring polished aluminium posts with stainless steel clamps, this balustrade supports clear tempered glass infill panels for maximum transparency. The continuous top handrail enhances safety and stability while maintaining a refined architectural look. Designed for staircases and mezzanines, it balances elegance with strength and reliability.' WHERE name = 'Glass Balustrade — Post System';
+
+UPDATE products SET description = 'Engineered with a single tempered glass panel, this Juliet balcony is side-fixed using brushed stainless steel brackets for a minimalist finish. It provides secure protection for French door openings while preserving unobstructed views. The systems durable materials ensure longevity and resistance to environmental stress, making it ideal for modern residential facades.' WHERE name = 'Juliet Balcony Balustrade';
+
+UPDATE products SET description = 'The spider glazing system employs point-fixed stainless steel spider fittings to secure expansive structural glass panes, ensuring maximum transparency and unobstructed views. Designed for durability, the stainless steel hardware resists corrosion while maintaining structural integrity under heavy loads. This system delivers a premium aesthetic ideal for atriums and commercial shopfronts.' WHERE name = 'Spider Glazing System';
+
+UPDATE products SET description = 'The stick curtain wall system features aluminium mullions and transoms that provide a crisp, modular framework for large insulated glass panels. Its robust construction ensures long-term weather resistance and thermal efficiency, while the powder-coated finish enhances durability. This system offers flexibility in installation and maintenance for multi-storey facades.' WHERE name = 'Stick Curtain Wall';
+
+UPDATE products SET description = 'The structural glazing curtain wall uses hidden silicone bonding to create a seamless, uninterrupted glass exterior. Engineered for high wind-load resistance and thermal performance, the system eliminates visible framing for a sleek, reflective finish. This premium design enhances both energy efficiency and architectural prestige for modern office towers.' WHERE name = 'Structural Glazing Curtain Wall';
+
+UPDATE products SET description = 'Crafted from powder-coated aluminium, these double French doors combine full-height tempered safety glass with a modern multipoint locking system. The corrosion-resistant finish ensures longevity, while the slimline frames maximise natural light and visibility. This premium design balances elegance with security for luxury residential applications.' WHERE name = 'French Door — Double';
+
+UPDATE products SET description = 'This single-leaf hinged door is finished in premium anodised aluminium, offering both durability and a refined aesthetic. The elongated vertical pull handle provides ergonomic functionality, while concealed hinges maintain a minimalist appearance. Engineered for strength and corrosion resistance, it is a statement piece for high-end entrances.' WHERE name = 'Hinged Single Door';
+
+UPDATE products SET description = 'This two-panel sliding door system features ultra-slim aluminium profiles and tempered glass panels engineered for smooth, silent operation. The heavy-duty rollers and recessed floor track ensure effortless movement and long-term durability. Designed for residential spaces, it provides panoramic views and seamless indoor-outdoor transitions.' WHERE name = 'Sliding Door — 2 Panel';
+
+UPDATE products SET description = 'The three-panel sliding door system utilises a precision triple-track mechanism allowing two panels to stack neatly behind the third for maximum ventilation. Constructed from high-strength aluminium and laminated safety glass, it offers superior weather resistance and structural stability with a minimalist design.' WHERE name = 'Sliding Door — 3 Panel';
+
+UPDATE products SET description = 'This frameless glass partition system employs single-glazed toughened glass with architectural patch fittings for a clean, uninterrupted aesthetic. The precision-engineered swing door integrates seamlessly, maintaining acoustic separation while maximising transparency. Ideal for corporate interiors requiring privacy and light flow.' WHERE name = 'Glass Partition — Frameless';
+
+UPDATE products SET description = 'Constructed with slimline aluminium framing and single-pane toughened glass, this partition system offers a clean, functional divide for open-plan offices. Its lightweight design allows for quick installation and easy reconfiguration as space needs change. Ideal for meeting rooms and workstations requiring visual connectivity.' WHERE name = 'Office Partition — Single Glazed';
+
+UPDATE products SET description = 'Featuring twin panes of toughened glass separated by an insulating air gap, this partition delivers enhanced sound insulation for busy office environments. The dual-glazed aluminium frame maintains a slim profile while significantly reducing noise transfer between spaces. Perfect for boardrooms and private offices.' WHERE name = 'Office Partition — Double Glazed';
+
+UPDATE products SET description = 'A non-opening window system built with a single pane of toughened glass set within a slim aluminium frame, designed to maximise natural light and unobstructed views. Its fixed design offers excellent weather sealing and minimal maintenance. Ideal for feature windows, stairwells, and areas where ventilation is not required.' WHERE name = 'Fixed Window — Single Pane';
+
+UPDATE products SET description = 'This two-panel sliding window combines smooth horizontal operation with a durable aluminium track system for reliable, low-maintenance ventilation. Toughened glass panels provide safety and clarity, while the slim frame maximises glazed area. Well suited to residential and commercial spaces needing space-saving ventilation control.' WHERE name = 'Sliding Window — 2 Panel';
+
+UPDATE products SET description = 'Hinged along one side and opening outward via a friction stay, this casement window offers full ventilation control and a tight weather seal when closed. The aluminium frame is finished for long-term corrosion resistance in varied climates. A versatile choice for kitchens, bathrooms, and living spaces alike.' WHERE name = 'Casement Window — Side Hung';
+
+UPDATE products SET description = 'Hinged at the top and opening outward from the bottom, this window style allows ventilation even during light rain thanks to its natural weather-shedding angle. Built with a corrosion-resistant aluminium frame and toughened glass, it is a practical option for bathrooms and rooms requiring discreet, controlled airflow.' WHERE name = 'Top Hung Window';
+
+UPDATE products SET description = 'Crafted from Grade 316 brushed stainless steel, these handrails and guardrails are precision-welded for seamless joints and maximum durability. The corrosion-resistant finish ensures longevity in high-traffic environments while maintaining a sleek, minimalist aesthetic. Perfectly aligned geometric lines enhance the modern luxury appeal.' WHERE name = 'Premium Stainless Steel Handrails';
+
+UPDATE products SET description = 'Built with a heavy-duty structural steel frame, this pergola system supports laminated overhead safety glass panels designed for strength and impact resistance. The frameless design maximises transparency and natural light, while the steel frame guarantees structural stability for luxury outdoor patios.' WHERE name = 'Frameless Glass Sunroof & Pergola Systems';
+
+UPDATE products SET description = 'Multi-layered gypsum boards provide superior acoustic performance while maintaining a flawless, seamless finish. Integrated LED strip lighting is concealed within crisp shadow lines, delivering warm ambient illumination without visible fixtures. This ceiling system balances functionality with refined modern design.' WHERE name = 'Acoustic Gypsum Ceilings with Integrated Lighting';
+
+UPDATE products SET description = 'Engineered with high-strength gypsum boards, these partitions deliver smooth, perfectly straight surfaces with crisp corner detailing. The system offers excellent fire resistance and acoustic separation, making it ideal for modern commercial and residential interiors with a clean, minimalist finish.' WHERE name = 'Commercial Structural Gypsum Partitioning';
+
+UPDATE products SET description = 'Custom-built cabinetry features handleless matte-finish panels for a sleek, contemporary aesthetic. Constructed with premium carpentry techniques, the kitchen and wardrobe systems ensure durability and precision alignment. Floor-to-ceiling designs maximise storage while maintaining a minimalist luxury appeal.' WHERE name = 'Modern Fitted Kitchen & Wardrobe Cabinets';
+
+UPDATE products SET description = 'Large-format 60x120 cm polished porcelain tiles are laid with ultra-thin, colour-matched grout lines for a flawless finish. Engineered for high-traffic durability, the tiles resist wear, stains, and moisture while maintaining a refined, premium look and reflective surface.' WHERE name = 'High-Traffic Precision Porcelain Floor Tiling';
