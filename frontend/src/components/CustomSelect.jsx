@@ -60,7 +60,9 @@ export default function CustomSelect({ label, value, onChange, options = [], dis
 
   return (
     <div className="relative inline-block w-full">
-      {label && <label className="block text-xs text-silver-500 mb-1.5">{label}</label>}
+      {label && (
+        <label className="block text-xs text-silver-500 mb-1.5">{label}</label>
+      )}
       <button ref={buttonRef} type="button" disabled={disabled} onClick={openDropdown} onKeyDown={handleKeyDown} className="w-full px-3 py-2 text-sm rounded-md bg-charcoal-700 border disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer border-charcoal-600 text-warmwhite hover:border-cobalt/50 transition-colors flex items-center justify-between" aria-haspopup="listbox" aria-expanded={isOpen} aria-disabled={disabled}>
         <span className={value ? "text-warmwhite" : "text-silver-400"}>{selectedOption?.label || "Select..."}</span>
         <svg className={`w-4 h-4 text-silver-400 transition-transform ${isOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>

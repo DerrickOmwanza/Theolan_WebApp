@@ -162,50 +162,6 @@ export default function ProductsPage() {
           </div>
         </section>
 
-        {/* Filters */}
-        <section className="border-b border-charcoal-600 bg-charcoal-800 sticky top-16 z-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex flex-wrap gap-4 items-center">
-              <select
-                value={filterCategory}
-                onChange={(e) => setFilter("category", e.target.value)}
-                className="input-field w-auto min-w-[160px] text-sm"
-                disabled
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c.value} value={c.value}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={filterFinish}
-                onChange={(e) => setFilter("finish", e.target.value)}
-                className="input-field w-auto min-w-[160px] text-sm"
-                disabled
-              >
-                {FINISHES.map((f) => (
-                  <option key={f.value} value={f.value}>
-                    {f.label}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={filterSort}
-                onChange={(e) => setFilter("sort_by", e.target.value)}
-                className="input-field w-auto min-w-[180px] text-sm"
-                disabled
-              >
-                {SORT_OPTIONS.map((s) => (
-                  <option key={s.value} value={s.value}>
-                    {s.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </section>
-
         {/* Loading State */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center py-12">
@@ -272,23 +228,20 @@ export default function ProductsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           {/* Mobile: stacked vertically, Desktop: horizontal */}
           <div className="flex flex-col md:flex-row md:items-center gap-4">
-            {/* Category dropdown - full width on mobile */}
+            {/* Category dropdown */}
             <CustomSelect
-              label="Category"
               value={filterCategory}
               onChange={(value) => setFilter("category", value)}
               options={CATEGORIES}
             />
-            {/* Finish dropdown - full width on mobile */}
+            {/* Finish dropdown */}
             <CustomSelect
-              label="Finish"
               value={filterFinish}
               onChange={(value) => setFilter("finish", value)}
               options={FINISHES}
             />
-            {/* Sort dropdown - full width on mobile */}
+            {/* Sort dropdown */}
             <CustomSelect
-              label="Sort by"
               value={filterSort}
               onChange={(value) => setFilter("sort_by", value)}
               options={SORT_OPTIONS}
