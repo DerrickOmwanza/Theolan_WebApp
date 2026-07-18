@@ -108,6 +108,7 @@ export default function ProductsPage() {
   // Get Quote handler - navigates to quote calculator with product details pre-filled
   const handleGetQuote = (product) => {
     const params = new URLSearchParams();
+    params.set("product_id", product.id);
     params.set("product_name", product.name);
     params.set("basePrice", product.base_price_per_sqm_kes);
     params.set("category", product.category);

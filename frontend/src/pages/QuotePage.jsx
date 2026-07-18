@@ -65,12 +65,13 @@ export default function QuotePage() {
   const [searchParams] = useSearchParams();
   
   // Get pre-fill parameters from URL
+  const prefillProductId = searchParams.get('product_id') || '';
   const prefillName = searchParams.get('product_name') || '';
   const prefillBasePrice = searchParams.get('basePrice') ? Number(searchParams.get('basePrice')) : null;
   const prefillFinish = searchParams.get('finish') || 'mill';
 
   const [form, setForm] = useState({
-    product_id: '',
+    product_id: prefillProductId,
     width_meters: '',
     height_meters: '',
     quantity: 1,
@@ -100,6 +101,18 @@ export default function QuotePage() {
 
   // Auto-populate form from URL params on mount
   useEffect(() => {
+    // Priority 1: Use product_id directly if present (new, more reliable approach)
+    if (prefillProductId && !prefilled) {
+      setForm(prev => ({
+        ...prev,
+        base_price: prefillBasePrice,
+        finish: prefillFinish,
+      }));
+      setPrefilled(true);
+      return;
+    }
+    
+    // Fallback: Use product_name lookup (original approach for backwards compatibility)
     if (prefillName && !prefilled) {
       const productId = PRODUCT_NAME_TO_ID_MAP[prefillName] || '';
       if (productId) {
@@ -112,7 +125,7 @@ export default function QuotePage() {
         setPrefilled(true);
       }
     }
-  }, [prefillName, prefillBasePrice, prefillFinish, prefilled]);
+  }, [prefillProductId, prefillName, prefillBasePrice, prefillFinish, prefilled]);
 
   const handleChange = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -219,14 +232,11 @@ export default function QuotePage() {
                 disabled={productsLoading}
               >
                 <option value="">{productsLoading ? 'Loading products...' : 'Select a product'}</option>
-                {products.map(p => {
-                  const localMatch = LOCAL_PRODUCTS.find(lp => lp.id === p.id);
-                  return (
-                    <option key={p.id} value={p.id}>
-                      {p.name} ({p.category?.replace('_', ' ')})
-                    </option>
-                  );
-                })}
+                {products.map(p => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} ({p.category?.replace('_', ' ')})
+                  </option>
+                ))}
               </select>
               {errors.product_id && <p className="input-error">{errors.product_id}</p>}
               {selectedProduct && !errors.product_id && (
