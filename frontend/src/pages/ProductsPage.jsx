@@ -269,11 +269,13 @@ export default function ProductsPage() {
       {/* Filters */}
       <section className="border-b border-charcoal-600 bg-charcoal-800 sticky top-16 z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-wrap gap-4 items-center">
+          {/* Mobile: stacked vertically, Desktop: horizontal */}
+          <div className="flex flex-col md:flex-row md:items-center gap-4">
+            {/* Category dropdown - full width on mobile */}
             <select
               value={filterCategory}
               onChange={(e) => setFilter("category", e.target.value)}
-              className="input-field w-auto min-w-[160px] text-sm"
+              className="input-field w-full md:w-auto min-w-[160px] text-sm"
             >
               {CATEGORIES.map((c) => (
                 <option key={c.value} value={c.value}>
@@ -281,10 +283,11 @@ export default function ProductsPage() {
                 </option>
               ))}
             </select>
+            {/* Finish dropdown - full width on mobile */}
             <select
               value={filterFinish}
               onChange={(e) => setFilter("finish", e.target.value)}
-              className="input-field w-auto min-w-[160px] text-sm"
+              className="input-field w-full md:w-auto min-w-[160px] text-sm"
             >
               {FINISHES.map((f) => (
                 <option key={f.value} value={f.value}>
@@ -292,10 +295,11 @@ export default function ProductsPage() {
                 </option>
               ))}
             </select>
+            {/* Sort dropdown - full width on mobile */}
             <select
               value={filterSort}
               onChange={(e) => setFilter("sort_by", e.target.value)}
-              className="input-field w-auto min-w-[180px] text-sm"
+              className="input-field w-full md:w-auto min-w-[180px] text-sm"
             >
               {SORT_OPTIONS.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -303,17 +307,19 @@ export default function ProductsPage() {
                 </option>
               ))}
             </select>
+            {/* Clear filters button - hidden on mobile if no filters */}
             {(filterCategory || filterFinish || filterSort) && (
               <button
                 onClick={() => {
                   setSearchParams({});
                 }}
-                className="text-sm text-silver-400 hover:text-warmwhite underline"
+                className="text-sm text-silver-400 hover:text-warmwhite underline w-full md:w-auto"
               >
                 Clear filters
               </button>
             )}
-            <span className="ml-auto text-sm text-silver-500">
+            {/* Product count - always visible, no margin on mobile */}
+            <span className="text-sm text-silver-500 w-full md:ml-auto">
               {totalProducts > 0 ? products.length + " of " + totalProducts + " products" : "No products"}
             </span>
           </div>
