@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { productApi } from "../services/api.js";
+import CustomSelect from "../components/CustomSelect.jsx";
 
 // ============================================
 // UI Constants
@@ -272,41 +273,26 @@ export default function ProductsPage() {
           {/* Mobile: stacked vertically, Desktop: horizontal */}
           <div className="flex flex-col md:flex-row md:items-center gap-4">
             {/* Category dropdown - full width on mobile */}
-            <select
+            <CustomSelect
+              label="Category"
               value={filterCategory}
-              onChange={(e) => setFilter("category", e.target.value)}
-              className="input-field w-full md:w-auto min-w-[160px] text-sm"
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c.value} value={c.value}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setFilter("category", value)}
+              options={CATEGORIES}
+            />
             {/* Finish dropdown - full width on mobile */}
-            <select
+            <CustomSelect
+              label="Finish"
               value={filterFinish}
-              onChange={(e) => setFilter("finish", e.target.value)}
-              className="input-field w-full md:w-auto min-w-[160px] text-sm"
-            >
-              {FINISHES.map((f) => (
-                <option key={f.value} value={f.value}>
-                  {f.label}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setFilter("finish", value)}
+              options={FINISHES}
+            />
             {/* Sort dropdown - full width on mobile */}
-            <select
+            <CustomSelect
+              label="Sort by"
               value={filterSort}
-              onChange={(e) => setFilter("sort_by", e.target.value)}
-              className="input-field w-full md:w-auto min-w-[180px] text-sm"
-            >
-              {SORT_OPTIONS.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setFilter("sort_by", value)}
+              options={SORT_OPTIONS}
+            />
             {/* Clear filters button - hidden on mobile if no filters */}
             {(filterCategory || filterFinish || filterSort) && (
               <button
