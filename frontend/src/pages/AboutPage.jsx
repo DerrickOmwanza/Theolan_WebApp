@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 
 const STATS = [
-  { value: "15+", label: "Years Experience" },
+  { value: "8+", label: "Years Experience" },
   { value: "500+", label: "Projects Completed" },
   { value: "98%", label: "Client Satisfaction" },
   { value: "24/7", label: "Support Available" },
@@ -137,18 +137,21 @@ export default function AboutPage() {
             </h2>
             <div className="space-y-4 text-silver-300 leading-relaxed">
               <p>
-                The Olan Glass and Aluminium provides premium aluminium and
-                glass solutions for residential and commercial projects in Umoja
-                2, Nairobi.
+                The Olan Alum-int Ltd is a construction-based company established
+                in 2018, located in Umoja 2, Embakasi West, Nairobi.
               </p>
               <p>
-                We specialize in custom windows, doors, curtain walls,
-                partitions, and architectural glazing with a focus on quality
-                and precision.
+                We specialize in providing high-quality aluminium fabrications
+                and installations, frameless and aluminium office partitions,
+                shower cubicles, kitchen cabinets, balusters, stainless steel
+                railings, gypsum partitions and ceilings, floor tiling, and
+                other home and office interior works that meet the needs of our
+                clients.
               </p>
               <p>
-                Every project is handled with attention to detail, from initial
-                consultation through to final installation.
+                We are committed to delivering innovative, reliable, and
+                cost-effective solutions while maintaining the highest quality,
+                professionalism, and customer satisfaction.
               </p>
             </div>
           </div>
@@ -157,16 +160,24 @@ export default function AboutPage() {
               Our Mission
             </h3>
             <p className="text-silver-300 mb-6">
-              To provide high-quality aluminium and glass solutions for
-              residential and commercial projects with precision and
-              reliability.
+              At The Olan Alum-int Ltd, we are driven by our mission to provide
+              exceptional value through integrity, excellence, and continuous
+              improvement. We leverage industry best practices and modern
+              technologies to ensure our products and services remain
+              competitive and responsive to changing market demands. As we
+              continue to grow, we remain committed to expanding our reach,
+              fostering innovation, and positively contributing to the communities
+              we serve. Our goal is to build trust, create leadership, and
+              deliver sustainable solutions that create long-term value for all
+              our customers and stakeholders.
             </p>
             <h3 className="text-xl font-heading font-semibold text-warmwhite mb-4">
               Our Vision
             </h3>
             <p className="text-silver-300">
-              To be Nairobi&apos;s trusted partner for premium aluminium
-              fabrication and installation services.
+              Our vision is to become a leading aluminium fabricator, home and
+              office interior design company recognized for creativity,
+              innovation, and excellence in transforming spaces.
             </p>
           </div>
         </div>
