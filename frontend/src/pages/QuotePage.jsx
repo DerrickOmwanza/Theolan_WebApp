@@ -92,6 +92,7 @@ export default function QuotePage() {
   });
   
   // Use API products if successful, fallback to LOCAL_PRODUCTS only on error
+  const isOfflineMode = productsError;
   const products = useMemo(() => {
     if (productsError) {
       // API failed - use fallback local products
@@ -231,15 +232,11 @@ export default function QuotePage() {
                 className={`input-field ${errors.product_id ? 'border-red-500' : ''}`}
                 disabled={productsLoading}
               >
-                <option value="">{productsLoading ? 'Loading products...' : productsError ? 'Select a product (offline mode)' : 'Select a product'}</option>
+                <option value="">{productsLoading ? 'Loading products...' : 'Select a product'}</option>
                 {products.map(p => (
                   <option key={p.id} value={p.id}>
                     {p.name} ({p.category?.replace('_', ' ')})
-                  </option>
-                ))}
-                {productsError && LOCAL_PRODUCTS.map(p => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} (offline)
+                    {isOfflineMode && ' (offline)'}
                   </option>
                 ))}
               </select>
