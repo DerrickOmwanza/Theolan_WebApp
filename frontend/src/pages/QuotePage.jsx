@@ -86,18 +86,20 @@ export default function QuotePage() {
   const [prefilled, setPrefilled] = useState(false);
 
   // Fetch products for dropdown
-  const { data: productsData, isLoading: productsLoading } = useQuery({
+  const { data: productsData, isLoading: productsLoading, isError: productsError } = useQuery({
     queryKey: ['products', 'all'],
     queryFn: () => productApi.list({ limit: 100 }),
   });
   
-  // Combine API products with local products (memoized to prevent useMemo dependency issues)
+  // Use API products if successful, fallback to LOCAL_PRODUCTS only on error
   const products = useMemo(() => {
-    const apiProducts = productsData?.data?.data || [];
-    const localProductsById = {};
-    LOCAL_PRODUCTS.forEach(p => { localProductsById[p.id] = p; });
-    return [...apiProducts, ...Object.values(localProductsById).filter(p => !apiProducts.find(ap => ap.id === p.id))];
-  }, [productsData]);
+    if (productsError) {
+      // API failed - use fallback local products
+      return LOCAL_PRODUCTS;
+    }
+    // API succeeded - use only API products (even if empty array for no products)
+    return productsData?.data?.data || [];
+  }, [productsData, productsError]);
 
   // Auto-populate form from URL params on mount
   useEffect(() => {
@@ -144,9 +146,8 @@ export default function QuotePage() {
   };
 
   // Find selected product
-  const selectedProduct = products.find(p => p.id === form.product_id) || 
-                          LOCAL_PRODUCTS.find(p => p.id === form.product_id) ||
-                          ({ base_price_per_sqm_kes: form.base_price, name: prefillName });
+  const selectedProduct = products.find(p => p.id === form.product_id) ||
+                          { base_price_per_sqm_kes: form.base_price, name: prefillName };
 
   // Live price calculation (memoized for performance)
   const liveQuote = useMemo(() => {
@@ -156,12 +157,11 @@ export default function QuotePage() {
       return null;
     }
 
-    const product = products.find(p => p.id === product_id) || 
-                   LOCAL_PRODUCTS.find(p => p.id === product_id);
+    const product = products.find(p => p.id === product_id);
     const basePrice = product?.base_price_per_sqm_kes || product?.base_price || 0;
     const finishRecord = FINISHES.find(f => f.value === finish);
     const finishMultiplier = finishRecord?.multiplier || 1.0;
-    // Use real double_glazing_multiplier from product_rates if available (API), or fall back to 1.35 (LOCAL_PRODUCTS)
+    // Use real double_glazing_multiplier from product_rates if available (API), or fall back to 1.35
     const glazingMultiplier = double_glazing 
       ? (product?.double_glazing_multiplier || 1.35) 
       : 1.0;
@@ -231,10 +231,15 @@ export default function QuotePage() {
                 className={`input-field ${errors.product_id ? 'border-red-500' : ''}`}
                 disabled={productsLoading}
               >
-                <option value="">{productsLoading ? 'Loading products...' : 'Select a product'}</option>
+                <option value="">{productsLoading ? 'Loading products...' : productsError ? 'Select a product (offline mode)' : 'Select a product'}</option>
                 {products.map(p => (
                   <option key={p.id} value={p.id}>
                     {p.name} ({p.category?.replace('_', ' ')})
+                  </option>
+                ))}
+                {productsError && LOCAL_PRODUCTS.map(p => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} (offline)
                   </option>
                 ))}
               </select>
