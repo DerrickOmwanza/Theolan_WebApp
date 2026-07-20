@@ -5,6 +5,7 @@ import { productApi } from "../services/api.js";
 import LoadingSpinner from "../components/LoadingSpinner.jsx";
 import FeaturedProjects from "../components/FeaturedProjects.jsx";
 import ImageGalleryItem from "../components/ImageGalleryItem.jsx";
+import CustomSelect from "../components/CustomSelect.jsx";
 
 const CATEGORIES = [
   { value: "", label: "All Categories" },
@@ -247,107 +248,26 @@ export default function GalleryPage() {
       {/* Featured Projects */}
       <FeaturedProjects />
 
-      {/* Filters - Mobile Optimized */}
+      {/* Filters - Unified responsive layout with custom dropdowns */}
       <section className="border-b border-charcoal-600 bg-charcoal-800 sticky top-16 z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3">
-          {/* Mobile: Compact filter bar with drawer */}
-          <div className="flex sm:hidden items-center gap-2">
-            <input
-              id="search-projects"
-              name="search"
-              type="text"
-              placeholder="Search projects..."
-              value={search}
-              onChange={(e) => setFilter("search", e.target.value)}
-              className="input-field flex-1 text-sm h-9"
-            />
-            <button
-              onClick={() => document.getElementById('filter-drawer')?.classList.toggle('hidden')}
-              className="btn-ghost text-sm h-9 px-3 flex-shrink-0"
-            >
-              Filters
-            </button>
-            {(category || finish || search) && (
-              <button
-                onClick={() => {
-                  setSearchParams({});
-                  setPage(0);
-                }}
-                className="text-xs text-silver-400 hover:text-warmwhite underline flex-shrink-0"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-          
-          {/* Mobile: Expandable filter drawer */}
-          <div id="filter-drawer" className="hidden sm:hidden mt-2 pb-2 border-t border-charcoal-600 pt-2">
-            <div className="grid grid-cols-2 gap-2 mt-2">
-              <select
-                id="category-filter"
-                name="category"
-                value={category}
-                onChange={(e) => setFilter("category", e.target.value)}
-                className="input-field text-sm h-9"
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c.value} value={c.value}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-              <select
-                id="finish-filter"
-                name="finish"
-                value={finish}
-                onChange={(e) => setFilter("finish", e.target.value)}
-                className="input-field text-sm h-9"
-              >
-                {FINISHES.map((f) => (
-                  <option key={f.value} value={f.value}>
-                    {f.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Desktop/Tablet: Full width filter bar */}
-          <div className="hidden sm:flex flex-wrap gap-3 items-center">
-            <select
-              id="category-filter"
-              name="category"
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex flex-col md:flex-row md:items-center gap-4">
+            <CustomSelect
               value={category}
-              onChange={(e) => setFilter("category", e.target.value)}
-              className="input-field w-auto min-w-[140px] text-sm h-9"
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c.value} value={c.value}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
-            <select
-              id="finish-filter"
-              name="finish"
+              onChange={(value) => setFilter("category", value)}
+              options={CATEGORIES}
+            />
+            <CustomSelect
               value={finish}
-              onChange={(e) => setFilter("finish", e.target.value)}
-              className="input-field w-auto min-w-[140px] text-sm h-9"
-            >
-              {FINISHES.map((f) => (
-                <option key={f.value} value={f.value}>
-                  {f.label}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setFilter("finish", value)}
+              options={FINISHES}
+            />
             <input
-              id="search-projects"
-              name="search"
               type="text"
               placeholder="Search projects..."
               value={search}
               onChange={(e) => setFilter("search", e.target.value)}
-              className="input-field w-auto min-w-[200px] text-sm h-9"
+              className="input-field flex-1 md:min-w-[200px] text-sm h-9"
             />
             {(category || finish || search) && (
               <button
@@ -355,7 +275,7 @@ export default function GalleryPage() {
                   setSearchParams({});
                   setPage(0);
                 }}
-                className="text-sm text-silver-400 hover:text-warmwhite underline"
+                className="text-sm text-silver-400 hover:text-warmwhite underline w-full md:w-auto"
               >
                 Clear filters
               </button>
