@@ -52,9 +52,9 @@ export default function AdminLayout() {
     }`;
 
   return (
-    <div className="flex min-h-screen bg-charcoal-800">
+    <div className="flex h-screen overflow-hidden bg-charcoal-800">
       {/* Sidebar — desktop */}
-      <aside className="hidden lg:flex lg:flex-col w-64 h-screen sticky top-0 overflow-y-auto bg-charcoal-900 border-r border-charcoal-600">
+      <aside className="hidden lg:flex lg:flex-col w-64 h-full bg-charcoal-900 border-r border-charcoal-600 overflow-y-auto">
         <div className="p-6">
           <Link to="/" className="flex items-center gap-3">
             <img
