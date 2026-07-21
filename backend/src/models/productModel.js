@@ -204,10 +204,71 @@ const ProductModel = {
 
   /**
    * Find ALL products (including unpublished) for admin view.
-   * @returns {Promise<Array>} - All product records
+   * @param {Object} options - { limit, offset, category, finish, sort_by }
+   * @returns {Promise<{data: Array, total: number}>}
    */
-  findAllProducts: async () => {
-    return db('products').select('*').orderBy('category').orderBy('name');
+  findAllProducts: async ({ limit = 100, offset = 0, category, finish, sort_by = 'category' } = {}) => {
+    let query = db('products');
+    let countQuery = db('products').count('id as total');
+
+    if (category) {
+      query = query.where({ category });
+      countQuery = countQuery.where({ category });
+    }
+
+    if (finish) {
+      query = query.where({ finish });
+      countQuery = countQuery.where({ finish });
+    }
+
+    // Sorting for admin view
+    // Note: useProductsSelect is set before the switch to handle price-based sorting
+    // which requires a LEFT JOIN with product_rates. Without explicit column selection,
+    // the joined table's id/created_at/updated_at would overwrite the products table's.
+    let useProductsSelect = false;
+
+    switch (sort_by) {
+      case 'name':
+        query = query.orderBy('name', 'asc');
+        break;
+      case 'price_asc':
+        query = query.leftJoin('product_rates', 'products.id', 'product_rates.product_id')
+                     .orderBy('product_rates.base_rate_per_sqm_kes', 'asc');
+        useProductsSelect = true;
+        break;
+      case 'price_desc':
+        query = query.leftJoin('product_rates', 'products.id', 'product_rates.product_id')
+                     .orderBy('product_rates.base_rate_per_sqm_kes', 'desc');
+        useProductsSelect = true;
+        break;
+      default:
+        query = query.orderBy('category', 'asc').orderBy('name', 'asc');
+    }
+
+    const [data, countResult] = await Promise.all([
+      query.limit(limit).offset(offset)
+        .select(useProductsSelect
+          ? {
+              id: 'products.id',
+              name: 'products.name',
+              category: 'products.category',
+              finish: 'products.finish',
+              description: 'products.description',
+              base_price_per_sqm_kes: 'product_rates.base_rate_per_sqm_kes',
+              image_url: 'products.image_url',
+              published: 'products.published',
+              created_at: 'products.created_at',
+              updated_at: 'products.updated_at'
+            }
+          : '*'
+        ),
+      countQuery.first()
+    ]);
+
+    return {
+      data,
+      total: parseInt(countResult.total, 10)
+    };
   },
 
   /**

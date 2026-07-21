@@ -134,6 +134,22 @@ const updateProductSchema = Joi.object({
   published: Joi.boolean().optional()
 });
 
+// Admin products query schema with pagination
+const adminProductsQuerySchema = Joi.object({
+  limit: Joi.number().integer().min(1).max(100).default(12),
+  offset: Joi.number().integer().min(0).default(0),
+  category: Joi.string()
+    .valid(...CATEGORIES)
+    .optional(),
+  finish: Joi.string()
+    .valid(...FINISHES)
+    .optional(),
+  sort_by: Joi.string()
+    .valid('name', 'price_asc', 'price_desc', 'category')
+    .optional()
+    .default('category')
+});
+
 /**
  * Validate request data against a Joi schema.
  */
@@ -390,10 +406,12 @@ const ProductController = {
   /**
    * GET /api/v1/products/admin
    * List all products (including unpublished) for admin view.
+   * Supports pagination via limit/offset query params.
    * @access Private (admin)
    */
   getAllProducts: asyncHandler(async (req, res) => {
-    const result = await ProductService.getAllProducts();
+    const options = validate(adminProductsQuerySchema, req.query);
+    const result = await ProductService.getAllProducts(options);
     res.status(200).json(result);
   }),
 

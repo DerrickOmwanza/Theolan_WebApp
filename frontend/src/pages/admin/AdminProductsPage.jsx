@@ -5,6 +5,9 @@ import { useAuth } from "../../contexts/AuthContext.jsx";
 import LoadingSpinner from "../../components/LoadingSpinner.jsx";
 import toast from "react-hot-toast";
 
+// Pagination constants - match public ProductsPage
+const ITEMS_PER_PAGE = 12;
+
 const CATEGORIES = [
   { value: "windows", label: "Windows" },
   { value: "doors", label: "Doors" },
@@ -38,6 +41,7 @@ export default function AdminProductsPage() {
   const [editingProduct, setEditingProduct] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -50,8 +54,11 @@ export default function AdminProductsPage() {
   });
 
   const { data, isLoading } = useQuery({
-    queryKey: ["admin-products"],
-    queryFn: () => productApi.getAllProducts(),
+    queryKey: ["admin-products", currentPage],
+    queryFn: () => productApi.getAllProducts({
+      limit: ITEMS_PER_PAGE,
+      offset: (currentPage - 1) * ITEMS_PER_PAGE,
+    }),
     enabled: !!user && user.role === "admin",
   });
 
@@ -180,6 +187,10 @@ export default function AdminProductsPage() {
     );
   }
 
+  const products = data?.data?.data || [];
+  const totalProducts = data?.data?.pagination?.total || 0;
+  const totalPages = Math.max(Math.ceil(totalProducts / ITEMS_PER_PAGE), 1);
+
   if (isLoading) {
     return (
       <div className="flex justify-center py-20">
@@ -187,8 +198,6 @@ export default function AdminProductsPage() {
       </div>
     );
   }
-
-  const products = data?.data?.data || [];
 
   return (
     <div>
@@ -203,7 +212,7 @@ export default function AdminProductsPage() {
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm text-silver-500">
-            {products.length} product{products.length !== 1 ? "s" : ""}
+            {currentPage} of {totalPages} pages • {totalProducts} product{totalProducts !== 1 ? "s" : ""}
           </span>
           <button
             onClick={() => { setShowForm(true); resetForm(); }}
@@ -421,6 +430,29 @@ export default function AdminProductsPage() {
       {products.length === 0 && (
         <div className="text-center py-12">
           <p className="text-silver-400">No products found.</p>
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {products.length > 0 && (
+        <div className="flex justify-center items-center gap-6 mt-8 mb-4">
+          <button
+            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+            disabled={currentPage === 1}
+            className="btn-ghost text-sm disabled:opacity-30"
+          >
+            ← Previous
+          </button>
+          <span className="text-sm text-silver-400 font-medium">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+            disabled={currentPage === totalPages}
+            className="btn-ghost text-sm disabled:opacity-30"
+          >
+            Next →
+          </button>
         </div>
       )}
     </div>

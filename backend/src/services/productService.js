@@ -369,11 +369,14 @@ const ProductService = {
 
   /**
    * Get ALL products (including unpublished) for admin view.
+   * Supports pagination.
    *
-   * @returns {Promise<Object>} All products
+   * @param {Object} options - { limit, offset }
+   * @returns {Promise<Object>} { data: Array, total: number, count: number }
    */
-  getAllProducts: async () => {
-    const data = await ProductModel.findAllProducts();
+  getAllProducts: async (options = {}) => {
+    const { limit = 100, offset = 0 } = options;
+    const { data, total } = await ProductModel.findAllProducts({ limit, offset, ...options });
     const products = data.map((p) => ({
       id: p.id,
       name: p.name,
@@ -389,6 +392,11 @@ const ProductService = {
     return {
       success: true,
       data: products,
+      pagination: {
+        total,
+        limit,
+        offset
+      },
       count: products.length
     };
   },
