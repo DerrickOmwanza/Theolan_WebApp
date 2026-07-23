@@ -228,7 +228,7 @@ export const productApi = {
   deleteGallery: (id) => api.delete(`/products/gallery/${id}`),
   updateGallery: (id, data) => api.patch(`/products/gallery/${id}`, data),
   // Admin product CRUD
-  getAllProducts: () => api.get("/products/admin"),
+  getAllProducts: (params) => api.get("/products/admin", { params }),
   createProduct: (data) => {
     if (data instanceof FormData) {
       return api.post("/products", data, { headers: { "Content-Type": undefined } });
